@@ -1,5 +1,7 @@
 import axios from 'axios';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
 
 dotenv.config();
 
@@ -7,7 +9,12 @@ const CLIENT_ID = process.env.IGDB_CLIENT_ID;
 const CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET;
 
 async function debugFields() {
-    console.log("=== IGDB FULL FIELDS DEBUG ===");
+    console.log("=== IGDB FULL FIELDS DEBUG (Saving to File) ===");
+
+    if (!CLIENT_ID || !CLIENT_SECRET) {
+        console.error("ERROR: IGDB credentials not found in environment.");
+        return;
+    }
 
     // 1. Authenticate
     const authRes = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=client_credentials`);
@@ -20,16 +27,27 @@ async function debugFields() {
       limit 1;
     `;
 
-    const response = await axios.post('https://api.igdb.com/v4/games', query, {
-        headers: {
-            'Client-ID': CLIENT_ID!,
-            'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'application/json',
-            'Content-Type': 'text/plain'
-        }
-    });
+    try {
+        const response = await axios.post('https://api.igdb.com/v4/games', query, {
+            headers: {
+                'Client-ID': CLIENT_ID!,
+                'Authorization': `Bearer ${accessToken}`,
+                'Accept': 'application/json',
+                'Content-Type': 'text/plain'
+            }
+        });
 
-    console.log(JSON.stringify(response.data[0], null, 2));
+        if (response.data && response.data.length > 0) {
+            const data = response.data[0];
+            const outputPath = path.resolve(__dirname, '../data/igdb_full_debug.json');
+            fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
+            console.log(`Full IGDB data saved to: ${outputPath}`);
+        } else {
+            console.log("No results found in IGDB.");
+        }
+    } catch (error) {
+        console.error("Error fetching from IGDB:", error);
+    }
 }
 
 debugFields().catch(console.error);
