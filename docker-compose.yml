@@ -1,0 +1,11 @@
+services:
+  hydra-enricher:
+    build: .
+    container_name: hydra-enricher
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
