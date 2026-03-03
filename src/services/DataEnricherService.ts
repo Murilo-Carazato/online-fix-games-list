@@ -32,8 +32,9 @@ export class DataEnricherService {
                 const enrichedData = await this.dataProvider.getGameDetails(cleanTitle);
 
                 const finalGame: EnrichedGame = {
-                    ...game, // keep original properties (fileSize, title, uploadDate)
+                    ...game, // keep original properties (fileSize, uploadDate)
                     ...enrichedData, // merge new properties
+                    title: cleanTitle, // Clean title without versions
                     isEnriched: !!enrichedData
                 };
 
@@ -42,7 +43,7 @@ export class DataEnricherService {
                 if (!enrichedData) {
                     console.log(`   > No data found on IGDB for "${cleanTitle}".`);
                 } else {
-                    console.log(`   > Found! Rating: ${enrichedData.rating || 'N/A'}, Genres: ${enrichedData.genres?.join(', ') || 'None'}`);
+                    console.log(`   > Found! Rating: ${enrichedData.totalRating || 'N/A'}, Genres: ${enrichedData.genres?.join(', ') || 'None'}`);
                 }
             } catch (error) {
                 console.error(`   > Error fetching data for "${cleanTitle}". Skipping.`, error);

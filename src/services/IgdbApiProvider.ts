@@ -54,10 +54,13 @@ export class IgdbApiProvider implements IGameDataProvider {
         const safeTitle = cleanTitle.replace(/"/g, '\\"');
 
         // Searching games using Apicalypse syntax
-        // We want the name, genres.name, cover.url, and total_rating to enrich our data
+        // We want expanded metadata to enrich our data
         const query = `
       search "${safeTitle}"; 
-      fields name, genres.name, cover.url, total_rating; 
+      fields name, genres.name, cover.url, total_rating, total_rating_count, 
+             themes.name, platforms.name, game_modes.name, 
+             language_supports.language.name, language_supports.language_support_type.name, 
+             franchises.name, external_games.url, external_games.uid; 
       limit 1;
     `;
 
@@ -77,9 +80,19 @@ export class IgdbApiProvider implements IGameDataProvider {
                 // Map IGDB response to our Partial<EnrichedGame>
                 return {
                     igdbId: gameData.id,
-                    rating: gameData.total_rating, // IGDB total_rating is a double (0-100)
-                    genres: gameData.genres ? gameData.genres.map((g: any) => g.name) : [],
+                    totalRating: gameData.total_rating ?? null,
+                    totalRatingCount: gameData.total_rating_count ?? null,
+                    genres: gameData.genres?.map((g: any) => g.name) || [],
+                    themes: gameData.themes?.map((t: any) => t.name) || [],
+                    platforms: gameData.platforms?.map((p: any) => p.name) || [],
+                    gameModes: gameData.game_modes?.map((m: any) => m.name) || [],
+                    languageSupports: gameData.language_supports?.map((l: any) =>
+                        `${l.language?.name ?? 'Unknown'} (${l.language_support_type?.name ?? 'Unknown'})`
+                    ) || [],
+                    franchises: gameData.franchises?.map((f: any) => f.name) || [],
+                    externalGames: gameData.external_games?.map((e: any) => e.url || e.uid) || [],
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined,
+                    isEnriched: true
                 };
             }
 

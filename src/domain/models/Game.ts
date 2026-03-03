@@ -6,10 +6,15 @@ export interface HydraGame {
 
 export interface EnrichedGame extends HydraGame {
   igdbId?: number;
-  rating?: number;
   totalRating?: number;
-  popularity?: number;
+  totalRatingCount?: number;
   genres?: string[];
+  themes?: string[];
+  platforms?: string[];
+  gameModes?: string[];
+  languageSupports?: string[];
+  franchises?: string[];
+  externalGames?: string[];
   coverUrl?: string;
   isEnriched: boolean;
 }
