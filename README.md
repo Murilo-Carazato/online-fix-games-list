@@ -20,15 +20,11 @@ external_games: IDs que conectam este registro a outras lojas (Steam ID, Epic St
 ===
 
 igbd:
-externalGames(stores - já vem com link), videos, language_supports, franchises
+externalGames(stores - já vem com link), videos, language_supports, franchises, themes
 
 ===
 
 empate: imagens capa, platforms, genres
-
-falta ver: tags(igbd - esqueci de colocar) VS tags(rawg - ingles/e etc)
-
-themes(igbd) VS tags(rawg)
 
 ===
 

@@ -68,6 +68,8 @@ export class RawgApiProvider implements IGameDataProvider {
                     franchises: [], // Not exposed directly in the brief search response
                     externalGames: gameData.stores?.map((s: any) => s.store?.domain || s.store?.name) || [],
                     coverUrl: gameData.background_image || undefined,
+                    playtime: gameData.playtime || undefined,
+                    screenshots: gameData.short_screenshots?.map((s: any) => s.image) || [],
                     isEnriched: true
                 };
             }

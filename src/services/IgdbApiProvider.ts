@@ -60,7 +60,7 @@ export class IgdbApiProvider implements IGameDataProvider {
       fields name, genres.name, cover.url, total_rating, total_rating_count, 
              themes.name, platforms.name, game_modes.name, 
              language_supports.language.name, language_supports.language_support_type.name, 
-             franchises.name, external_games.url, external_games.uid; 
+             franchises.name, external_games.url, external_games.uid, videos.video_id; 
       limit 1;
     `;
 
@@ -91,6 +91,7 @@ export class IgdbApiProvider implements IGameDataProvider {
                     ) || [],
                     franchises: gameData.franchises?.map((f: any) => f.name) || [],
                     externalGames: gameData.external_games?.map((e: any) => e.url || e.uid) || [],
+                    videos: gameData.videos?.map((v: any) => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined,
                     isEnriched: true
                 };

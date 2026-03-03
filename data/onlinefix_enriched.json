@@ -3,21 +3,52 @@
     "fileSize": "406.6 MB",
     "title": "Ark Nova",
     "uploadDate": "2026-03-02T16:28:32.000Z",
+    "isEnriched": true,
     "igdbId": 338156,
+    "rawgId": 993884,
     "totalRating": null,
-    "totalRatingCount": null,
+    "totalRatingCount": 1,
+    "playtime": 47,
+    "coverUrl": "https://media.rawg.io/media/screenshots/219/2196a76bd7003dd2b0d5508dbc84ecda.jpg",
+    "screenshots": [
+      "https://media.rawg.io/media/screenshots/219/2196a76bd7003dd2b0d5508dbc84ecda.jpg",
+      "https://media.rawg.io/media/screenshots/a31/a319c9da9cae93a9a63444e082530693.jpg",
+      "https://media.rawg.io/media/screenshots/308/308e536892f9055fc5b3fde9d4038198.jpg",
+      "https://media.rawg.io/media/screenshots/f39/f39b8aa9be2387cb24d8babdf5c58b29.jpg",
+      "https://media.rawg.io/media/screenshots/026/02649038ecc85f97db332144044d31d4.jpg",
+      "https://media.rawg.io/media/screenshots/33c/33cfa4e415440016ff95521ca7787eb6.jpg",
+      "https://media.rawg.io/media/screenshots/82e/82e2eaecc0491d2beab03d8a3bcdb48f.jpg"
+    ],
+    "videos": [],
     "genres": [
       "Strategy",
       "Card & Board Game"
     ],
-    "themes": [],
     "platforms": [
       "PC (Microsoft Windows)",
-      "Mac"
+      "Mac",
+      "PC",
+      "macOS"
+    ],
+    "themes": [
+      "Steam Achievements",
+      "Full controller support",
+      "Early Access",
+      "PvP",
+      "Online PvP",
+      "PvE",
+      "Resource Management",
+      "Family Sharing",
+      "Board Game",
+      "Tutorial",
+      "tabletop",
+      "Steam Turn Notifications",
+      "Asynchronous Multiplayer"
     ],
     "gameModes": [
       "Single player",
-      "Multiplayer"
+      "Multiplayer",
+      "Singleplayer"
     ],
     "languageSupports": [
       "French (Interface)",
@@ -34,34 +65,51 @@
     "externalGames": [
       "https://www.twitch.tv/directory/game/Ark%20Nova",
       "https://store.steampowered.com/app/2438990"
-    ],
-    "coverUrl": "//images.igdb.com/igdb/image/upload/t_cover_big/co9pm4.jpg",
-    "isEnriched": true
+    ]
   },
   {
     "fileSize": "1.1 GB",
     "title": "YAPYAP",
     "uploadDate": "2026-03-02T16:49:45.000Z",
+    "isEnriched": true,
     "igdbId": 363307,
+    "rawgId": 1015336,
     "totalRating": null,
     "totalRatingCount": null,
-    "genres": [
-      "Role-playing (RPG)"
+    "playtime": 3,
+    "coverUrl": "https://media.rawg.io/media/screenshots/3b2/3b2c7611bc59a2c671132feb56e266fa.jpg",
+    "screenshots": [
+      "https://media.rawg.io/media/screenshots/3b2/3b2c7611bc59a2c671132feb56e266fa.jpg",
+      "https://media.rawg.io/media/screenshots/fc5/fc5be510420497fd876076d839441262.jpg",
+      "https://media.rawg.io/media/screenshots/8e6/8e6738d0faa4fd838298bde78d6a86e2.jpg",
+      "https://media.rawg.io/media/screenshots/86b/86b925264adade7e68645c2e19da1c5e.jpg",
+      "https://media.rawg.io/media/screenshots/db9/db912cb72b30b673f61cf9f3c7ed78e9.jpg",
+      "https://media.rawg.io/media/screenshots/3b2/3b2c7611bc59a2c671132feb56e266fa.jpg"
     ],
-    "themes": [
-      "Action",
-      "Horror",
-      "Survival",
-      "Comedy"
+    "videos": [],
+    "genres": [
+      "Role-playing (RPG)",
+      "Indie",
+      "Action"
     ],
     "platforms": [
       "PC (Microsoft Windows)",
       "Mac"
     ],
+    "themes": [
+      "Action",
+      "Horror",
+      "Survival",
+      "Comedy",
+      "Funny",
+      "Magic",
+      "voice-control"
+    ],
     "gameModes": [
       "Single player",
       "Multiplayer",
-      "Co-operative"
+      "Co-operative",
+      "Co-op"
     ],
     "languageSupports": [
       "English (Interface)",
@@ -87,28 +135,70 @@
     "externalGames": [
       "https://www.twitch.tv/directory/game/YAPYAP",
       "https://store.steampowered.com/app/3834090"
-    ],
-    "coverUrl": "//images.igdb.com/igdb/image/upload/t_cover_big/coadiy.jpg",
-    "isEnriched": true
+    ]
   },
   {
     "fileSize": "550.6 MB",
     "title": "Cascadia",
     "uploadDate": "2026-03-02T16:45:35.000Z",
+    "isEnriched": true,
     "igdbId": 311522,
+    "rawgId": 991700,
     "totalRating": null,
-    "totalRatingCount": null,
+    "totalRatingCount": 1,
+    "coverUrl": "https://media.rawg.io/media/screenshots/eaf/eafcb7686fb052cce8c5b67ab46c22e7.jpg",
+    "screenshots": [
+      "https://media.rawg.io/media/screenshots/eaf/eafcb7686fb052cce8c5b67ab46c22e7.jpg",
+      "https://media.rawg.io/media/screenshots/9f1/9f17d714db84ade85c0124959bbab189.jpg",
+      "https://media.rawg.io/media/screenshots/44e/44e1146c1c9fb007c40a994fca2ccb9e.jpg",
+      "https://media.rawg.io/media/screenshots/d7a/d7a25bcee8049a868d5a379760ba0c78.jpg",
+      "https://media.rawg.io/media/screenshots/9ea/9ea3acf352ff0a462de36ff9021f11d2.jpg",
+      "https://media.rawg.io/media/screenshots/efe/efe8542db3a176e17067bd2da7471900.jpg",
+      "https://media.rawg.io/media/screenshots/eaf/eafcb7686fb052cce8c5b67ab46c22e7.jpg"
+    ],
+    "videos": [
+      "https://www.youtube.com/watch?v=-1E-rq2Ag50"
+    ],
     "genres": [
       "Strategy"
     ],
-    "themes": [],
     "platforms": [
       "PC (Microsoft Windows)",
-      "Mac"
+      "Mac",
+      "PC",
+      "macOS"
+    ],
+    "themes": [
+      "Steam Achievements",
+      "Atmospheric",
+      "2D",
+      "Partial Controller Support",
+      "Split Screen",
+      "Tactical",
+      "Early Access",
+      "PvP",
+      "Cross-Platform Multiplayer",
+      "Cute",
+      "Colorful",
+      "Online PvP",
+      "Top-Down",
+      "Relaxing",
+      "PvE",
+      "Resource Management",
+      "America",
+      "Family Sharing",
+      "Board Game",
+      "nature",
+      "Abstract",
+      "Shared/Split Screen PvP",
+      "Agriculture",
+      "Tutorial",
+      "tabletop"
     ],
     "gameModes": [
       "Single player",
-      "Multiplayer"
+      "Multiplayer",
+      "Singleplayer"
     ],
     "languageSupports": [
       "English (Interface)",
@@ -122,30 +212,67 @@
     "externalGames": [
       "https://www.twitch.tv/directory/game/Cascadia",
       "https://store.steampowered.com/app/2438970"
-    ],
-    "coverUrl": "//images.igdb.com/igdb/image/upload/t_cover_big/co8zfp.jpg",
-    "isEnriched": true
+    ]
   },
   {
     "fileSize": "2.4 GB",
     "title": "Car Service Together",
     "uploadDate": "2026-03-02T16:29:09.000Z",
+    "isEnriched": true,
     "igdbId": 348997,
-    "totalRating": null,
-    "totalRatingCount": null,
+    "rawgId": 868127,
+    "totalRating": 66.6,
+    "totalRatingCount": 12,
+    "playtime": 3,
+    "coverUrl": "https://media.rawg.io/media/screenshots/fbf/fbf5925db0efab579bd2952bbec5ff46.jpg",
+    "screenshots": [
+      "https://media.rawg.io/media/screenshots/fbf/fbf5925db0efab579bd2952bbec5ff46.jpg",
+      "https://media.rawg.io/media/screenshots/f1b/f1b5f947009a8eec742df95aa102de45.jpg",
+      "https://media.rawg.io/media/screenshots/7d7/7d7f75d7322eceb0ca080bc463804326.jpg",
+      "https://media.rawg.io/media/screenshots/622/622cef690fba210ef5bf1d37f7661f46.jpg",
+      "https://media.rawg.io/media/screenshots/5fa/5fa5039a6cb620cb202168a10f3865e4.jpg",
+      "https://media.rawg.io/media/screenshots/418/418db63e78a39dafaa2826b694afa955.jpg",
+      "https://media.rawg.io/media/screenshots/306/306bf58d26b58f1eab043f89c7e3c76a.jpg"
+    ],
+    "videos": [
+      "https://www.youtube.com/watch?v=FtI4y9z2BlY",
+      "https://www.youtube.com/watch?v=pZj6_8kkK7w"
+    ],
     "genres": [
       "Racing",
       "Simulator",
-      "Indie"
+      "Indie",
+      "Adventure",
+      "Action",
+      "Casual",
+      "Simulation"
     ],
-    "themes": [],
     "platforms": [
-      "PC (Microsoft Windows)"
+      "PC (Microsoft Windows)",
+      "PC"
+    ],
+    "themes": [
+      "Atmospheric",
+      "cooperative",
+      "First-Person",
+      "Sci-fi",
+      "Horror",
+      "Exploration",
+      "Action-Adventure",
+      "Early Access",
+      "Survival Horror",
+      "Mystery",
+      "3D",
+      "Realistic",
+      "Procedural Generation"
     ],
     "gameModes": [
       "Single player",
       "Multiplayer",
-      "Co-operative"
+      "Co-operative",
+      "Singleplayer",
+      "Co-op",
+      "Online Co-Op"
     ],
     "languageSupports": [
       "English (Interface)",
@@ -186,30 +313,54 @@
     "externalGames": [
       "https://www.twitch.tv/directory/game/Car%20Service%20Together",
       "https://store.steampowered.com/app/3501070"
-    ],
-    "coverUrl": "//images.igdb.com/igdb/image/upload/t_cover_big/cob0xh.jpg",
-    "isEnriched": true
+    ]
   },
   {
     "fileSize": "12.4 GB",
     "title": "REANIMAL",
     "uploadDate": "2026-03-02T16:46:14.000Z",
+    "isEnriched": true,
     "igdbId": 314265,
-    "totalRating": 78.9366140641675,
-    "totalRatingCount": 35,
+    "rawgId": 988099,
+    "totalRating": 84.80000000000001,
+    "totalRatingCount": 22,
+    "playtime": 5,
+    "coverUrl": "https://media.rawg.io/media/games/299/299e031b1a8082298a4aeb5355d45571.jpg",
+    "screenshots": [
+      "https://media.rawg.io/media/games/299/299e031b1a8082298a4aeb5355d45571.jpg",
+      "https://media.rawg.io/media/screenshots/432/432dce729c3765c62b7f865962a90668.jpg",
+      "https://media.rawg.io/media/screenshots/f99/f99bacf62806daf47c8920a80861dad5.jpg",
+      "https://media.rawg.io/media/screenshots/59b/59b2c6d18c3074599446b6cfea94ce30.jpg",
+      "https://media.rawg.io/media/screenshots/7a9/7a96a9dcc5b952122b06c1642ec15cc7.jpg",
+      "https://media.rawg.io/media/screenshots/2d6/2d68abf4350c6a4ee7e2b4823eaea6e2.jpg",
+      "https://media.rawg.io/media/screenshots/470/4703a2a0f7345f06be32b0fa0c111e18.jpg"
+    ],
+    "videos": [
+      "https://www.youtube.com/watch?v=ai6lH55Dn8I",
+      "https://www.youtube.com/watch?v=4BnNXI0Uy04",
+      "https://www.youtube.com/watch?v=bSAyHAzqQxk",
+      "https://www.youtube.com/watch?v=UMAxY69lfMk",
+      "https://www.youtube.com/watch?v=P9sEV58DC7w",
+      "https://www.youtube.com/watch?v=xCQo60PWWYA",
+      "https://www.youtube.com/watch?v=hw4MqME1paY",
+      "https://www.youtube.com/watch?v=5_EfcYKD65g"
+    ],
     "genres": [
       "Puzzle",
       "Adventure"
-    ],
-    "themes": [
-      "Action",
-      "Horror"
     ],
     "platforms": [
       "Xbox Series X|S",
       "Nintendo Switch 2",
       "PC (Microsoft Windows)",
-      "PlayStation 5"
+      "PlayStation 5",
+      "PC",
+      "Xbox Series S/X",
+      "Nintendo Switch"
+    ],
+    "themes": [
+      "Action",
+      "Horror"
     ],
     "gameModes": [
       "Single player",
@@ -259,8 +410,6 @@
       "https://www.twitch.tv/directory/game/REANIMAL",
       "https://store.playstation.com/en-us/concept/10010999",
       "https://store.steampowered.com/app/2129530"
-    ],
-    "coverUrl": "//images.igdb.com/igdb/image/upload/t_cover_big/coaveu.jpg",
-    "isEnriched": true
+    ]
   }
 ]
