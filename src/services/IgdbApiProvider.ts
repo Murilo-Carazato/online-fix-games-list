@@ -86,11 +86,26 @@ export class IgdbApiProvider implements IGameDataProvider {
                     themes: gameData.themes?.map((t: any) => t.name) || [],
                     platforms: gameData.platforms?.map((p: any) => p.name) || [],
                     gameModes: gameData.game_modes?.map((m: any) => m.name) || [],
-                    languageSupports: gameData.language_supports?.map((l: any) =>
-                        `${l.language?.name ?? 'Unknown'} (${l.language_support_type?.name ?? 'Unknown'})`
-                    ) || [],
+                    languageSupports: gameData.language_supports
+                        ?.filter((l: any) => {
+                            const name = l.language?.name?.toLowerCase() || '';
+                            return name.includes('english') || name.includes('portuguese');
+                        })
+                        ?.map((l: any) => `${l.language?.name ?? 'Unknown'} (${l.language_support_type?.name ?? 'Unknown'})`) || [],
                     franchises: gameData.franchises?.map((f: any) => f.name) || [],
-                    externalGames: gameData.external_games?.map((e: any) => e.url || e.uid) || [],
+                    externalGames: gameData.external_games
+                        ?.filter((e: any) => e.url && !e.url.includes('twitch.tv'))
+                        ?.map((e: any) => {
+                            let storeId = 99; // 99 for other
+                            const url = e.url.toLowerCase();
+                            if (url.includes('steampowered.com')) storeId = 1;
+                            else if (url.includes('playstation.com')) storeId = 2;
+                            else if (url.includes('xbox.com')) storeId = 3;
+                            else if (url.includes('epicgames.com')) storeId = 4;
+                            else if (url.includes('gog.com')) storeId = 5;
+                            else if (url.includes('nintendo.com')) storeId = 6;
+                            return { id: storeId, url: e.url };
+                        }) || [],
                     videos: gameData.videos?.map((v: any) => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined,
                     isEnriched: true

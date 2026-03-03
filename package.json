@@ -4,7 +4,9 @@
     "description": "A script to enrich game data using the IGDB API",
     "main": "src/index.ts",
     "scripts": {
-        "start": "ts-node src/index.ts"
+        "start": "ts-node src/index.ts",
+        "debug:rawg": "ts-node src/debug_rawg.ts",
+        "debug:igdb": "ts-node src/debug_fields.ts"
     },
     "dependencies": {
         "axios": "^1.6.0",

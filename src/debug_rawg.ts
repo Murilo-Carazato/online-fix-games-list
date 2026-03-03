@@ -15,7 +15,7 @@ async function debugRawgFields() {
         return;
     }
 
-    const searchTerm = "Cyberpunk 2077";
+    const searchTerm = "REANIMAL";
     const url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(searchTerm)}&page_size=1`;
 
     try {

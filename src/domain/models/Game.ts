@@ -9,6 +9,9 @@ export interface EnrichedGame extends HydraGame {
   rawgId?: number;
   totalRating?: number; // Comes from RAWG or IGDB
   totalRatingCount?: number; // Comes from RAWG or IGDB
+  ratings?: { title: string; count: number; percent: number }[]; // RAWG only
+  added?: number; // RAWG only
+  addedByStatus?: { [status: string]: number }; // RAWG only
   playtime?: number; // RAWG only
   genres?: string[];
   themes?: string[]; // IGDB + RAWG tags
@@ -16,7 +19,7 @@ export interface EnrichedGame extends HydraGame {
   gameModes?: string[];
   languageSupports?: string[]; // IGDB only
   franchises?: string[]; // IGDB only
-  externalGames?: string[]; // IGDB links (stores do RAWG tbm se quiser)
+  externalGames?: { id: number; url: string }[]; // IGDB links
   videos?: string[]; // IGDB only (URLs ou IDs do YT)
   coverUrl?: string; // Tenta pegar imagem in-game do RAWG, senão do cover do IGDB
   screenshots?: string[]; // RAWG only

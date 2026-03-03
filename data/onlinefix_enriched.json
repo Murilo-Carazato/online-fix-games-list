@@ -6,12 +6,23 @@
     "isEnriched": true,
     "igdbId": 338156,
     "rawgId": 993884,
-    "totalRating": null,
     "totalRatingCount": 1,
+    "ratings": [
+      {
+        "title": "recommended",
+        "count": 1,
+        "percent": 100
+      }
+    ],
+    "added": 3,
+    "addedByStatus": {
+      "owned": 1,
+      "beaten": 1,
+      "toplay": 1
+    },
     "playtime": 47,
     "coverUrl": "https://media.rawg.io/media/screenshots/219/2196a76bd7003dd2b0d5508dbc84ecda.jpg",
     "screenshots": [
-      "https://media.rawg.io/media/screenshots/219/2196a76bd7003dd2b0d5508dbc84ecda.jpg",
       "https://media.rawg.io/media/screenshots/a31/a319c9da9cae93a9a63444e082530693.jpg",
       "https://media.rawg.io/media/screenshots/308/308e536892f9055fc5b3fde9d4038198.jpg",
       "https://media.rawg.io/media/screenshots/f39/f39b8aa9be2387cb24d8babdf5c58b29.jpg",
@@ -51,20 +62,14 @@
       "Singleplayer"
     ],
     "languageSupports": [
-      "French (Interface)",
-      "English (Interface)",
-      "Italian (Interface)",
-      "German (Interface)",
-      "Spanish (Spain) (Interface)",
-      "Japanese (Interface)",
-      "Korean (Interface)",
-      "Chinese (Simplified) (Interface)",
-      "Chinese (Traditional) (Interface)"
+      "English (Interface)"
     ],
     "franchises": [],
     "externalGames": [
-      "https://www.twitch.tv/directory/game/Ark%20Nova",
-      "https://store.steampowered.com/app/2438990"
+      {
+        "id": 1,
+        "url": "https://store.steampowered.com/app/2438990"
+      }
     ]
   },
   {
@@ -74,17 +79,22 @@
     "isEnriched": true,
     "igdbId": 363307,
     "rawgId": 1015336,
-    "totalRating": null,
     "totalRatingCount": null,
+    "ratings": [],
+    "added": 10,
+    "addedByStatus": {
+      "yet": 2,
+      "owned": 4,
+      "beaten": 1,
+      "toplay": 3
+    },
     "playtime": 3,
     "coverUrl": "https://media.rawg.io/media/screenshots/3b2/3b2c7611bc59a2c671132feb56e266fa.jpg",
     "screenshots": [
-      "https://media.rawg.io/media/screenshots/3b2/3b2c7611bc59a2c671132feb56e266fa.jpg",
       "https://media.rawg.io/media/screenshots/fc5/fc5be510420497fd876076d839441262.jpg",
       "https://media.rawg.io/media/screenshots/8e6/8e6738d0faa4fd838298bde78d6a86e2.jpg",
       "https://media.rawg.io/media/screenshots/86b/86b925264adade7e68645c2e19da1c5e.jpg",
-      "https://media.rawg.io/media/screenshots/db9/db912cb72b30b673f61cf9f3c7ed78e9.jpg",
-      "https://media.rawg.io/media/screenshots/3b2/3b2c7611bc59a2c671132feb56e266fa.jpg"
+      "https://media.rawg.io/media/screenshots/db9/db912cb72b30b673f61cf9f3c7ed78e9.jpg"
     ],
     "videos": [],
     "genres": [
@@ -115,26 +125,15 @@
       "English (Interface)",
       "English (Audio)",
       "English (Subtitles)",
-      "French (Interface)",
-      "Italian (Interface)",
-      "German (Interface)",
-      "Spanish (Spain) (Interface)",
-      "Japanese (Interface)",
-      "Korean (Interface)",
-      "Polish (Interface)",
       "Portuguese (Brazil) (Interface)",
-      "Portuguese (Portugal) (Interface)",
-      "Russian (Interface)",
-      "Chinese (Simplified) (Interface)",
-      "Chinese (Traditional) (Interface)",
-      "Turkish (Interface)",
-      "Ukrainian (Interface)",
-      "Spanish (Mexico) (Interface)"
+      "Portuguese (Portugal) (Interface)"
     ],
     "franchises": [],
     "externalGames": [
-      "https://www.twitch.tv/directory/game/YAPYAP",
-      "https://store.steampowered.com/app/3834090"
+      {
+        "id": 1,
+        "url": "https://store.steampowered.com/app/3834090"
+      }
     ]
   },
   {
@@ -144,17 +143,27 @@
     "isEnriched": true,
     "igdbId": 311522,
     "rawgId": 991700,
-    "totalRating": null,
     "totalRatingCount": 1,
+    "ratings": [
+      {
+        "title": "recommended",
+        "count": 1,
+        "percent": 100
+      }
+    ],
+    "added": 4,
+    "addedByStatus": {
+      "yet": 1,
+      "beaten": 2,
+      "toplay": 1
+    },
     "coverUrl": "https://media.rawg.io/media/screenshots/eaf/eafcb7686fb052cce8c5b67ab46c22e7.jpg",
     "screenshots": [
-      "https://media.rawg.io/media/screenshots/eaf/eafcb7686fb052cce8c5b67ab46c22e7.jpg",
       "https://media.rawg.io/media/screenshots/9f1/9f17d714db84ade85c0124959bbab189.jpg",
       "https://media.rawg.io/media/screenshots/44e/44e1146c1c9fb007c40a994fca2ccb9e.jpg",
       "https://media.rawg.io/media/screenshots/d7a/d7a25bcee8049a868d5a379760ba0c78.jpg",
       "https://media.rawg.io/media/screenshots/9ea/9ea3acf352ff0a462de36ff9021f11d2.jpg",
-      "https://media.rawg.io/media/screenshots/efe/efe8542db3a176e17067bd2da7471900.jpg",
-      "https://media.rawg.io/media/screenshots/eaf/eafcb7686fb052cce8c5b67ab46c22e7.jpg"
+      "https://media.rawg.io/media/screenshots/efe/efe8542db3a176e17067bd2da7471900.jpg"
     ],
     "videos": [
       "https://www.youtube.com/watch?v=-1E-rq2Ag50"
@@ -201,17 +210,14 @@
       "Singleplayer"
     ],
     "languageSupports": [
-      "English (Interface)",
-      "French (Interface)",
-      "Italian (Interface)",
-      "German (Interface)",
-      "Spanish (Spain) (Interface)",
-      "Polish (Interface)"
+      "English (Interface)"
     ],
     "franchises": [],
     "externalGames": [
-      "https://www.twitch.tv/directory/game/Cascadia",
-      "https://store.steampowered.com/app/2438970"
+      {
+        "id": 1,
+        "url": "https://store.steampowered.com/app/2438970"
+      }
     ]
   },
   {
@@ -223,10 +229,40 @@
     "rawgId": 868127,
     "totalRating": 66.6,
     "totalRatingCount": 12,
+    "ratings": [
+      {
+        "title": "recommended",
+        "count": 6,
+        "percent": 50
+      },
+      {
+        "title": "meh",
+        "count": 3,
+        "percent": 25
+      },
+      {
+        "title": "skip",
+        "count": 2,
+        "percent": 16.67
+      },
+      {
+        "title": "exceptional",
+        "count": 1,
+        "percent": 8.33
+      }
+    ],
+    "added": 80,
+    "addedByStatus": {
+      "yet": 2,
+      "owned": 55,
+      "beaten": 11,
+      "toplay": 2,
+      "dropped": 9,
+      "playing": 1
+    },
     "playtime": 3,
     "coverUrl": "https://media.rawg.io/media/screenshots/fbf/fbf5925db0efab579bd2952bbec5ff46.jpg",
     "screenshots": [
-      "https://media.rawg.io/media/screenshots/fbf/fbf5925db0efab579bd2952bbec5ff46.jpg",
       "https://media.rawg.io/media/screenshots/f1b/f1b5f947009a8eec742df95aa102de45.jpg",
       "https://media.rawg.io/media/screenshots/7d7/7d7f75d7322eceb0ca080bc463804326.jpg",
       "https://media.rawg.io/media/screenshots/622/622cef690fba210ef5bf1d37f7661f46.jpg",
@@ -278,41 +314,17 @@
       "English (Interface)",
       "English (Audio)",
       "English (Subtitles)",
-      "French (Interface)",
-      "French (Subtitles)",
-      "Italian (Interface)",
-      "Italian (Subtitles)",
-      "German (Interface)",
-      "German (Subtitles)",
-      "Spanish (Spain) (Interface)",
-      "Spanish (Spain) (Subtitles)",
-      "Dutch (Interface)",
-      "Dutch (Subtitles)",
-      "Japanese (Interface)",
-      "Japanese (Subtitles)",
-      "Korean (Interface)",
-      "Korean (Subtitles)",
-      "Polish (Interface)",
-      "Polish (Subtitles)",
       "Portuguese (Brazil) (Interface)",
       "Portuguese (Brazil) (Subtitles)",
       "Portuguese (Portugal) (Interface)",
-      "Portuguese (Portugal) (Subtitles)",
-      "Russian (Interface)",
-      "Russian (Subtitles)",
-      "Chinese (Simplified) (Interface)",
-      "Chinese (Simplified) (Subtitles)",
-      "Swedish (Interface)",
-      "Swedish (Subtitles)",
-      "Turkish (Interface)",
-      "Turkish (Subtitles)",
-      "Ukrainian (Interface)",
-      "Ukrainian (Subtitles)"
+      "Portuguese (Portugal) (Subtitles)"
     ],
     "franchises": [],
     "externalGames": [
-      "https://www.twitch.tv/directory/game/Car%20Service%20Together",
-      "https://store.steampowered.com/app/3501070"
+      {
+        "id": 1,
+        "url": "https://store.steampowered.com/app/3501070"
+      }
     ]
   },
   {
@@ -322,12 +334,37 @@
     "isEnriched": true,
     "igdbId": 314265,
     "rawgId": 988099,
-    "totalRating": 84.80000000000001,
-    "totalRatingCount": 22,
+    "totalRating": 84.8,
+    "totalRatingCount": 25,
+    "ratings": [
+      {
+        "title": "recommended",
+        "count": 17,
+        "percent": 68
+      },
+      {
+        "title": "exceptional",
+        "count": 7,
+        "percent": 28
+      },
+      {
+        "title": "meh",
+        "count": 1,
+        "percent": 4
+      }
+    ],
+    "added": 160,
+    "addedByStatus": {
+      "yet": 26,
+      "owned": 19,
+      "beaten": 36,
+      "toplay": 63,
+      "dropped": 3,
+      "playing": 13
+    },
     "playtime": 5,
     "coverUrl": "https://media.rawg.io/media/games/299/299e031b1a8082298a4aeb5355d45571.jpg",
     "screenshots": [
-      "https://media.rawg.io/media/games/299/299e031b1a8082298a4aeb5355d45571.jpg",
       "https://media.rawg.io/media/screenshots/432/432dce729c3765c62b7f865962a90668.jpg",
       "https://media.rawg.io/media/screenshots/f99/f99bacf62806daf47c8920a80861dad5.jpg",
       "https://media.rawg.io/media/screenshots/59b/59b2c6d18c3074599446b6cfea94ce30.jpg",
@@ -371,45 +408,20 @@
       "English (Audio)",
       "English (Subtitles)",
       "English (Interface)",
-      "Japanese (Interface)",
-      "French (Interface)",
-      "French (Audio)",
-      "French (Subtitles)",
-      "Italian (Interface)",
-      "Italian (Subtitles)",
-      "German (Interface)",
-      "German (Audio)",
-      "German (Subtitles)",
-      "Spanish (Spain) (Interface)",
-      "Spanish (Spain) (Subtitles)",
-      "Arabic (Interface)",
-      "Arabic (Subtitles)",
       "Portuguese (Brazil) (Interface)",
       "Portuguese (Brazil) (Audio)",
-      "Portuguese (Brazil) (Subtitles)",
-      "Chinese (Traditional) (Interface)",
-      "Chinese (Traditional) (Subtitles)",
-      "Chinese (Simplified) (Interface)",
-      "Chinese (Simplified) (Audio)",
-      "Chinese (Simplified) (Subtitles)",
-      "Japanese (Audio)",
-      "Japanese (Subtitles)",
-      "Korean (Interface)",
-      "Korean (Subtitles)",
-      "Polish (Interface)",
-      "Polish (Audio)",
-      "Polish (Subtitles)",
-      "Russian (Interface)",
-      "Russian (Audio)",
-      "Russian (Subtitles)",
-      "Czech (Interface)",
-      "Czech (Subtitles)"
+      "Portuguese (Brazil) (Subtitles)"
     ],
     "franchises": [],
     "externalGames": [
-      "https://www.twitch.tv/directory/game/REANIMAL",
-      "https://store.playstation.com/en-us/concept/10010999",
-      "https://store.steampowered.com/app/2129530"
+      {
+        "id": 2,
+        "url": "https://store.playstation.com/en-us/concept/10010999"
+      },
+      {
+        "id": 1,
+        "url": "https://store.steampowered.com/app/2129530"
+      }
     ]
   }
 ]

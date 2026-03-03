@@ -59,7 +59,14 @@ export class RawgApiProvider implements IGameDataProvider {
                 return {
                     rawgId: gameData.id,
                     totalRating: normalizedRating,
-                    totalRatingCount: gameData.ratings_count || null,
+                    totalRatingCount: gameData.reviews_count || gameData.ratings_count || null,
+                    ratings: gameData.ratings?.map((r: any) => ({
+                        title: r.title,
+                        count: r.count,
+                        percent: r.percent
+                    })) || [],
+                    added: gameData.added || undefined,
+                    addedByStatus: gameData.added_by_status || undefined,
                     genres: gameData.genres?.map((g: any) => g.name) || [],
                     themes: themes,
                     platforms: gameData.platforms?.map((p: any) => p.platform.name) || [],
@@ -69,7 +76,9 @@ export class RawgApiProvider implements IGameDataProvider {
                     externalGames: gameData.stores?.map((s: any) => s.store?.domain || s.store?.name) || [],
                     coverUrl: gameData.background_image || undefined,
                     playtime: gameData.playtime || undefined,
-                    screenshots: gameData.short_screenshots?.map((s: any) => s.image) || [],
+                    screenshots: gameData.short_screenshots
+                        ?.map((s: any) => s.image)
+                        ?.filter((img: string) => img !== gameData.background_image) || [],
                     isEnriched: true
                 };
             }

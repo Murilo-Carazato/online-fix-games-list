@@ -22,8 +22,8 @@ async function debugFields() {
 
     // 2. Fetch Cyberpunk 2077 with ALL fields (*)
     const query = `
-      search "Cyberpunk 2077"; 
-      fields *; 
+      search "Resident Evil 4"; 
+      fields name, franchises.name, external_games.url; 
       limit 1;
     `;
 

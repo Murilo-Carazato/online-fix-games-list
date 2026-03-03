@@ -28,8 +28,12 @@ export class CompositeGameDataProvider implements IGameDataProvider {
         mergedGame.rawgId = rawgResult?.rawgId;
 
         // Ratings & Playtime -> Preferably RAWG, otherwise IGDB 
-        mergedGame.totalRating = rawgResult?.totalRating ?? igdbResult?.totalRating;
+        const rating = rawgResult?.totalRating ?? igdbResult?.totalRating;
+        mergedGame.totalRating = rating !== undefined && rating !== null ? Number(rating.toFixed(1)) : undefined;
         mergedGame.totalRatingCount = rawgResult?.totalRatingCount ?? igdbResult?.totalRatingCount;
+        mergedGame.ratings = rawgResult?.ratings;
+        mergedGame.added = rawgResult?.added;
+        mergedGame.addedByStatus = rawgResult?.addedByStatus;
         mergedGame.playtime = rawgResult?.playtime;
 
         // Media -> Screenshots from RAWG, cover from RAWG first (or IGDB), Videos from IGDB
