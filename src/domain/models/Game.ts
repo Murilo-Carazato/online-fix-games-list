@@ -4,24 +4,33 @@ export interface HydraGame {
   uploadDate: string;
 }
 
-export interface EnrichedGame extends HydraGame {
-  igdbId?: number;
-  rawgId?: number;
-  totalRating?: number; // Comes from RAWG or IGDB
-  totalRatingCount?: number; // Comes from RAWG or IGDB
-  ratings?: { title: string; count: number; percent: number }[]; // RAWG only
-  added?: number; // RAWG only
-  addedByStatus?: { [status: string]: number }; // RAWG only
-  playtime?: number; // RAWG only
+export interface BaseGameData {
+  totalRating?: number;
+  totalRatingCount?: number;
   genres?: string[];
-  themes?: string[]; // IGDB + RAWG tags
+  themes?: string[];
   platforms?: string[];
   gameModes?: string[];
-  languageSupports?: string[]; // IGDB only
-  franchises?: string[]; // IGDB only
-  externalGames?: { id: number; url: string }[]; // IGDB links
-  videos?: string[]; // IGDB only (URLs ou IDs do YT)
-  coverUrl?: string; // Tenta pegar imagem in-game do RAWG, senão do cover do IGDB
-  screenshots?: string[]; // RAWG only
+  coverUrl?: string;
+}
+
+export interface IgdbGameData extends BaseGameData {
+  igdbId?: number;
+  languageSupports?: string[];
+  franchises?: string[];
+  externalGames?: { id: number; url: string }[];
+  videos?: string[];
+}
+
+export interface RawgGameData extends BaseGameData {
+  rawgId?: number;
+  ratings?: { title: string; count: number; percent: number }[];
+  added?: number;
+  addedByStatus?: { [status: string]: number };
+  playtime?: number;
+  screenshots?: string[];
+}
+
+export interface EnrichedGame extends HydraGame, Partial<IgdbGameData>, Partial<RawgGameData> {
   isEnriched: boolean;
 }

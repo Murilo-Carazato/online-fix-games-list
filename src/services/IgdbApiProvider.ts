@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
-import { EnrichedGame } from '../domain/models/Game';
+import { EnrichedGame, IgdbGameData } from '../domain/models/Game';
 
 export class IgdbApiProvider implements IGameDataProvider {
     private clientId: string;
@@ -46,7 +46,7 @@ export class IgdbApiProvider implements IGameDataProvider {
         this.lastRequestTime = Date.now();
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<Partial<EnrichedGame> | null> {
+    public async getGameDetails(cleanTitle: string): Promise<Partial<IgdbGameData> | null> {
         await this.authenticate();
         await this.delayNextRequest();
 
@@ -107,8 +107,7 @@ export class IgdbApiProvider implements IGameDataProvider {
                             return { id: storeId, url: e.url };
                         }) || [],
                     videos: gameData.videos?.map((v: any) => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
-                    coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined,
-                    isEnriched: true
+                    coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
                 };
             }
 

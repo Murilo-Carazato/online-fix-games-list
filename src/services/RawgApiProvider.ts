@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
-import { EnrichedGame } from '../domain/models/Game';
+import { EnrichedGame, RawgGameData } from '../domain/models/Game';
 
 export class RawgApiProvider implements IGameDataProvider {
     private apiKey: string;
@@ -23,7 +23,7 @@ export class RawgApiProvider implements IGameDataProvider {
         this.lastRequestTime = Date.now();
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<Partial<EnrichedGame> | null> {
+    public async getGameDetails(cleanTitle: string): Promise<Partial<RawgGameData> | null> {
         await this.delayNextRequest();
 
         try {
@@ -71,15 +71,11 @@ export class RawgApiProvider implements IGameDataProvider {
                     themes: themes,
                     platforms: gameData.platforms?.map((p: any) => p.platform.name) || [],
                     gameModes: gameModes,
-                    languageSupports: [], // Not exposed directly in the brief search response
-                    franchises: [], // Not exposed directly in the brief search response
-                    externalGames: gameData.stores?.map((s: any) => s.store?.domain || s.store?.name) || [],
                     coverUrl: gameData.background_image || undefined,
                     playtime: gameData.playtime || undefined,
                     screenshots: gameData.short_screenshots
                         ?.map((s: any) => s.image)
-                        ?.filter((img: string) => img !== gameData.background_image) || [],
-                    isEnriched: true
+                        ?.filter((img: string) => img !== gameData.background_image) || []
                 };
             }
             return null;

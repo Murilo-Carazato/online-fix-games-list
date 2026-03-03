@@ -1,5 +1,5 @@
 import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
-import { EnrichedGame } from '../domain/models/Game';
+import { EnrichedGame, IgdbGameData, RawgGameData } from '../domain/models/Game';
 
 export class CompositeGameDataProvider implements IGameDataProvider {
     constructor(
@@ -10,10 +10,13 @@ export class CompositeGameDataProvider implements IGameDataProvider {
     public async getGameDetails(cleanTitle: string): Promise<Partial<EnrichedGame> | null> {
         console.log(`[Composite] Fetching data for "${cleanTitle}"...`);
         // Run both API requests concurrently for performance
-        const [igdbResult, rawgResult] = await Promise.all([
+        const [igdbResultRaw, rawgResultRaw] = await Promise.all([
             this.igdbProvider.getGameDetails(cleanTitle),
             this.rawgProvider.getGameDetails(cleanTitle)
         ]);
+
+        const igdbResult = igdbResultRaw as Partial<IgdbGameData> | null;
+        const rawgResult = rawgResultRaw as Partial<RawgGameData> | null;
 
         if (!igdbResult && !rawgResult) {
             return null; // Both failed to find the game
