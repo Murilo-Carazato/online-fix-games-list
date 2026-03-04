@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import { loadConfig } from './config/AppConfig';
+import { loadConfig } from '../config/AppConfig';
 
 const config = loadConfig();
 
@@ -71,7 +71,7 @@ async function debugYoutube() {
             searchGlobal: responseGlobal.data
         };
 
-        const outputPath = path.resolve(__dirname, '../data/debug/youtube_debug.json');
+        const outputPath = path.resolve(__dirname, '../../data/debug/youtube_debug.json');
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         fs.writeFileSync(outputPath, JSON.stringify(results, null, 2));
 

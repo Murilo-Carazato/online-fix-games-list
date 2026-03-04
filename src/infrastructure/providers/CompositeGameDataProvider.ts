@@ -1,7 +1,7 @@
-import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
-import { EnrichedGame, IgdbGameData, RawgGameData } from '../domain/models/Game';
-import { IVideoProvider } from '../domain/interfaces/IVideoProvider';
-import { IGameDataMerger } from '../domain/interfaces/IGameDataMerger';
+import { IGameDataProvider } from '../../domain/interfaces/IGameDataProvider';
+import { EnrichedGame, IgdbGameData, RawgGameData } from '../../domain/models/Game';
+import { IVideoProvider } from '../../domain/interfaces/IVideoProvider';
+import { IGameDataMerger } from '../../domain/interfaces/IGameDataMerger';
 
 export class CompositeGameDataProvider implements IGameDataProvider {
     constructor(

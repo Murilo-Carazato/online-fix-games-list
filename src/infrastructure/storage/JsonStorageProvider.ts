@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
-import { IStorageProvider } from '../domain/interfaces/IStorageProvider';
-import { HydraGame, EnrichedGame } from '../domain/models/Game';
+import { IStorageProvider } from '../../domain/interfaces/IStorageProvider';
+import { HydraGame, EnrichedGame } from '../../domain/models/Game';
 
 export class JsonStorageProvider implements IStorageProvider {
     async loadGames(path: string): Promise<HydraGame[]> {

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { IVideoProvider } from '../domain/interfaces/IVideoProvider';
-import { IVideoResult } from '../domain/models/Game';
+import { IVideoProvider } from '../../domain/interfaces/IVideoProvider';
+import { IVideoResult } from '../../domain/models/Game';
 
 export interface YoutubeSearchItem {
     id: {

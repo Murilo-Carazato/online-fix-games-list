@@ -1,9 +1,9 @@
 import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
-import { IgdbApiProvider } from '../services/IgdbApiProvider';
-import { RawgApiProvider } from '../services/RawgApiProvider';
-import { YoutubeApiProvider } from '../services/YoutubeApiProvider';
-import { CompositeGameDataProvider } from '../services/CompositeGameDataProvider';
-import { GameDataMerger } from '../services/GameDataMerger';
+import { IgdbApiProvider } from '../infrastructure/api/IgdbApiProvider';
+import { RawgApiProvider } from '../infrastructure/api/RawgApiProvider';
+import { YoutubeApiProvider } from '../infrastructure/api/YoutubeApiProvider';
+import { CompositeGameDataProvider } from '../infrastructure/providers/CompositeGameDataProvider';
+import { GameDataMerger } from '../domain/services/GameDataMerger';
 import { AppConfig } from '../config/AppConfig';
 
 export class GameProviderFactory {

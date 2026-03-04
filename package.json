@@ -7,9 +7,9 @@
         "start": "ts-node src/index.ts",
         "start:prod": "node dist/index.js",
         "build": "tsc",
-        "debug:rawg": "node dist/debug_rawg.js",
-        "debug:igdb": "node dist/debug_igdb.js",
-        "debug:youtube": "node dist/debug_youtube.js"
+        "debug:rawg": "node dist/scripts/debug_rawg.js",
+        "debug:igdb": "node dist/scripts/debug_igdb.js",
+        "debug:youtube": "node dist/scripts/debug_youtube.js"
     },
     "dependencies": {
         "axios": "^1.6.0",

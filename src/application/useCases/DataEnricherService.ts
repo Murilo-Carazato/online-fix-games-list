@@ -1,7 +1,7 @@
-import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
-import { IStorageProvider } from '../domain/interfaces/IStorageProvider';
-import { ITitleCleaner } from '../domain/interfaces/ITitleCleaner';
-import { EnrichedGame } from '../domain/models/Game';
+import { IGameDataProvider } from '../../domain/interfaces/IGameDataProvider';
+import { IStorageProvider } from '../../domain/interfaces/IStorageProvider';
+import { ITitleCleaner } from '../../domain/interfaces/ITitleCleaner';
+import { EnrichedGame } from '../../domain/models/Game';
 
 export class DataEnricherService {
     constructor(

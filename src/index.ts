@@ -1,7 +1,7 @@
 import { GameProviderFactory } from './factories/GameProviderFactory';
-import { JsonStorageProvider } from './services/JsonStorageProvider';
+import { JsonStorageProvider } from './infrastructure/storage/JsonStorageProvider';
 import { GameNameCleaner } from './utils/GameNameCleaner';
-import { DataEnricherService } from './services/DataEnricherService';
+import { DataEnricherService } from './application/useCases/DataEnricherService';
 import { loadConfig } from './config/AppConfig';
 
 async function main() {

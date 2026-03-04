@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
-import { EnrichedGame, IgdbGameData } from '../domain/models/Game';
+import { IGameDataProvider } from '../../domain/interfaces/IGameDataProvider';
+import { EnrichedGame, IgdbGameData } from '../../domain/models/Game';
 
 export interface IgdbGameResponse {
     id: number;
