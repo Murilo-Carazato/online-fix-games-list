@@ -1,0 +1,18 @@
+{
+    "name": "@hydra/core-usecases",
+    "version": "1.0.0",
+    "private": true,
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
+    },
+    "dependencies": {
+        "@hydra/core-domain": "*"
+    },
+    "devDependencies": {
+        "typescript": "^5.2.2",
+        "@hydra/typescript-config": "*"
+    }
+}

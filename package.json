@@ -1,23 +1,17 @@
 {
-    "name": "hydra-sorter",
-    "version": "1.0.0",
-    "description": "A script to enrich game data using the IGDB API",
-    "main": "src/index.ts",
+    "name": "hydra-games-monorepo",
+    "private": true,
     "scripts": {
-        "start": "ts-node src/index.ts",
-        "start:prod": "node dist/index.js",
-        "build": "tsc",
-        "debug:rawg": "node dist/scripts/debug_rawg.js",
-        "debug:igdb": "node dist/scripts/debug_igdb.js",
-        "debug:youtube": "node dist/scripts/debug_youtube.js"
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "lint": "turbo run lint"
     },
-    "dependencies": {
-        "axios": "^1.6.0",
-        "dotenv": "^16.3.1"
-    },
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
     "devDependencies": {
-        "@types/node": "^20.0.0",
-        "ts-node": "^10.9.1",
+        "turbo": "^1.11.2",
         "typescript": "^5.2.2"
     }
 }

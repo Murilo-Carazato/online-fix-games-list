@@ -1,10 +1,45 @@
 services:
-  hydra-enricher:
-    build: .
-    container_name: hydra-enricher
+  # Development environment container to run npm/node commands
+  dev:
+    image: node:20-alpine
+    container_name: hydra-dev
+    working_dir: /app
     volumes:
-      - ./data:/app/data
+      - ./:/app
+    env_file:
+      - .env
+    command: tail -f /dev/null
+
+  # Next.js Web App dev server
+  web:
+    image: node:20-alpine
+    container_name: hydra-web
+    working_dir: /app/apps/web
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:3000"
     env_file:
       - .env
     environment:
       - NODE_ENV=development
+      - HOSTNAME=0.0.0.0
+    command: sh -c "npm run dev"
+    depends_on:
+      - db
+
+  # PostgreSQL Database for the application
+  db:
+    image: postgres:15-alpine
+    container_name: hydra-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: hydradb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
