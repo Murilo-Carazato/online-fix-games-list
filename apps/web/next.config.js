@@ -8,6 +8,15 @@ const nextConfig = {
     // Enable transpiling of internal monorepo packages
     transpilePackages: ['@hydra/core-domain', '@hydra/core-usecases', '@hydra/infrastructure'],
 
+    // Allow Next.js Image Optimization to compress API covers
+    images: {
+        remotePatterns: [
+            { protocol: 'https', hostname: 'images.igdb.com' },
+            { protocol: 'https', hostname: 'media.rawg.io' },
+            { protocol: 'https', hostname: 'www.google.com' },
+        ],
+    },
+
     // Speed up compilation by skipping type-checking (tsc handles that separately)
     typescript: {
         ignoreBuildErrors: false,

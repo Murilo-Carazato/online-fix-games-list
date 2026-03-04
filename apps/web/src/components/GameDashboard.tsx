@@ -1,108 +1,164 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef, memo } from 'react';
 import type { EnrichedGame } from '@hydra/core-domain';
 import { GameCard } from '@/components/GameCard';
 import { FilterBar } from '@/components/FilterBar';
 import { StatsHeader } from '@/components/StatsHeader';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toggleWantToPlayAction, toggleIgnoredAction, fetchMoreGamesAction } from '@/actions/gameActions';
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
-export type GroupKey = 'none' | 'wantToPlay' | 'genre';
 export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
+
+// ── GameCardWrapper ──────────────────────────────────────────────────────────
+// A memoized wrapper that closes over stable toggle callbacks and resolves
+// the current wantToPlay/ignored state from the parent Sets.
+// This prevents inline arrow functions in .map() from defeating React.memo.
+interface GameCardWrapperProps {
+    game: EnrichedGame;
+    wantToPlay: boolean;
+    ignored: boolean;
+    onToggleWantToPlay: (title: string, current: boolean) => void;
+    onToggleIgnored: (title: string, current: boolean) => void;
+}
+
+const GameCardWrapper = memo(function GameCardWrapper({
+    game, wantToPlay, ignored, onToggleWantToPlay, onToggleIgnored,
+}: GameCardWrapperProps) {
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+        >
+            <GameCard
+                game={game}
+                wantToPlay={wantToPlay}
+                ignored={ignored}
+                onToggleWantToPlay={() => onToggleWantToPlay(game.title, wantToPlay)}
+                onToggleIgnored={() => onToggleIgnored(game.title, ignored)}
+            />
+        </motion.div>
+    );
+});
+
+// ── GameDashboard ────────────────────────────────────────────────────────────
 
 interface GameDashboardProps {
     initialGames: EnrichedGame[];
-    initialWantSet: string[];
-    initialIgnoredSet: string[];
+    initialStats: { total: number; wantToPlay: number; ignored: number };
 }
 
-export default function GameDashboard({ initialGames, initialWantSet, initialIgnoredSet }: GameDashboardProps) {
+export default function GameDashboard({ initialGames, initialStats }: GameDashboardProps) {
     const [gamesList, setGamesList] = useState<EnrichedGame[]>(initialGames);
-    const [wantSet, setWantSet] = useState<Set<string>>(new Set(initialWantSet));
-    const [ignSet, setIgnSet] = useState<Set<string>>(new Set(initialIgnoredSet));
+    const [wantSet, setWantSet] = useState<Set<string>>(() => new Set(initialGames.filter(g => g.wantToPlay).map(g => g.title)));
+    const [ignSet, setIgnSet] = useState<Set<string>>(() => new Set(initialGames.filter(g => g.ignored).map(g => g.title)));
+    const [globalStats, setGlobalStats] = useState(initialStats);
 
     const [sortBy, setSortBy] = useState<SortKey>('date');
     const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
     const [filterBy, setFilterBy] = useState<FilterKey>('all');
     const [search, setSearch] = useState('');
 
-    // Pagination state
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(initialGames.length >= 50);
+    const [fetchError, setFetchError] = useState<string | null>(null);
 
-    const toggleWantToPlay = async (title: string) => {
-        const isCurrentlyWant = wantSet.has(title);
+    // Stable toggle callbacks — stable reference means GameCardWrapper.memo works correctly
+    const toggleWantToPlay = useCallback(async (title: string, isCurrentlyWant: boolean) => {
         setWantSet(prev => { const n = new Set(prev); if (isCurrentlyWant) n.delete(title); else n.add(title); return n; });
+        setGlobalStats(prev => ({ ...prev, wantToPlay: prev.wantToPlay + (isCurrentlyWant ? -1 : 1) }));
         if (!isCurrentlyWant) {
             setIgnSet(prev => { const n = new Set(prev); n.delete(title); return n; });
         }
-        const { toggleWantToPlayAction } = await import('@/actions/gameActions');
-        toggleWantToPlayAction(title, isCurrentlyWant);
-    };
+        await toggleWantToPlayAction(title, isCurrentlyWant);
+    }, []);
 
-    const toggleIgnored = async (title: string) => {
-        const isCurrentlyIgn = ignSet.has(title);
+    const toggleIgnored = useCallback(async (title: string, isCurrentlyIgn: boolean) => {
         setIgnSet(prev => { const n = new Set(prev); if (isCurrentlyIgn) n.delete(title); else n.add(title); return n; });
+        setGlobalStats(prev => ({ ...prev, ignored: prev.ignored + (isCurrentlyIgn ? -1 : 1) }));
         if (!isCurrentlyIgn) {
             setWantSet(prev => { const n = new Set(prev); n.delete(title); return n; });
         }
-        const { toggleIgnoredAction } = await import('@/actions/gameActions');
-        toggleIgnoredAction(title, isCurrentlyIgn);
-    };
+        await toggleIgnoredAction(title, isCurrentlyIgn);
+    }, []);
 
-    const loadMore = async () => {
+    const appendMetadataSets = useCallback((games: EnrichedGame[], replace = false) => {
+        setWantSet(prev => {
+            const n = replace ? new Set<string>() : new Set(prev);
+            games.forEach(g => { if (g.wantToPlay) n.add(g.title); });
+            return n;
+        });
+        setIgnSet(prev => {
+            const n = replace ? new Set<string>() : new Set(prev);
+            games.forEach(g => { if (g.ignored) n.add(g.title); });
+            return n;
+        });
+    }, []);
+
+    const loadMore = useCallback(async () => {
         if (loadingMore || !hasMore) return;
         setLoadingMore(true);
-        const { fetchMoreGamesAction } = await import('@/actions/gameActions');
-        const res = await fetchMoreGamesAction(gamesList.length, 50);
-
+        const res = await fetchMoreGamesAction(gamesList.length, 50, search, sortBy, sortDir, filterBy);
         if (res.success && res.games) {
-            setGamesList(prev => [...prev, ...res.games!]);
+            appendMetadataSets(res.games);
+            setGamesList(prev => {
+                const seen = new Set(prev.map(g => g.title));
+                return [...prev, ...res.games!.filter(g => !seen.has(g.title))];
+            });
             if (res.games.length < 50) setHasMore(false);
         } else {
             setHasMore(false);
         }
         setLoadingMore(false);
-    };
+    }, [loadingMore, hasMore, gamesList.length, search, sortBy, sortDir, filterBy, appendMetadataSets]);
 
-    const isWantToPlay = useCallback((title: string) => wantSet.has(title), [wantSet]);
-    const isIgnored = useCallback((title: string) => ignSet.has(title), [ignSet]);
+    // Sentinel-based infinite scroll — fires loadMore when the bottom of the list is visible
+    const sentinelRef = useIntersectionObserver(loadMore, { threshold: 0.1 });
 
-    const processed = useMemo(() => {
-        let list = [...gamesList];
+    const isFirstMount = useRef(true);
 
-        if (search.trim()) {
-            const q = search.toLowerCase();
-            list = list.filter(g => g.title.toLowerCase().includes(q));
-        }
+    // Re-fetch from DB whenever sort/filter/search changes (debounce handled in FilterBar)
+    useEffect(() => {
+        if (isFirstMount.current) { isFirstMount.current = false; return; }
 
-        if (filterBy === 'wantToPlay') list = list.filter(g => isWantToPlay(g.title));
-        else if (filterBy === 'ignored') list = list.filter(g => isIgnored(g.title));
-        else if (filterBy === 'untagged') list = list.filter(g => !isWantToPlay(g.title) && !isIgnored(g.title));
-
-        list.sort((a, b) => {
-            let val = 0;
-            switch (sortBy) {
-                case 'date': val = new Date(a.uploadDate).getTime() - new Date(b.uploadDate).getTime(); break;
-                case 'rating': val = (a.totalRating ?? 0) - (b.totalRating ?? 0); break;
-                case 'popularity': val = (a.added ?? 0) - (b.added ?? 0); break;
-                case 'playtime': val = (a.playtime ?? 0) - (b.playtime ?? 0); break;
-                case 'title': val = a.title.localeCompare(b.title); break;
+        let isCurrent = true;
+        setLoadingMore(true);
+        setFetchError(null);
+        fetchMoreGamesAction(0, 50, search, sortBy, sortDir, filterBy).then(res => {
+            if (!isCurrent) return;
+            if (res.success && res.games) {
+                appendMetadataSets(res.games, true);
+                setGamesList(res.games);
+                setHasMore(res.games.length >= 50);
+            } else {
+                setGamesList([]);
+                setHasMore(false);
+                setFetchError(res.error || 'Erro ao carregar os dados.');
             }
-            return sortDir === 'desc' ? -val : val;
+            setLoadingMore(false);
+        }).catch(() => {
+            if (!isCurrent) return;
+            setGamesList([]);
+            setHasMore(false);
+            setFetchError('Erro de conexão com o servidor.');
+            setLoadingMore(false);
         });
 
-        return list;
-    }, [gamesList, search, filterBy, sortBy, sortDir, isWantToPlay, isIgnored]);
+        return () => { isCurrent = false; };
+    }, [search, sortBy, sortDir, filterBy, appendMetadataSets]);
 
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
                 <StatsHeader
-                    total={gamesList.length}
-                    wantToPlay={gamesList.filter(g => isWantToPlay(g.title)).length}
-                    ignored={gamesList.filter(g => isIgnored(g.title)).length}
+                    total={globalStats.total}
+                    wantToPlay={globalStats.wantToPlay}
+                    ignored={globalStats.ignored}
                 />
 
                 <FilterBar
@@ -110,73 +166,55 @@ export default function GameDashboard({ initialGames, initialWantSet, initialIgn
                     sortDir={sortDir} setSortDir={setSortDir}
                     filterBy={filterBy} setFilterBy={setFilterBy}
                     search={search} setSearch={setSearch}
-                    resultCount={processed.length}
+                    resultCount={filterBy === 'all' && !search ? globalStats.total : gamesList.length}
+                    hasMore={filterBy !== 'all' || !!search ? hasMore : false}
                 />
 
                 <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     <AnimatePresence mode="popLayout">
-                        {processed.map(game => (
-                            <motion.div
+                        {gamesList.map(game => (
+                            <GameCardWrapper
                                 key={game.title}
-                                layout
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <GameCard
-                                    game={game}
-                                    wantToPlay={isWantToPlay(game.title)}
-                                    ignored={isIgnored(game.title)}
-                                    onToggleWantToPlay={() => toggleWantToPlay(game.title)}
-                                    onToggleIgnored={() => toggleIgnored(game.title)}
-                                />
-                            </motion.div>
+                                game={game}
+                                wantToPlay={wantSet.has(game.title)}
+                                ignored={ignSet.has(game.title)}
+                                onToggleWantToPlay={toggleWantToPlay}
+                                onToggleIgnored={toggleIgnored}
+                            />
                         ))}
                     </AnimatePresence>
                 </motion.div>
 
-                {processed.length === 0 && (
-                    <div className="text-center py-24 text-muted-foreground">
-                        <p className="text-2xl">🎮</p>
-                        <p className="mt-2">Nenhum jogo encontrado para os filtros selecionados.</p>
-                    </div>
-                )}
-
-                {hasMore && (
-                    <div className="mt-10 flex justify-center">
+                {fetchError && !loadingMore && (
+                    <div className="mt-12 text-center text-red-400">
+                        <p className="text-xl font-bold mb-4">{fetchError}</p>
                         <button
-                            onClick={loadMore}
-                            disabled={loadingMore}
-                            className="px-6 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition disabled:opacity-50"
+                            onClick={() => {
+                                setFetchError(null);
+                                // setLocalSearch(search); // trigger re-fetch indirectly or let user toggle filter
+                                window.location.reload(); // simple fallback for critical error recovery
+                            }}
+                            className="px-4 py-2 bg-red-500/10 text-red-500 rounded hover:bg-red-500/20 transition"
                         >
-                            {loadingMore ? 'Carregando...' : 'Carregar mais jogos'}
+                            Tentar recarregar a página
                         </button>
                     </div>
                 )}
-            </div>
-        </div>
-    );
-}
 
-function LoadingScreen() {
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-            <div className="text-center space-y-4">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-                <p className="text-muted-foreground">Carregando jogos...</p>
-            </div>
-        </div>
-    );
-}
+                {gamesList.length === 0 && !loadingMore && !fetchError && (
+                    <div className="mt-12 text-center text-muted-foreground">
+                        <p className="text-xl">Nenhum jogo encontrado com os filtros atuais.</p>
+                    </div>
+                )}
 
-function ErrorScreen({ message }: { message: string }) {
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-            <div className="text-center space-y-2">
-                <p className="text-2xl">⚠️</p>
-                <p className="text-foreground font-semibold">Erro ao carregar jogos</p>
-                <p className="text-muted-foreground text-sm">{message}</p>
+                {/* Invisible sentinel — IntersectionObserver triggers loadMore automatically */}
+                {hasMore && <div ref={sentinelRef} className="h-12" aria-hidden />}
+
+                {loadingMore && (
+                    <div className="mt-6 flex justify-center">
+                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
             </div>
         </div>
     );

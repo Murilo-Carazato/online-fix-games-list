@@ -3,7 +3,7 @@ import { ITitleCleaner } from '../interfaces/ITitleCleaner';
 export class TitleCleaner implements ITitleCleaner {
     private readonly filters: RegExp[] = [
         // Remove text in parentheses/brackets e.g. "Game (Update1)" -> "Game"
-        /[\(\[].*?[\)\]]/g,
+        /\([^)]*\)|\[[^\]]*\]/g,
         // Remove build versions starting with v, Build, Update, Patch and followed by numbers
         /\b(v|build|update|patch|ver|version)[\s\.]*\d+.*$/i,
         // Remove stranded version numbers at the end like " 1.0.5.767" or " 1.2"

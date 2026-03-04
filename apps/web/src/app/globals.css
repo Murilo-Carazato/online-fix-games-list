@@ -21,17 +21,29 @@
     --ring: 262 83% 65%;
     --radius: 0.5rem;
   }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-@layer base {
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
   border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.6); }
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}

@@ -42,4 +42,6 @@ export interface IVideoResult {
 export interface EnrichedGame extends HydraGame, Partial<IgdbGameData>, Partial<RawgGameData> {
   isEnriched: boolean;
   alanzokaVideos?: IVideoResult[] | null;
+  wantToPlay?: boolean;
+  ignored?: boolean;
 }

@@ -1,7 +1,10 @@
-import { GameProviderFactory, JsonStorageProvider, PostgresGameDataRepository } from '@hydra/infrastructure';
-import { TitleCleaner, IStorageProvider } from '@hydra/core-domain';
+import { GameProviderFactory } from '@hydra/infrastructure/src/factories/GameProviderFactory';
+import { JsonStorageProvider } from '@hydra/infrastructure/src/storage/JsonStorageProvider';
+import { PostgresGameDataRepository } from '@hydra/infrastructure/src/repositories/PostgresGameDataRepository';
+import { TitleCleaner, type IStorageProvider } from '@hydra/core-domain';
 import { EnrichGamesUseCase } from '@hydra/core-usecases';
 import { loadConfig } from './config/AppConfig';
+
 async function main() {
     console.log("=== HYDRA GAMES ENRICHER ===");
     console.log("Initializing Services...");
@@ -15,10 +18,11 @@ async function main() {
     const jsonStorage = new JsonStorageProvider();
     const pgStorage = new PostgresGameDataRepository();
 
-    // Create a hybrid storage provider: reads from JSON (URL), writes to Postgres
+    // Hybrid adapter: reads from JSON file, writes enriched results to Postgres.
+    // Satisfies IStorageProvider without modifying the use case.
     const hybridStorage: IStorageProvider = {
         loadGames: (path) => jsonStorage.loadGames(path),
-        saveGames: (path, games) => pgStorage.saveGames(games)
+        saveGames: (_path, games) => pgStorage.saveGames(games),
     };
 
     const nameCleaner = new TitleCleaner();

@@ -1,23 +1,20 @@
 import GameDashboard from '@/components/GameDashboard';
-import { getAllPreferences } from '@/actions/gameActions';
-import { PostgresGameDataRepository } from '@hydra/infrastructure';
-import type { EnrichedGame } from '@hydra/core-domain';
+import { fetchInitialGamesAction, getGlobalStatsAction } from '@/actions/gameActions';
 
+// page.tsx has zero knowledge of infrastructure — all data comes through the service layer
 export default async function HomePage() {
-  const repo = new PostgresGameDataRepository();
+  const [gamesRes, statsRes] = await Promise.all([
+    fetchInitialGamesAction(),
+    getGlobalStatsAction(),
+  ]);
 
-  // We fetch the first 50 games from the database to prevent memory crashes on the client
-  const games: EnrichedGame[] = await repo.getGamesPaginated({ limit: 50, offset: 0 });
-
-  const prefs = await getAllPreferences();
-  const wantSet = prefs.filter(p => p.wantToPlay).map(p => p.title);
-  const ignoredSet = prefs.filter(p => p.ignored).map(p => p.title);
+  const initialGames = gamesRes.success ? gamesRes.games : [];
+  const initialStats = statsRes.success ? statsRes.stats! : { total: 0, wantToPlay: 0, ignored: 0 };
 
   return (
     <GameDashboard
-      initialGames={games}
-      initialWantSet={wantSet}
-      initialIgnoredSet={ignoredSet}
+      initialGames={initialGames}
+      initialStats={initialStats}
     />
   );
 }

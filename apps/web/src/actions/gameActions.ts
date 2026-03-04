@@ -1,16 +1,62 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { PostgresGameRepository } from "@hydra/infrastructure";
+import { PostgresGameRepository, PostgresGameDataRepository } from "@hydra/infrastructure";
+import type { SortKey, FilterKey } from "@hydra/infrastructure";
 
-// Instantiate the repository (Clean Architecture boundary)
-const repository = new PostgresGameRepository();
+// Instantiate the repositories once (Clean Architecture service boundary)
+const prefRepository = new PostgresGameRepository();
+const dataRepository = new PostgresGameDataRepository();
+
+// ─── Initial data fetch (replaces direct repo access in page.tsx) ────────────
+
+export async function fetchInitialGamesAction() {
+    try {
+        const games = await dataRepository.getGamesPaginated({ limit: 50, offset: 0 });
+        return { success: true, games };
+    } catch (error) {
+        console.error("Failed to fetch initial games:", error);
+        return { success: false, error: "Database error", games: [] };
+    }
+}
+
+// ─── Paginated fetch (used by client for Load More / filter changes) ─────────
+
+export async function fetchMoreGamesAction(
+    offset: number,
+    limit: number = 50,
+    search: string = '',
+    sortBy: SortKey = 'date',
+    sortDir: 'asc' | 'desc' = 'desc',
+    filterBy: FilterKey = 'all'
+) {
+    try {
+        const games = await dataRepository.getGamesPaginated({ offset, limit, search, sortBy, sortDir, filterBy });
+        return { success: true, games };
+    } catch (error) {
+        console.error("Failed to fetch more games:", error);
+        return { success: false, error: "Database error", games: [] };
+    }
+}
+
+// ─── Global statistics (COUNT queries — no full table scan) ──────────────────
+
+export async function getGlobalStatsAction() {
+    try {
+        const stats = await dataRepository.getGlobalStats();
+        return { success: true, stats };
+    } catch (error) {
+        console.error("Failed to fetch global stats:", error);
+        return { success: false, error: "Database error", stats: { total: 0, wantToPlay: 0, ignored: 0 } };
+    }
+}
+
+// ─── Preference mutations ─────────────────────────────────────────────────────
 
 export async function toggleWantToPlayAction(title: string, currentState: boolean) {
     try {
         const newState = !currentState;
-        await repository.setWantToPlay(title, newState);
-        revalidatePath("/");
+        await prefRepository.setWantToPlay(title, newState);
+        // No revalidatePath: the client uses optimistic UI, a manual refresh triggers fresh SSR.
         return { success: true, newState };
     } catch (error) {
         console.error("Failed to toggle want to play:", error);
@@ -21,8 +67,7 @@ export async function toggleWantToPlayAction(title: string, currentState: boolea
 export async function toggleIgnoredAction(title: string, currentState: boolean) {
     try {
         const newState = !currentState;
-        await repository.setIgnored(title, newState);
-        revalidatePath("/");
+        await prefRepository.setIgnored(title, newState);
         return { success: true, newState };
     } catch (error) {
         console.error("Failed to toggle ignored:", error);
@@ -30,25 +75,3 @@ export async function toggleIgnoredAction(title: string, currentState: boolean) 
     }
 }
 
-export async function getAllPreferences() {
-    try {
-        const preferences = await repository.getAllPreferences();
-        return preferences;
-    } catch (error) {
-        console.error("Failed to get preferences:", error);
-        return [];
-    }
-}
-
-import { PostgresGameDataRepository } from "@hydra/infrastructure";
-const dataRepository = new PostgresGameDataRepository();
-
-export async function fetchMoreGamesAction(offset: number, limit: number = 50) {
-    try {
-        const games = await dataRepository.getGamesPaginated({ offset, limit });
-        return { success: true, games };
-    } catch (error) {
-        console.error("Failed to fetch more games:", error);
-        return { success: false, error: "Database error", games: [] };
-    }
-}

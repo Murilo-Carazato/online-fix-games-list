@@ -1,6 +1,8 @@
 'use client';
 
+import { memo } from 'react';
 import type { EnrichedGame } from '@hydra/core-domain';
+import Image from 'next/image';
 
 interface GameCardProps {
     game: EnrichedGame;
@@ -10,7 +12,7 @@ interface GameCardProps {
     onToggleIgnored: () => void;
 }
 
-export function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onToggleIgnored }: GameCardProps) {
+export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onToggleIgnored }: GameCardProps) {
     const rating = game.totalRating ? Math.round(game.totalRating) : null;
     const popularity = game.added ? formatPopularity(game.added) : null;
     const genres = game.genres?.slice(0, 2) ?? [];
@@ -27,11 +29,12 @@ export function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onTogg
             {/* Cover image */}
             <div className="h-36 rounded-t-xl overflow-hidden bg-secondary relative">
                 {game.coverUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                         src={game.coverUrl}
                         alt={game.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-3xl">🎮</div>
@@ -81,6 +84,7 @@ export function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onTogg
                         id={`want-${game.title.replace(/\s+/g, '-')}`}
                         onClick={onToggleWantToPlay}
                         title={wantToPlay ? 'Remover da lista' : 'Quero jogar'}
+                        aria-label={wantToPlay ? 'Remover jogo da lista de desejos' : 'Adicionar jogo à lista de desejos'}
                         className={`
               flex-1 text-xs py-1.5 rounded-lg font-medium transition-all
               ${wantToPlay
@@ -95,6 +99,7 @@ export function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onTogg
                         id={`ignore-${game.title.replace(/\s+/g, '-')}`}
                         onClick={onToggleIgnored}
                         title={ignored ? 'Remover dos ignorados' : 'Ignorar'}
+                        aria-label={ignored ? 'Remover jogo da lista de ignorados' : 'Ignorar jogo e ocultar da listagem principal'}
                         className={`
               px-2.5 text-xs py-1.5 rounded-lg font-medium transition-all
               ${ignored
@@ -108,7 +113,7 @@ export function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onTogg
             </div>
         </div>
     );
-}
+});
 
 function formatPopularity(n: number): string {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;

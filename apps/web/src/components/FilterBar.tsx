@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import type { SortKey, FilterKey } from '@/components/GameDashboard';
 
 interface FilterBarProps {
@@ -12,6 +13,7 @@ interface FilterBarProps {
     search: string;
     setSearch: (v: string) => void;
     resultCount: number;
+    hasMore?: boolean;
 }
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
@@ -29,7 +31,16 @@ const FILTER_OPTIONS: { value: FilterKey; label: string }[] = [
     { value: 'untagged', label: '❓ Sem tag' },
 ];
 
-export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, setFilterBy, search, setSearch, resultCount }: FilterBarProps) {
+export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, setFilterBy, search, setSearch, resultCount, hasMore }: FilterBarProps) {
+    const [localSearch, setLocalSearch] = useState(search);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setSearch(localSearch);
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [localSearch, setSearch]);
+
     return (
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border mb-6 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
@@ -38,8 +49,8 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, se
                     id="search-games"
                     type="search"
                     placeholder="Buscar jogo..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
+                    value={localSearch}
+                    onChange={e => setLocalSearch(e.target.value)}
                     className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all w-full sm:w-auto"
                 />
 
@@ -72,8 +83,8 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, se
                                 id={`filter-${o.value}`}
                                 onClick={() => setFilterBy(o.value)}
                                 className={`px-3 py-2 text-xs transition-all ${filterBy === o.value
-                                        ? 'bg-primary text-primary-foreground font-medium'
-                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                    ? 'bg-primary text-primary-foreground font-medium'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                     }`}
                             >
                                 {o.label}
@@ -83,7 +94,7 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, se
                 </div>
 
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {resultCount} jogo{resultCount !== 1 ? 's' : ''}
+                    {resultCount}{hasMore ? '+' : ''} jogo{resultCount !== 1 ? 's' : ''}
                 </span>
             </div>
         </div>

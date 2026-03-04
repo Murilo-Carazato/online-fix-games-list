@@ -1,7 +1,19 @@
-import { eq } from "drizzle-orm";
+import { eq, ilike, desc, asc, and, or, isNull, sql } from "drizzle-orm";
 import { db } from "../database";
-import { enrichedGames } from "../database/schema";
+import { enrichedGames, gamePreferences } from "../database/schema";
 import type { EnrichedGame } from "@hydra/core-domain";
+
+export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
+export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
+
+export interface PaginatedQueryProps {
+    limit?: number;
+    offset?: number;
+    search?: string;
+    sortBy?: SortKey;
+    sortDir?: 'asc' | 'desc';
+    filterBy?: FilterKey;
+}
 
 export class PostgresGameDataRepository {
     async saveGames(games: EnrichedGame[]): Promise<void> {
@@ -30,27 +42,105 @@ export class PostgresGameDataRepository {
                 .onConflictDoUpdate({
                     target: enrichedGames.title,
                     set: {
-                        uploadDate: values[0].uploadDate, // In real world we might use raw(excluded.upload_date)
-                        totalRating: values[0].totalRating,
-                        added: values[0].added,
-                        playtime: values[0].playtime,
-                        isEnriched: values[0].isEnriched,
-                        data: values[0].data,
+                        uploadDate: sql`excluded.upload_date`,
+                        totalRating: sql`excluded.total_rating`,
+                        added: sql`excluded.added`,
+                        playtime: sql`excluded.playtime`,
+                        isEnriched: sql`excluded.is_enriched`,
+                        data: sql`excluded.data`,
                         updatedAt: new Date(),
                     }
                 });
         }
     }
 
-    async getGamesPaginated({ limit = 50, offset = 0, search = '' }: { limit?: number; offset?: number; search?: string } = {}): Promise<EnrichedGame[]> {
-        let query = db.select({ data: enrichedGames.data }).from(enrichedGames);
+    async getGamesPaginated({ limit = 50, offset = 0, search = '', sortBy = 'date', sortDir = 'desc', filterBy = 'all' }: PaginatedQueryProps = {}): Promise<EnrichedGame[]> {
+        let query = db
+            .select({
+                data: enrichedGames.data,
+                wantToPlay: gamePreferences.wantToPlay,
+                ignored: gamePreferences.ignored
+            })
+            .from(enrichedGames)
+            .leftJoin(gamePreferences, eq(enrichedGames.title, gamePreferences.title))
+            .$dynamic(); // Required to allow conditional chaining
 
-        // This is a simplified search (for actual search, consider ILIKE or Full Text Search)
-        // Drizzle ORM does not have ilike directly exported without sql wrapper for some dialects,
-        // but since we are just doing simple paginated fetch for our app right now, we will return the raw JSON.
-        query = query.limit(limit).offset(offset) as any;
+        const conditions = [];
 
+        if (search.trim()) {
+            conditions.push(ilike(enrichedGames.title, `%${search}%`));
+        }
+
+        if (filterBy === 'wantToPlay') {
+            conditions.push(eq(gamePreferences.wantToPlay, true));
+        } else if (filterBy === 'ignored') {
+            conditions.push(eq(gamePreferences.ignored, true));
+        } else if (filterBy === 'untagged') {
+            conditions.push(
+                or(
+                    isNull(gamePreferences.title),
+                    and(
+                        eq(gamePreferences.wantToPlay, false),
+                        eq(gamePreferences.ignored, false)
+                    )
+                )
+            );
+        }
+
+        if (conditions.length > 0) {
+            query = query.where(and(...conditions));
+        }
+
+        const orderFn = sortDir === 'asc' ? asc : desc;
+        let orderColumn;
+
+        switch (sortBy) {
+            case 'date': orderColumn = enrichedGames.uploadDate; break;
+            case 'rating': orderColumn = enrichedGames.totalRating; break;
+            case 'popularity': orderColumn = enrichedGames.added; break;
+            case 'playtime': orderColumn = enrichedGames.playtime; break;
+            case 'title': orderColumn = enrichedGames.title; break;
+            default: orderColumn = enrichedGames.uploadDate;
+        }
+
+        // Apply ordering with nullsLast for numerical columns so items with null ratings go to the end
+        query = query.orderBy(
+            sortBy !== 'title' && sortBy !== 'date'
+                ? sql`${orderColumn} ${sql.raw(sortDir === 'asc' ? 'ASC' : 'DESC')} NULLS LAST`
+                : orderFn(orderColumn)
+        );
+
+        query = query.limit(limit).offset(offset);
+
+        // Map the results, combining the nested JSON payload with the current relational user preference state
         const results = await query;
-        return results.map(r => r.data as EnrichedGame);
+        return results.map(r => {
+            const game = r.data as EnrichedGame;
+            game.wantToPlay = r.wantToPlay ?? false;
+            game.ignored = r.ignored ?? false;
+            return game;
+        });
+    }
+
+    async getGlobalStats(): Promise<{ total: number; wantToPlay: number; ignored: number }> {
+        const [{ totalCount }] = await db
+            .select({ totalCount: sql<number>`count(*)::int` })
+            .from(enrichedGames);
+
+        const [{ wantToPlayCount }] = await db
+            .select({ wantToPlayCount: sql<number>`count(*)::int` })
+            .from(gamePreferences)
+            .where(eq(gamePreferences.wantToPlay, true));
+
+        const [{ ignoredCount }] = await db
+            .select({ ignoredCount: sql<number>`count(*)::int` })
+            .from(gamePreferences)
+            .where(eq(gamePreferences.ignored, true));
+
+        return {
+            total: totalCount,
+            wantToPlay: wantToPlayCount,
+            ignored: ignoredCount,
+        };
     }
 }

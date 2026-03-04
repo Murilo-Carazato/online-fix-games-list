@@ -3,10 +3,17 @@ import { EnrichedGame, IgdbGameData, RawgGameData, BaseGameData, IVideoResult } 
 
 export class GameDataMerger implements IGameDataMerger {
 
-    public merge(igdbResult: Partial<IgdbGameData> | null, rawgResult: Partial<RawgGameData> | null, videoResults: IVideoResult[] | null): Partial<EnrichedGame> | null {
-        if (!igdbResult && !rawgResult) {
+    public merge(rawIgdbResult: Partial<IgdbGameData> | null, rawgResult: Partial<RawgGameData> | null, videoResults: IVideoResult[] | null): Partial<EnrichedGame> | null {
+        if (!rawIgdbResult && !rawgResult) {
             return null; // Both failed to find the game
         }
+
+        // Normalize IGDB rating from 0-100 scale to 0-5 scale to match RAWG scale.
+        // Without this, the frontend UI and database sorting are completely broken.
+        const igdbResult = rawIgdbResult ? {
+            ...rawIgdbResult,
+            totalRating: rawIgdbResult.totalRating != null ? rawIgdbResult.totalRating / 20 : null
+        } : null;
 
         const ratingSources = this.getRatingSources(igdbResult, rawgResult);
         const defaultSources = [igdbResult, rawgResult];
