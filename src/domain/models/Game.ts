@@ -33,4 +33,11 @@ export interface RawgGameData extends BaseGameData {
 
 export interface EnrichedGame extends HydraGame, Partial<IgdbGameData>, Partial<RawgGameData> {
   isEnriched: boolean;
+  alanzokaVideos?: {
+    url: string;
+    title: string;
+    publishedAt: string;
+    thumbnailUrl: string;
+    channelTitle: string;
+  }[] | null;
 }

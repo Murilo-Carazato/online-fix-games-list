@@ -1,18 +1,21 @@
 import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
 import { EnrichedGame, IgdbGameData, RawgGameData, BaseGameData } from '../domain/models/Game';
+import { YoutubeApiProvider } from './YoutubeApiProvider';
 
 export class CompositeGameDataProvider implements IGameDataProvider {
     constructor(
         private igdbProvider: IGameDataProvider,
-        private rawgProvider: IGameDataProvider
+        private rawgProvider: IGameDataProvider,
+        private youtubeProvider: YoutubeApiProvider
     ) { }
 
     public async getGameDetails(cleanTitle: string): Promise<Partial<EnrichedGame> | null> {
         console.log(`[Composite] Fetching data for "${cleanTitle}"...`);
         // Run both API requests concurrently for performance
-        const [igdbResultRaw, rawgResultRaw] = await Promise.all([
+        const [igdbResultRaw, rawgResultRaw, alanzokaVideos] = await Promise.all([
             this.igdbProvider.getGameDetails(cleanTitle),
-            this.rawgProvider.getGameDetails(cleanTitle)
+            this.rawgProvider.getGameDetails(cleanTitle),
+            this.youtubeProvider.getAlanzokaVideos(cleanTitle)
         ]);
 
         const igdbResult = igdbResultRaw as Partial<IgdbGameData> | null;
@@ -79,6 +82,8 @@ export class CompositeGameDataProvider implements IGameDataProvider {
         mergedGame.languageSupports = igdbResult?.languageSupports ?? null;
         mergedGame.franchises = igdbResult?.franchises ?? null;
         mergedGame.externalGames = igdbResult?.externalGames ?? null;
+
+        mergedGame.alanzokaVideos = alanzokaVideos;
 
         return mergedGame;
     }

@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { IgdbApiProvider } from './services/IgdbApiProvider';
 import { RawgApiProvider } from './services/RawgApiProvider';
+import { YoutubeApiProvider } from './services/YoutubeApiProvider';
 import { CompositeGameDataProvider } from './services/CompositeGameDataProvider';
 import { JsonStorageProvider } from './services/JsonStorageProvider';
 import { GameNameCleaner } from './utils/GameNameCleaner';
@@ -12,6 +13,9 @@ import { IGameDataProvider } from './domain/interfaces/IGameDataProvider';
 dotenv.config();
 
 const providerType = process.env.API_PROVIDER || 'composite';
+const YOUTUBE_KEY = process.env.YOUTUBE_API_KEY || '';
+const youtube = new YoutubeApiProvider(YOUTUBE_KEY);
+
 let apiProvider: IGameDataProvider;
 
 if (providerType === 'composite') {
@@ -26,8 +30,8 @@ if (providerType === 'composite') {
     const rawg = new RawgApiProvider(RAWG_KEY);
     const igdb = new IgdbApiProvider(CLIENT_ID, CLIENT_SECRET);
 
-    apiProvider = new CompositeGameDataProvider(igdb, rawg);
-    console.log("Configured to use: COMPOSITE API (IGDB + RAWG)");
+    apiProvider = new CompositeGameDataProvider(igdb, rawg, youtube);
+    console.log("Configured to use: COMPOSITE API (IGDB + RAWG + Youtube)");
 } else if (providerType === 'rawg') {
     const RAWG_KEY = process.env.RAWG_API_KEY;
     if (!RAWG_KEY) {

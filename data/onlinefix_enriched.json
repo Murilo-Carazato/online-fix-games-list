@@ -56,7 +56,8 @@
         "categoryIcon": "https://www.google.com/s2/favicons?domain=store.steampowered.com&sz=128",
         "url": "https://store.steampowered.com/app/2438990"
       }
-    ]
+    ],
+    "alanzokaVideos": null
   },
   {
     "fileSize": "1.1 GB",
@@ -115,6 +116,22 @@
         "storeName": "Steam",
         "categoryIcon": "https://www.google.com/s2/favicons?domain=store.steampowered.com&sz=128",
         "url": "https://store.steampowered.com/app/3834090"
+      }
+    ],
+    "alanzokaVideos": [
+      {
+        "url": "https://www.youtube.com/watch?v=UOFeKASn29o",
+        "title": "OS PIORES MAGOS VOLTARAM! - YAPYAP COM OS AMIGOS",
+        "publishedAt": "2026-02-06T15:00:00Z",
+        "thumbnailUrl": "https://i.ytimg.com/vi/UOFeKASn29o/hqdefault.jpg",
+        "channelTitle": "alanzoka"
+      },
+      {
+        "url": "https://www.youtube.com/watch?v=m4Dl46uHLp8",
+        "title": "OS PIORES MAGOS DO MUNDO! - YAPYAP COM OS AMIGOS",
+        "publishedAt": "2025-10-19T15:01:19Z",
+        "thumbnailUrl": "https://i.ytimg.com/vi/m4Dl46uHLp8/hqdefault.jpg",
+        "channelTitle": "alanzoka"
       }
     ]
   },
@@ -175,7 +192,8 @@
         "categoryIcon": "https://www.google.com/s2/favicons?domain=store.steampowered.com&sz=128",
         "url": "https://store.steampowered.com/app/2438970"
       }
-    ]
+    ],
+    "alanzokaVideos": null
   },
   {
     "fileSize": "2.4 GB",
@@ -264,6 +282,15 @@
         "storeName": "Steam",
         "categoryIcon": "https://www.google.com/s2/favicons?domain=store.steampowered.com&sz=128",
         "url": "https://store.steampowered.com/app/3501070"
+      }
+    ],
+    "alanzokaVideos": [
+      {
+        "url": "https://www.youtube.com/watch?v=XbaaMVdbffY",
+        "title": "NUNCA REME COM SEUS AMIGOS! - BOAT TOGETHER COM OS AMIGOS - Parte 1",
+        "publishedAt": "2025-12-25T15:03:36Z",
+        "thumbnailUrl": "https://i.ytimg.com/vi/XbaaMVdbffY/hqdefault.jpg",
+        "channelTitle": "alanzoka"
       }
     ]
   },
@@ -363,6 +390,15 @@
         "storeName": "Steam",
         "categoryIcon": "https://www.google.com/s2/favicons?domain=store.steampowered.com&sz=128",
         "url": "https://store.steampowered.com/app/2129530"
+      }
+    ],
+    "alanzokaVideos": [
+      {
+        "url": "https://www.youtube.com/watch?v=uS_4RJnEXHc",
+        "title": "BIZARRO DEMAIS! - REANIMAL COM O FALL",
+        "publishedAt": "2026-02-14T15:02:52Z",
+        "thumbnailUrl": "https://i.ytimg.com/vi/uS_4RJnEXHc/hqdefault.jpg",
+        "channelTitle": "alanzoka"
       }
     ]
   }

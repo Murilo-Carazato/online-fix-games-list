@@ -1,0 +1,367 @@
+{
+  "channelIdResolved": "UCIwspRtKNszHhIhl36gREjQ",
+  "searchWithChannelId": {
+    "kind": "youtube#searchListResponse",
+    "etag": "eNegkn7jqnnXJQa2gItyAh1bNa0",
+    "nextPageToken": "CAUQAA",
+    "regionCode": "BR",
+    "pageInfo": {
+      "totalResults": 75,
+      "resultsPerPage": 5
+    },
+    "items": [
+      {
+        "kind": "youtube#searchResult",
+        "etag": "hFPtpNvP68zPgBdc78y1s406DIM",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "UOFeKASn29o"
+        },
+        "snippet": {
+          "publishedAt": "2026-02-06T15:00:00Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "OS PIORES MAGOS VOLTARAM! - YAPYAP COM OS AMIGOS",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/UOFeKASn29o/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/UOFeKASn29o/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/UOFeKASn29o/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2026-02-06T15:00:00Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "2No7y5CQNJcTLXcuSBbrr5Vroqo",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "m4Dl46uHLp8"
+        },
+        "snippet": {
+          "publishedAt": "2025-10-19T15:01:19Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "OS PIORES MAGOS DO MUNDO! - YAPYAP COM OS AMIGOS",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/m4Dl46uHLp8/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/m4Dl46uHLp8/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/m4Dl46uHLp8/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-10-19T15:01:19Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "ExCbcDhFfGxm79IwtsqH24B2_gk",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "i9hday4CRRs"
+        },
+        "snippet": {
+          "publishedAt": "2025-10-17T15:01:30Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "VIREI UM LABUBU E TENTEI FUGIR DA PRISÃO! - CUFFBUST COM OS AMIGOS",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/i9hday4CRRs/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/i9hday4CRRs/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/i9hday4CRRs/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-10-17T15:01:30Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "7j6VHfrnhOAEHqE-3oYpfn0okVk",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "ncJENkGILzY"
+        },
+        "snippet": {
+          "publishedAt": "2025-08-21T15:01:30Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "EU SOLTO MAGIAS COM A MINHA VOZ! - MAGE ARENA COM OS AMIGOS",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/ncJENkGILzY/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/ncJENkGILzY/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/ncJENkGILzY/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-08-21T15:01:30Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "t74fVnPMwKWs5P5Jex1aG0liKZw",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "745Psy83Ye8"
+        },
+        "snippet": {
+          "publishedAt": "2025-10-22T14:49:17Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "NUNCA VIAJE COM SEUS AMIGOS! - RV THERE YET? COM OS AMIGOS - Parte 1",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/745Psy83Ye8/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/745Psy83Ye8/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/745Psy83Ye8/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-10-22T14:49:17Z"
+        }
+      }
+    ]
+  },
+  "searchGlobal": {
+    "kind": "youtube#searchListResponse",
+    "etag": "bHyq_IxlrPN-NoKc9lsHcqecsLI",
+    "nextPageToken": "CAUQAA",
+    "regionCode": "BR",
+    "pageInfo": {
+      "totalResults": 496,
+      "resultsPerPage": 5
+    },
+    "items": [
+      {
+        "kind": "youtube#searchResult",
+        "etag": "hFPtpNvP68zPgBdc78y1s406DIM",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "UOFeKASn29o"
+        },
+        "snippet": {
+          "publishedAt": "2026-02-06T15:00:00Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "OS PIORES MAGOS VOLTARAM! - YAPYAP COM OS AMIGOS",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/UOFeKASn29o/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/UOFeKASn29o/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/UOFeKASn29o/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2026-02-06T15:00:00Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "2No7y5CQNJcTLXcuSBbrr5Vroqo",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "m4Dl46uHLp8"
+        },
+        "snippet": {
+          "publishedAt": "2025-10-19T15:01:19Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "OS PIORES MAGOS DO MUNDO! - YAPYAP COM OS AMIGOS",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/m4Dl46uHLp8/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/m4Dl46uHLp8/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/m4Dl46uHLp8/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-10-19T15:01:19Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "MzJVGb0asmwce9nvGB4onf712Uo",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "8oA9oBkHo58"
+        },
+        "snippet": {
+          "publishedAt": "2025-10-19T15:00:12Z",
+          "channelId": "UC9tQrgEILKOrTC4F4LawfyA",
+          "title": "Dino o mago supremo ft. alanzoka e Vxgameplays",
+          "description": "Inscreva-se para mais shorts engraçados e compilações completas! Curtiu o vídeo? Deixa o like! Comente o momento mais ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/8oA9oBkHo58/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/8oA9oBkHo58/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/8oA9oBkHo58/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "Reactou!",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-10-19T15:00:12Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "7j6VHfrnhOAEHqE-3oYpfn0okVk",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "ncJENkGILzY"
+        },
+        "snippet": {
+          "publishedAt": "2025-08-21T15:01:30Z",
+          "channelId": "UCIwspRtKNszHhIhl36gREjQ",
+          "title": "EU SOLTO MAGIAS COM A MINHA VOZ! - MAGE ARENA COM OS AMIGOS",
+          "description": "OS MAIORES DESCONTOS ESTÃO NO KABUM!: http://kb1.me/alanzokakabumyt LIVE: https://www.twitch.tv/alanzoka ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/ncJENkGILzY/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/ncJENkGILzY/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/ncJENkGILzY/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "alanzoka",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-08-21T15:01:30Z"
+        }
+      },
+      {
+        "kind": "youtube#searchResult",
+        "etag": "vkJ-xiQxTWGwuwWvqXtMVIVkui8",
+        "id": {
+          "kind": "youtube#video",
+          "videoId": "NmdASF7i6Ss"
+        },
+        "snippet": {
+          "publishedAt": "2025-08-17T20:17:15Z",
+          "channelId": "UCrdZxvZsH9y6XE_tvEXoY2Q",
+          "title": "A Carinha que ele faz 🤣  #alanzoka",
+          "description": "A carinha que ele faz é a melhor   streamer: @alanzoka Jogo: Stellar Blade Video: Um anjo que caiu do céu! - Stellar blade ...",
+          "thumbnails": {
+            "default": {
+              "url": "https://i.ytimg.com/vi/NmdASF7i6Ss/default.jpg",
+              "width": 120,
+              "height": 90
+            },
+            "medium": {
+              "url": "https://i.ytimg.com/vi/NmdASF7i6Ss/mqdefault.jpg",
+              "width": 320,
+              "height": 180
+            },
+            "high": {
+              "url": "https://i.ytimg.com/vi/NmdASF7i6Ss/hqdefault.jpg",
+              "width": 480,
+              "height": 360
+            }
+          },
+          "channelTitle": "Sente o Corte",
+          "liveBroadcastContent": "none",
+          "publishTime": "2025-08-17T20:17:15Z"
+        }
+      }
+    ]
+  }
+}
