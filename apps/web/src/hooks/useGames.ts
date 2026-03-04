@@ -65,5 +65,7 @@ export function useGames() {
     const isWantToPlay = useCallback((title: string) => wantSet.has(title), [wantSet]);
     const isIgnored = useCallback((title: string) => ignSet.has(title), [ignSet]);
 
-    return { games, loading, error, toggleWantToPlay, toggleIgnored, isWantToPlay, isIgnored };
+    const safeGames = Array.isArray(games) ? games : [];
+
+    return { games: safeGames, loading, error, toggleWantToPlay, toggleIgnored, isWantToPlay, isIgnored };
 }

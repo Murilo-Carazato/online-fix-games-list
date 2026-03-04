@@ -1,25 +1,63 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { EnrichedGame } from '@hydra/core-domain';
 import { GameCard } from '@/components/GameCard';
 import { FilterBar } from '@/components/FilterBar';
 import { StatsHeader } from '@/components/StatsHeader';
-import { useGames } from '@/hooks/useGames';
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
 export type GroupKey = 'none' | 'wantToPlay' | 'genre';
 export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
 
-export default function GameDashboard() {
-    const { games, loading, error, toggleWantToPlay, toggleIgnored, isWantToPlay, isIgnored } = useGames();
+interface GameDashboardProps {
+    initialGames: EnrichedGame[];
+    initialWantSet: string[];
+    initialIgnoredSet: string[];
+}
+
+export default function GameDashboard({ initialGames, initialWantSet, initialIgnoredSet }: GameDashboardProps) {
+    // Instead of useGames fetching and managing everything, we manage optimistic local state here
+    // and call Server Actions to persist.
+    const [wantSet, setWantSet] = useState<Set<string>>(new Set(initialWantSet));
+    const [ignSet, setIgnSet] = useState<Set<string>>(new Set(initialIgnoredSet));
+
     const [sortBy, setSortBy] = useState<SortKey>('date');
     const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
     const [filterBy, setFilterBy] = useState<FilterKey>('all');
     const [search, setSearch] = useState('');
 
+    const toggleWantToPlay = async (title: string) => {
+        const isCurrentlyWant = wantSet.has(title);
+        // Optimistic UI update
+        setWantSet(prev => { const n = new Set(prev); if (isCurrentlyWant) n.delete(title); else n.add(title); return n; });
+        if (!isCurrentlyWant) {
+            setIgnSet(prev => { const n = new Set(prev); n.delete(title); return n; });
+        }
+
+        // Fire and forget Server Action
+        const { toggleWantToPlayAction } = await import('@/actions/gameActions');
+        toggleWantToPlayAction(title, isCurrentlyWant);
+    };
+
+    const toggleIgnored = async (title: string) => {
+        const isCurrentlyIgn = ignSet.has(title);
+        // Optimistic UI update
+        setIgnSet(prev => { const n = new Set(prev); if (isCurrentlyIgn) n.delete(title); else n.add(title); return n; });
+        if (!isCurrentlyIgn) {
+            setWantSet(prev => { const n = new Set(prev); n.delete(title); return n; });
+        }
+
+        // Fire and forget Server Action
+        const { toggleIgnoredAction } = await import('@/actions/gameActions');
+        toggleIgnoredAction(title, isCurrentlyIgn);
+    };
+
+    const isWantToPlay = useCallback((title: string) => wantSet.has(title), [wantSet]);
+    const isIgnored = useCallback((title: string) => ignSet.has(title), [ignSet]);
+
     const processed = useMemo(() => {
-        let list = [...games];
+        let list = Array.isArray(initialGames) ? [...initialGames] : [];
 
         // 1. Search filter
         if (search.trim()) {
@@ -46,18 +84,17 @@ export default function GameDashboard() {
         });
 
         return list;
-    }, [games, search, filterBy, sortBy, sortDir, isWantToPlay, isIgnored]);
+    }, [initialGames, search, filterBy, sortBy, sortDir, isWantToPlay, isIgnored]);
 
-    if (loading) return <LoadingScreen />;
-    if (error) return <ErrorScreen message={error} />;
+    // Data is fetched Server-Side so no local loading/error states needed
 
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
                 <StatsHeader
-                    total={games.length}
-                    wantToPlay={games.filter(g => isWantToPlay(g.title)).length}
-                    ignored={games.filter(g => isIgnored(g.title)).length}
+                    total={initialGames.length}
+                    wantToPlay={initialGames.filter(g => isWantToPlay(g.title)).length}
+                    ignored={initialGames.filter(g => isIgnored(g.title)).length}
                 />
 
                 <FilterBar
