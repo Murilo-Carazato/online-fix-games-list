@@ -1,7 +1,7 @@
-import { GameProviderFactory } from './factories/GameProviderFactory';
+import { GameProviderFactory } from './infrastructure/factories/GameProviderFactory';
 import { JsonStorageProvider } from './infrastructure/storage/JsonStorageProvider';
-import { GameNameCleaner } from './utils/GameNameCleaner';
-import { DataEnricherService } from './application/useCases/DataEnricherService';
+import { TitleCleaner } from './domain/services/TitleCleaner';
+import { EnrichGamesUseCase } from './application/useCases/EnrichGamesUseCase';
 import { loadConfig } from './config/AppConfig';
 
 async function main() {
@@ -15,9 +15,9 @@ async function main() {
     const apiProvider = GameProviderFactory.createProvider(config);
 
     const storageProvider = new JsonStorageProvider();
-    const nameCleaner = new GameNameCleaner();
+    const nameCleaner = new TitleCleaner();
 
-    const enricherService = new DataEnricherService(
+    const enricherUseCase = new EnrichGamesUseCase(
         apiProvider,
         storageProvider,
         nameCleaner
@@ -27,7 +27,7 @@ async function main() {
     console.log(`Reading from: ${config.inputFilePath}`);
     console.log(`Writing to: ${config.outputFilePath}`);
 
-    await enricherService.enrichDataset(config.inputFilePath, config.outputFilePath, config.enrichmentLimit);
+    await enricherUseCase.enrichDataset(config.inputFilePath, config.outputFilePath, config.enrichmentLimit);
 
     console.log("=== DONE ===");
 }

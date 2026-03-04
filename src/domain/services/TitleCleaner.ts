@@ -1,6 +1,6 @@
-import { ITitleCleaner } from '../domain/interfaces/ITitleCleaner';
+import { ITitleCleaner } from '../interfaces/ITitleCleaner';
 
-export class GameNameCleaner implements ITitleCleaner {
+export class TitleCleaner implements ITitleCleaner {
     private readonly filters: RegExp[] = [
         // Remove text in parentheses/brackets e.g. "Game (Update1)" -> "Game"
         /[\(\[].*?[\)\]]/g,

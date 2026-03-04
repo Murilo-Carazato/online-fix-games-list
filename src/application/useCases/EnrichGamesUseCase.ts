@@ -3,7 +3,7 @@ import { IStorageProvider } from '../../domain/interfaces/IStorageProvider';
 import { ITitleCleaner } from '../../domain/interfaces/ITitleCleaner';
 import { EnrichedGame } from '../../domain/models/Game';
 
-export class DataEnricherService {
+export class EnrichGamesUseCase {
     constructor(
         private dataProvider: IGameDataProvider,
         private storageProvider: IStorageProvider,
