@@ -41,16 +41,24 @@ export class RawgApiProvider implements IGameDataProvider {
                     rawgId: gameData.id,
                     totalRating: gameData.rating,
                     totalRatingCount: gameData.reviews_count || gameData.ratings_count || null,
-                    ratings: gameData.ratings?.map((r: any) => ({
-                        title: r.title,
-                        count: r.count,
-                        percent: r.percent
-                    })) || [],
+                    ratings: gameData.ratings?.map((r: any) => {
+                        const weights: Record<string, number> = {
+                            'exceptional': 5,
+                            'recommended': 4,
+                            'meh': 3,
+                            'skip': 1
+                        };
+                        return {
+                            title: r.title,
+                            count: r.count,
+                            percent: r.percent,
+                            score: weights[r.title.toLowerCase()] || 0
+                        };
+                    }) || [],
                     added: gameData.added || undefined,
                     addedByStatus: gameData.added_by_status || undefined,
                     genres: gameData.genres?.map((g: any) => g.name) || [],
                     platforms: gameData.platforms?.map((p: any) => p.platform.name) || [],
-                    coverUrl: gameData.background_image || undefined,
                     playtime: gameData.playtime || undefined,
                     screenshots: gameData.short_screenshots
                         ?.map((s: any) => s.image)

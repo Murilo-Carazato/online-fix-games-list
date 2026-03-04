@@ -96,15 +96,19 @@ export class IgdbApiProvider implements IGameDataProvider {
                     externalGames: gameData.external_games
                         ?.filter((e: any) => e.url && !e.url.includes('twitch.tv'))
                         ?.map((e: any) => {
-                            let storeId = 99; // 99 for other
+                            let storeName = 'Other';
                             const url = e.url.toLowerCase();
-                            if (url.includes('steampowered.com')) storeId = 1;
-                            else if (url.includes('playstation.com')) storeId = 2;
-                            else if (url.includes('xbox.com')) storeId = 3;
-                            else if (url.includes('epicgames.com')) storeId = 4;
-                            else if (url.includes('gog.com')) storeId = 5;
-                            else if (url.includes('nintendo.com')) storeId = 6;
-                            return { id: storeId, url: e.url };
+                            if (url.includes('steampowered.com')) storeName = 'Steam';
+                            else if (url.includes('playstation.com')) storeName = 'PlayStation';
+                            else if (url.includes('xbox.com')) storeName = 'Xbox';
+                            else if (url.includes('epicgames.com')) storeName = 'Epic Games';
+                            else if (url.includes('gog.com')) storeName = 'GOG';
+                            else if (url.includes('nintendo.com')) storeName = 'Nintendo';
+
+                            const domain = new URL(e.url).hostname;
+                            const categoryIcon = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
+                            return { storeName, categoryIcon, url: e.url };
                         }) || [],
                     videos: gameData.videos?.map((v: any) => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
