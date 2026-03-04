@@ -31,8 +31,8 @@ services:
       - HOSTNAME=0.0.0.0
       - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
       - NEXT_TELEMETRY_DISABLED=1
-    # Run npm install at root to setup workspaces properly, then run migrations, then start dev server
-    command: sh -c "cd /app && npm install && npm run db:migrate --workspace=@hydra/infrastructure && cd apps/web && npm run dev"
+    # Run npm install at root, compile infrastructure schema, push it, then start dev
+    command: sh -c "cd /app && npm install && npm run build --workspace=@hydra/infrastructure && npm run db:push --workspace=@hydra/infrastructure && cd apps/web && npm run dev"
     depends_on:
       db:
         condition: service_healthy

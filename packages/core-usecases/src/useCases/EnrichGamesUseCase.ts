@@ -1,4 +1,4 @@
-import { IGameDataProvider, IStorageProvider, ITitleCleaner, EnrichedGame } from '@hydra/core-domain';
+import { IGameDataProvider, IStorageProvider, ITitleCleaner, EnrichedGame, HydraGame } from '@hydra/core-domain';
 
 export class EnrichGamesUseCase {
     constructor(
@@ -15,44 +15,47 @@ export class EnrichGamesUseCase {
         const gamesToProcess = limit ? rawGames.slice(0, limit) : rawGames;
         const enrichedGames: EnrichedGame[] = [];
 
-        console.log(`Starting enrichment for ${gamesToProcess.length} games...`);
+        console.log(`Starting enrichment for ${gamesToProcess.length} games in groups...`);
 
+        const CHUNK_SIZE = 10;
         let processedCount = 0;
 
-        for (const game of gamesToProcess) {
-            processedCount++;
-            const cleanTitle = this.nameCleaner.clean(game.title);
+        for (let i = 0; i < gamesToProcess.length; i += CHUNK_SIZE) {
+            const chunk = gamesToProcess.slice(i, i + CHUNK_SIZE);
+            const promises = chunk.map(async (game) => {
+                const cleanTitle = this.nameCleaner.clean(game.title);
+                try {
+                    const enrichedData = await this.dataProvider.getGameDetails(cleanTitle);
 
-            console.log(`[${processedCount}/${gamesToProcess.length}] Processing: "${game.title}" -> Searching for: "${cleanTitle}"`);
+                    const finalGame: EnrichedGame = {
+                        ...game, // keep original properties (fileSize, uploadDate)
+                        ...enrichedData, // merge new properties
+                        title: cleanTitle, // Clean title without versions
+                        isEnriched: !!enrichedData
+                    };
 
-            try {
-                const enrichedData = await this.dataProvider.getGameDetails(cleanTitle);
+                    if (!enrichedData) {
+                        console.log(`   > [${cleanTitle}] No data found on IGDB.`);
+                    } else {
+                        console.log(`   > [${cleanTitle}] Found! Rating: ${enrichedData.totalRating || 'N/A'}, Popularity: ${enrichedData.added || 'N/A'}`);
+                    }
 
-                const finalGame: EnrichedGame = {
-                    ...game, // keep original properties (fileSize, uploadDate)
-                    ...enrichedData, // merge new properties
-                    title: cleanTitle, // Clean title without versions
-                    isEnriched: !!enrichedData
-                };
-
-                enrichedGames.push(finalGame);
-
-                if (!enrichedData) {
-                    console.log(`   > No data found on IGDB for "${cleanTitle}".`);
-                } else {
-                    console.log(`   > Found! Rating: ${enrichedData.totalRating || 'N/A'}, Genres: ${enrichedData.genres?.join(', ') || 'None'}`);
+                    return finalGame;
+                } catch (error: unknown) {
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    console.error(`   > Error fetching data for "${cleanTitle}". Skipping: ${errorMessage}`);
+                    return { ...game, isEnriched: false } as EnrichedGame;
                 }
-            } catch (error: unknown) {
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                console.error(`   > Error fetching data for "${cleanTitle}". Skipping: ${errorMessage}`);
-                enrichedGames.push({
-                    ...game,
-                    isEnriched: false
-                });
-            }
+            });
+
+            const results = await Promise.all(promises);
+            enrichedGames.push(...results);
+
+            processedCount += chunk.length;
+            console.log(`[Batch Progress] ${processedCount}/${gamesToProcess.length} processed.`);
         }
 
-        console.log(`Enrichment complete. Saving to ${outputPath}...`);
+        console.log(`Enrichment complete. Saving to ${outputPath} (Postgres)...`);
         await this.storageProvider.saveGames(outputPath, enrichedGames);
         console.log('Save complete!');
     }

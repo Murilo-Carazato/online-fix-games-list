@@ -5,6 +5,7 @@ import type { EnrichedGame } from '@hydra/core-domain';
 import { GameCard } from '@/components/GameCard';
 import { FilterBar } from '@/components/FilterBar';
 import { StatsHeader } from '@/components/StatsHeader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
 export type GroupKey = 'none' | 'wantToPlay' | 'genre';
@@ -17,8 +18,7 @@ interface GameDashboardProps {
 }
 
 export default function GameDashboard({ initialGames, initialWantSet, initialIgnoredSet }: GameDashboardProps) {
-    // Instead of useGames fetching and managing everything, we manage optimistic local state here
-    // and call Server Actions to persist.
+    const [gamesList, setGamesList] = useState<EnrichedGame[]>(initialGames);
     const [wantSet, setWantSet] = useState<Set<string>>(new Set(initialWantSet));
     const [ignSet, setIgnSet] = useState<Set<string>>(new Set(initialIgnoredSet));
 
@@ -27,50 +27,60 @@ export default function GameDashboard({ initialGames, initialWantSet, initialIgn
     const [filterBy, setFilterBy] = useState<FilterKey>('all');
     const [search, setSearch] = useState('');
 
+    // Pagination state
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(initialGames.length >= 50);
+
     const toggleWantToPlay = async (title: string) => {
         const isCurrentlyWant = wantSet.has(title);
-        // Optimistic UI update
         setWantSet(prev => { const n = new Set(prev); if (isCurrentlyWant) n.delete(title); else n.add(title); return n; });
         if (!isCurrentlyWant) {
             setIgnSet(prev => { const n = new Set(prev); n.delete(title); return n; });
         }
-
-        // Fire and forget Server Action
         const { toggleWantToPlayAction } = await import('@/actions/gameActions');
         toggleWantToPlayAction(title, isCurrentlyWant);
     };
 
     const toggleIgnored = async (title: string) => {
         const isCurrentlyIgn = ignSet.has(title);
-        // Optimistic UI update
         setIgnSet(prev => { const n = new Set(prev); if (isCurrentlyIgn) n.delete(title); else n.add(title); return n; });
         if (!isCurrentlyIgn) {
             setWantSet(prev => { const n = new Set(prev); n.delete(title); return n; });
         }
-
-        // Fire and forget Server Action
         const { toggleIgnoredAction } = await import('@/actions/gameActions');
         toggleIgnoredAction(title, isCurrentlyIgn);
+    };
+
+    const loadMore = async () => {
+        if (loadingMore || !hasMore) return;
+        setLoadingMore(true);
+        const { fetchMoreGamesAction } = await import('@/actions/gameActions');
+        const res = await fetchMoreGamesAction(gamesList.length, 50);
+
+        if (res.success && res.games) {
+            setGamesList(prev => [...prev, ...res.games!]);
+            if (res.games.length < 50) setHasMore(false);
+        } else {
+            setHasMore(false);
+        }
+        setLoadingMore(false);
     };
 
     const isWantToPlay = useCallback((title: string) => wantSet.has(title), [wantSet]);
     const isIgnored = useCallback((title: string) => ignSet.has(title), [ignSet]);
 
     const processed = useMemo(() => {
-        let list = Array.isArray(initialGames) ? [...initialGames] : [];
+        let list = [...gamesList];
 
-        // 1. Search filter
         if (search.trim()) {
             const q = search.toLowerCase();
             list = list.filter(g => g.title.toLowerCase().includes(q));
         }
 
-        // 2. Category filter
         if (filterBy === 'wantToPlay') list = list.filter(g => isWantToPlay(g.title));
         else if (filterBy === 'ignored') list = list.filter(g => isIgnored(g.title));
         else if (filterBy === 'untagged') list = list.filter(g => !isWantToPlay(g.title) && !isIgnored(g.title));
 
-        // 3. Sort
         list.sort((a, b) => {
             let val = 0;
             switch (sortBy) {
@@ -84,17 +94,15 @@ export default function GameDashboard({ initialGames, initialWantSet, initialIgn
         });
 
         return list;
-    }, [initialGames, search, filterBy, sortBy, sortDir, isWantToPlay, isIgnored]);
-
-    // Data is fetched Server-Side so no local loading/error states needed
+    }, [gamesList, search, filterBy, sortBy, sortDir, isWantToPlay, isIgnored]);
 
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
                 <StatsHeader
-                    total={initialGames.length}
-                    wantToPlay={initialGames.filter(g => isWantToPlay(g.title)).length}
-                    ignored={initialGames.filter(g => isIgnored(g.title)).length}
+                    total={gamesList.length}
+                    wantToPlay={gamesList.filter(g => isWantToPlay(g.title)).length}
+                    ignored={gamesList.filter(g => isIgnored(g.title)).length}
                 />
 
                 <FilterBar
@@ -105,23 +113,45 @@ export default function GameDashboard({ initialGames, initialWantSet, initialIgn
                     resultCount={processed.length}
                 />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {processed.map(game => (
-                        <GameCard
-                            key={game.title}
-                            game={game}
-                            wantToPlay={isWantToPlay(game.title)}
-                            ignored={isIgnored(game.title)}
-                            onToggleWantToPlay={() => toggleWantToPlay(game.title)}
-                            onToggleIgnored={() => toggleIgnored(game.title)}
-                        />
-                    ))}
-                </div>
+                <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <AnimatePresence mode="popLayout">
+                        {processed.map(game => (
+                            <motion.div
+                                key={game.title}
+                                layout
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <GameCard
+                                    game={game}
+                                    wantToPlay={isWantToPlay(game.title)}
+                                    ignored={isIgnored(game.title)}
+                                    onToggleWantToPlay={() => toggleWantToPlay(game.title)}
+                                    onToggleIgnored={() => toggleIgnored(game.title)}
+                                />
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </motion.div>
 
                 {processed.length === 0 && (
                     <div className="text-center py-24 text-muted-foreground">
                         <p className="text-2xl">🎮</p>
                         <p className="mt-2">Nenhum jogo encontrado para os filtros selecionados.</p>
+                    </div>
+                )}
+
+                {hasMore && (
+                    <div className="mt-10 flex justify-center">
+                        <button
+                            onClick={loadMore}
+                            disabled={loadingMore}
+                            className="px-6 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition disabled:opacity-50"
+                        >
+                            {loadingMore ? 'Carregando...' : 'Carregar mais jogos'}
+                        </button>
                     </div>
                 )}
             </div>

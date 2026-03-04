@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
+const withPWA = require("@ducanh2912/next-pwa").default({
+    dest: "public",
+    disable: process.env.NODE_ENV === "development",
+});
+
 const nextConfig = {
     // Enable transpiling of internal monorepo packages
     transpilePackages: ['@hydra/core-domain', '@hydra/core-usecases', '@hydra/infrastructure'],
@@ -26,4 +31,4 @@ const nextConfig = {
     },
 };
 
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);

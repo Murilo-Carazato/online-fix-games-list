@@ -39,3 +39,16 @@ export async function getAllPreferences() {
         return [];
     }
 }
+
+import { PostgresGameDataRepository } from "@hydra/infrastructure";
+const dataRepository = new PostgresGameDataRepository();
+
+export async function fetchMoreGamesAction(offset: number, limit: number = 50) {
+    try {
+        const games = await dataRepository.getGamesPaginated({ offset, limit });
+        return { success: true, games };
+    } catch (error) {
+        console.error("Failed to fetch more games:", error);
+        return { success: false, error: "Database error", games: [] };
+    }
+}
