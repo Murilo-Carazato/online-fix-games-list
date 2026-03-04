@@ -13,5 +13,8 @@ RUN --mount=type=cache,target=/root/.npm npm install
 # Copy source code
 COPY . .
 
-# Start the script
-CMD ["npm", "start"]
+# Build the application safely
+RUN npm run build
+
+# Start the compiled script
+CMD ["npm", "run", "start:prod"]

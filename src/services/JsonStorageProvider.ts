@@ -7,7 +7,7 @@ export class JsonStorageProvider implements IStorageProvider {
         try {
             const data = await fs.readFile(path, 'utf8');
             return JSON.parse(data) as HydraGame[];
-        } catch (error) {
+        } catch (error: unknown) {
             console.error(`Error loading games from ${path}:`, error);
             throw error;
         }
@@ -18,7 +18,7 @@ export class JsonStorageProvider implements IStorageProvider {
             const data = JSON.stringify(games, null, 2);
             await fs.writeFile(path, data, 'utf8');
             console.log(`Saved ${games.length} games to ${path}`);
-        } catch (error) {
+        } catch (error: unknown) {
             console.error(`Error saving games to ${path}:`, error);
             throw error;
         }

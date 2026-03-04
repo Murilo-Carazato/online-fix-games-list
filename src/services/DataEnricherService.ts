@@ -1,13 +1,13 @@
 import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
 import { IStorageProvider } from '../domain/interfaces/IStorageProvider';
-import { GameNameCleaner } from '../utils/GameNameCleaner';
+import { ITitleCleaner } from '../domain/interfaces/ITitleCleaner';
 import { EnrichedGame } from '../domain/models/Game';
 
 export class DataEnricherService {
     constructor(
         private dataProvider: IGameDataProvider,
         private storageProvider: IStorageProvider,
-        private nameCleaner: GameNameCleaner
+        private nameCleaner: ITitleCleaner
     ) { }
 
     public async enrichDataset(inputPath: string, outputPath: string, limit?: number): Promise<void> {
@@ -45,8 +45,9 @@ export class DataEnricherService {
                 } else {
                     console.log(`   > Found! Rating: ${enrichedData.totalRating || 'N/A'}, Genres: ${enrichedData.genres?.join(', ') || 'None'}`);
                 }
-            } catch (error) {
-                console.error(`   > Error fetching data for "${cleanTitle}". Skipping.`, error);
+            } catch (error: unknown) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                console.error(`   > Error fetching data for "${cleanTitle}". Skipping: ${errorMessage}`);
                 enrichedGames.push({
                     ...game,
                     isEnriched: false

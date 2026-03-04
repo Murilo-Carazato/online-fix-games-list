@@ -2,7 +2,25 @@ import axios from 'axios';
 import { IGameDataProvider } from '../domain/interfaces/IGameDataProvider';
 import { EnrichedGame, IgdbGameData } from '../domain/models/Game';
 
-export class IgdbApiProvider implements IGameDataProvider {
+export interface IgdbGameResponse {
+    id: number;
+    total_rating?: number;
+    total_rating_count?: number;
+    genres?: Array<{ name: string }>;
+    themes?: Array<{ name: string }>;
+    platforms?: Array<{ name: string }>;
+    game_modes?: Array<{ name: string }>;
+    franchises?: Array<{ name: string }>;
+    cover?: { url: string };
+    videos?: Array<{ video_id: string }>;
+    language_supports?: Array<{
+        language?: { name: string };
+        language_support_type?: { name: string };
+    }>;
+    external_games?: Array<{ url: string }>;
+}
+
+export class IgdbApiProvider implements IGameDataProvider<Partial<IgdbGameData>> {
     private clientId: string;
     private clientSecret: string;
     private accessToken: string | null = null;
@@ -46,6 +64,22 @@ export class IgdbApiProvider implements IGameDataProvider {
         this.lastRequestTime = Date.now();
     }
 
+    private mapExternalGame(url: string): { storeName: string; categoryIcon: string; url: string } {
+        let storeName = 'Other';
+        const lowerUrl = url.toLowerCase();
+        if (lowerUrl.includes('steampowered.com')) storeName = 'Steam';
+        else if (lowerUrl.includes('playstation.com')) storeName = 'PlayStation';
+        else if (lowerUrl.includes('xbox.com')) storeName = 'Xbox';
+        else if (lowerUrl.includes('epicgames.com')) storeName = 'Epic Games';
+        else if (lowerUrl.includes('gog.com')) storeName = 'GOG';
+        else if (lowerUrl.includes('nintendo.com')) storeName = 'Nintendo';
+
+        const domain = new URL(url).hostname;
+        const categoryIcon = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
+        return { storeName, categoryIcon, url };
+    }
+
     public async getGameDetails(cleanTitle: string): Promise<Partial<IgdbGameData> | null> {
         await this.authenticate();
         await this.delayNextRequest();
@@ -65,7 +99,7 @@ export class IgdbApiProvider implements IGameDataProvider {
     `;
 
         try {
-            const response = await axios.post('https://api.igdb.com/v4/games', query, {
+            const response = await axios.post<IgdbGameResponse[]>('https://api.igdb.com/v4/games', query, {
                 headers: {
                     'Client-ID': this.clientId,
                     'Authorization': `Bearer ${this.accessToken}`,
@@ -82,45 +116,32 @@ export class IgdbApiProvider implements IGameDataProvider {
                     igdbId: gameData.id,
                     totalRating: gameData.total_rating ?? null,
                     totalRatingCount: gameData.total_rating_count ?? null,
-                    genres: gameData.genres?.map((g: any) => g.name) || [],
-                    themes: gameData.themes?.map((t: any) => t.name) || [],
-                    platforms: gameData.platforms?.map((p: any) => p.name) || [],
-                    gameModes: gameData.game_modes?.map((m: any) => m.name) || [],
+                    genres: gameData.genres?.map(g => g.name) || [],
+                    themes: gameData.themes?.map(t => t.name) || [],
+                    platforms: gameData.platforms?.map(p => p.name) || [],
+                    gameModes: gameData.game_modes?.map(m => m.name) || [],
                     languageSupports: gameData.language_supports
-                        ?.filter((l: any) => {
+                        ?.filter(l => {
                             const name = l.language?.name?.toLowerCase() || '';
                             return name.includes('english') || name.includes('portuguese');
                         })
-                        ?.map((l: any) => `${l.language?.name ?? 'Unknown'} (${l.language_support_type?.name ?? 'Unknown'})`) || [],
-                    franchises: gameData.franchises?.map((f: any) => f.name) || [],
+                        ?.map(l => `${l.language?.name ?? 'Unknown'} (${l.language_support_type?.name ?? 'Unknown'})`) || [],
+                    franchises: gameData.franchises?.map(f => f.name) || [],
                     externalGames: gameData.external_games
-                        ?.filter((e: any) => e.url && !e.url.includes('twitch.tv'))
-                        ?.map((e: any) => {
-                            let storeName = 'Other';
-                            const url = e.url.toLowerCase();
-                            if (url.includes('steampowered.com')) storeName = 'Steam';
-                            else if (url.includes('playstation.com')) storeName = 'PlayStation';
-                            else if (url.includes('xbox.com')) storeName = 'Xbox';
-                            else if (url.includes('epicgames.com')) storeName = 'Epic Games';
-                            else if (url.includes('gog.com')) storeName = 'GOG';
-                            else if (url.includes('nintendo.com')) storeName = 'Nintendo';
-
-                            const domain = new URL(e.url).hostname;
-                            const categoryIcon = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-
-                            return { storeName, categoryIcon, url: e.url };
-                        }) || [],
-                    videos: gameData.videos?.map((v: any) => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
+                        ?.filter(e => e.url && !e.url.includes('twitch.tv'))
+                        ?.map(e => this.mapExternalGame(e.url)) || [],
+                    videos: gameData.videos?.map(v => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
                 };
             }
 
             return null;
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 console.error(`IGDB API Error for "${cleanTitle}":`, error.response?.status, error.response?.data || error.message);
             } else {
-                console.error(`Error processing "${cleanTitle}":`, error);
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                console.error(`Error processing "${cleanTitle}":`, errorMessage);
             }
             return null;
         }

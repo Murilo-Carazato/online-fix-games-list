@@ -27,17 +27,19 @@ export interface RawgGameData extends BaseGameData {
   rawgId?: number | null;
   ratings?: { title: string; count: number; percent: number; score: number }[] | null;
   added?: number | null;
-  addedByStatus?: { [status: string]: number } | null;
+  addedByStatus?: Record<string, number> | null;
   playtime?: number | null;
+}
+
+export interface IVideoResult {
+  url: string;
+  title: string;
+  publishedAt: string;
+  thumbnailUrl: string;
+  channelTitle: string;
 }
 
 export interface EnrichedGame extends HydraGame, Partial<IgdbGameData>, Partial<RawgGameData> {
   isEnriched: boolean;
-  alanzokaVideos?: {
-    url: string;
-    title: string;
-    publishedAt: string;
-    thumbnailUrl: string;
-    channelTitle: string;
-  }[] | null;
+  alanzokaVideos?: IVideoResult[] | null;
 }

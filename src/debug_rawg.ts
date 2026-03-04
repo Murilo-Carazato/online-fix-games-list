@@ -1,11 +1,10 @@
 import axios from 'axios';
-import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
+import { loadConfig } from './config/AppConfig';
 
-dotenv.config();
-
-const RAWG_API_KEY = process.env.RAWG_API_KEY;
+const config = loadConfig();
+const RAWG_API_KEY = config.rawgApiKey || '';
 
 async function debugRawgFields() {
     console.log("=== RAWG FULL FIELDS DEBUG (Saving to File) ===");
@@ -29,8 +28,9 @@ async function debugRawgFields() {
         } else {
             console.log("No results found.");
         }
-    } catch (error) {
-        console.error("Error fetching from RAWG:", error);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Error fetching from RAWG:", errorMessage);
     }
 }
 

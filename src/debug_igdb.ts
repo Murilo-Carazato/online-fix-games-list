@@ -1,12 +1,12 @@
 import axios from 'axios';
-import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
+import { loadConfig } from './config/AppConfig';
 
-dotenv.config();
+const config = loadConfig();
 
-const CLIENT_ID = process.env.IGDB_CLIENT_ID;
-const CLIENT_SECRET = process.env.IGDB_CLIENT_SECRET;
+const CLIENT_ID = config.igdbClientId;
+const CLIENT_SECRET = config.igdbClientSecret;
 
 async function debugFields() {
     console.log("=== IGDB FULL FIELDS DEBUG (Saving to File) ===");
@@ -46,8 +46,9 @@ async function debugFields() {
         } else {
             console.log("No results found in IGDB.");
         }
-    } catch (error) {
-        console.error("Error fetching from IGDB:", error);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Error fetching from IGDB:", errorMessage);
     }
 }
 

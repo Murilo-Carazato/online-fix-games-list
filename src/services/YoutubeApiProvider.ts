@@ -1,29 +1,52 @@
 import axios from 'axios';
+import { IVideoProvider } from '../domain/interfaces/IVideoProvider';
+import { IVideoResult } from '../domain/models/Game';
 
-export class YoutubeApiProvider {
+export interface YoutubeSearchItem {
+    id: {
+        videoId: string;
+    };
+    snippet: {
+        title: string;
+        publishedAt: string;
+        channelTitle: string;
+        thumbnails?: {
+            high?: {
+                url: string;
+            };
+        };
+    };
+}
+
+export interface YoutubeSearchResponse {
+    items?: YoutubeSearchItem[];
+}
+
+export class YoutubeApiProvider implements IVideoProvider {
     private apiKey: string;
-    private channelId: string = 'UCIwspRtKNszHhIhl36gREjQ'; // Alanzoka's Channel ID
+    private channelId: string;
+    private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
 
-    constructor(apiKey: string) {
+    constructor(apiKey: string, channelId: string) {
         this.apiKey = apiKey;
+        this.channelId = channelId;
     }
 
     /**
-     * Searches for videos of a game on Alanzoka's channel.
+     * Searches for videos of a game on the configured channel.
      * @param cleanTitle The game title to search for.
      * @returns An array of video details objects, or null if none found.
      */
-    public async getAlanzokaVideos(cleanTitle: string): Promise<{ url: string; title: string; publishedAt: string; thumbnailUrl: string; channelTitle: string }[] | null> {
+    public async getVideosForGame(cleanTitle: string): Promise<IVideoResult[] | null> {
         if (!this.apiKey) {
             console.warn('[Youtube] API Key not provided. Skipping search.');
             return null;
         }
 
         try {
-            console.log(`[Youtube] Searching Alanzoka video for "${cleanTitle}"...`);
+            console.log(`[Youtube] Searching video for "${cleanTitle}"...`);
 
-            // Search query: game title + "alanzoka" just in case, though channelId filters it
-            const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+            const response = await axios.get<YoutubeSearchResponse>(this.baseUrl, {
                 params: {
                     key: this.apiKey,
                     channelId: this.channelId,
@@ -36,7 +59,7 @@ export class YoutubeApiProvider {
             });
 
             if (response.data.items && response.data.items.length > 0) {
-                const relevantVideos = [];
+                const relevantVideos: IVideoResult[] = [];
                 const titleWords = cleanTitle.toLowerCase().split(' ').filter(w => w.length > 2);
 
                 for (const item of response.data.items) {
@@ -68,12 +91,17 @@ export class YoutubeApiProvider {
 
                 console.log(`[Youtube] Videos found but none were sufficiently relevant for "${cleanTitle}".`);
             } else {
-                console.log(`[Youtube] No video found for "${cleanTitle}" on Alanzoka's channel.`);
+                console.log(`[Youtube] No video found for "${cleanTitle}" on the channel.`);
             }
 
             return null;
-        } catch (error: any) {
-            console.error(`[Youtube] Error searching for video:`, error.response?.data || error.message);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                console.error(`[Youtube] API Error searching for video:`, error.response?.data || error.message);
+            } else {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                console.error(`[Youtube] Unexpected error searching for video:`, errorMessage);
+            }
             return null;
         }
     }
