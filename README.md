@@ -24,12 +24,12 @@ externalGames(stores - já vem com link), videos, language_supports, franchises,
 
 ===
 
-empate: imagens capa, platforms, genres
+empate: imagens, platforms, genres
 
 ===
 
 rawg:
-imagens(in game), rating, playtime
+rating, playtime
 
 background_image: Uma URL para a imagem principal (geralmente uma concept art ou wallpaper) que serve de fundo para o jogo.
 rating: A nota média dada pelos usuários do RAWG (normalmente de 0 a 5).

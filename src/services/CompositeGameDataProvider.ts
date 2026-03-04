@@ -47,8 +47,8 @@ export class CompositeGameDataProvider implements IGameDataProvider {
         // Game Characteristics -> Merge distinct values to get the most comprehensive list
         mergedGame.genres = this.mergeUnique(igdbResult?.genres, rawgResult?.genres);
         mergedGame.platforms = this.mergeUnique(igdbResult?.platforms, rawgResult?.platforms);
-        mergedGame.themes = this.mergeUnique(igdbResult?.themes, rawgResult?.themes);
-        mergedGame.gameModes = this.mergeUnique(igdbResult?.gameModes, rawgResult?.gameModes);
+        mergedGame.themes = igdbResult?.themes || [];
+        mergedGame.gameModes = igdbResult?.gameModes || [];
 
         // Exclusive IGDB fields -> High quality structured data
         mergedGame.languageSupports = igdbResult?.languageSupports || [];

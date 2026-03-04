@@ -8,14 +8,15 @@ export interface BaseGameData {
   totalRating?: number;
   totalRatingCount?: number;
   genres?: string[];
-  themes?: string[];
   platforms?: string[];
-  gameModes?: string[];
   coverUrl?: string;
+  screenshots?: string[];
 }
 
 export interface IgdbGameData extends BaseGameData {
   igdbId?: number;
+  themes?: string[];
+  gameModes?: string[];
   languageSupports?: string[];
   franchises?: string[];
   externalGames?: { id: number; url: string }[];
@@ -28,7 +29,6 @@ export interface RawgGameData extends BaseGameData {
   added?: number;
   addedByStatus?: { [status: string]: number };
   playtime?: number;
-  screenshots?: string[];
 }
 
 export interface EnrichedGame extends HydraGame, Partial<IgdbGameData>, Partial<RawgGameData> {

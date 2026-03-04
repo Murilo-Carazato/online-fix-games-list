@@ -9,5 +9,3 @@ services:
       - .env
     environment:
       - NODE_ENV=development
-    tty: true
-    command: tail -f /dev/null

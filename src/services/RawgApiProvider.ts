@@ -37,28 +37,9 @@ export class RawgApiProvider implements IGameDataProvider {
             if (response.data && response.data.results && response.data.results.length > 0) {
                 const gameData = response.data.results[0];
 
-                // Identify game modes from tags (RAWG doesn't have a distinct game_modes field in the search response)
-                const modeSlugs = ['singleplayer', 'multiplayer', 'co-op', 'local-multiplayer', 'online-co-op'];
-                const gameModes = gameData.tags
-                    ?.filter((t: any) => modeSlugs.includes(t.slug.toLowerCase()))
-                    .map((t: any) => t.name) || [];
-
-                // Filter out non-English tags and remove game modes from themes
-                const themes = gameData.tags
-                    ?.filter((t: any) => t.language === 'eng' && !modeSlugs.includes(t.slug.toLowerCase()))
-                    .map((t: any) => t.name) || [];
-
-                // Normalize RAWG ratings (which are 1-5 or metacritic 0-100) to our 0-100 scale for consistency
-                let normalizedRating = null;
-                if (gameData.metacritic) {
-                    normalizedRating = gameData.metacritic;
-                } else if (gameData.rating > 0) {
-                    normalizedRating = gameData.rating * 20; // Scale 0-5 to 0-100
-                }
-
                 return {
                     rawgId: gameData.id,
-                    totalRating: normalizedRating,
+                    totalRating: gameData.rating,
                     totalRatingCount: gameData.reviews_count || gameData.ratings_count || null,
                     ratings: gameData.ratings?.map((r: any) => ({
                         title: r.title,
@@ -68,9 +49,7 @@ export class RawgApiProvider implements IGameDataProvider {
                     added: gameData.added || undefined,
                     addedByStatus: gameData.added_by_status || undefined,
                     genres: gameData.genres?.map((g: any) => g.name) || [],
-                    themes: themes,
                     platforms: gameData.platforms?.map((p: any) => p.platform.name) || [],
-                    gameModes: gameModes,
                     coverUrl: gameData.background_image || undefined,
                     playtime: gameData.playtime || undefined,
                     screenshots: gameData.short_screenshots

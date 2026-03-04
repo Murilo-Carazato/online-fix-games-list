@@ -60,7 +60,7 @@ export class IgdbApiProvider implements IGameDataProvider {
       fields name, genres.name, cover.url, total_rating, total_rating_count, 
              themes.name, platforms.name, game_modes.name, 
              language_supports.language.name, language_supports.language_support_type.name, 
-             franchises.name, external_games.url, external_games.uid, videos.video_id; 
+             franchises.name, external_games.url, videos.video_id; 
       limit 1;
     `;
 
