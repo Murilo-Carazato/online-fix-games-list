@@ -6,7 +6,10 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc",
-        "dev": "tsc --watch"
+        "dev": "tsc --watch",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "tsx src/database/migrate.ts",
+        "db:push": "drizzle-kit push"
     },
     "dependencies": {
         "@hydra/core-domain": "*",
