@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import type { SortKey, FilterKey } from '@/components/GameDashboard';
-import { useDebounce } from '@/hooks/useDebounce';
+import { useDebouncedInput } from '@/hooks/useDebouncedInput';
 
 interface FilterBarProps {
     sortBy: SortKey;
@@ -33,14 +32,7 @@ const FILTER_OPTIONS: { value: FilterKey; label: string }[] = [
 ];
 
 export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, setFilterBy, search, setSearch, resultCount, hasMore }: FilterBarProps) {
-    const [localSearch, setLocalSearch] = useState(search);
-    const debouncedSearch = useDebounce(localSearch, 300);
-
-    useEffect(() => {
-        setSearch(debouncedSearch);
-    }, [debouncedSearch, setSearch]);
-
-
+    const [localSearch, setLocalSearch] = useDebouncedInput(search, setSearch, 300);
     return (
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border mb-6 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
