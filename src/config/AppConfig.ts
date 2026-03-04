@@ -22,7 +22,7 @@ export function loadConfig(): AppConfig {
         igdbClientId: process.env.IGDB_CLIENT_ID || '',
         igdbClientSecret: process.env.IGDB_CLIENT_SECRET || '',
         youtubeApiKey: process.env.YOUTUBE_API_KEY || '',
-        youtubeChannelId: process.env.YOUTUBE_CHANNEL_ID || 'UC3t1i_GvLd_J3j1iO9E5D9Q',
+        youtubeChannelId: process.env.YOUTUBE_CHANNEL_ID || 'UCIwspRtKNszHhIhl36gREjQ',
         inputFilePath: process.env.INPUT_FILE_PATH || path.resolve(__dirname, '../../data/onlinefix.json'),
         outputFilePath: process.env.OUTPUT_FILE_PATH || path.resolve(__dirname, '../../data/onlinefix_enriched.json'),
         enrichmentLimit: process.env.ENRICHMENT_LIMIT ? parseInt(process.env.ENRICHMENT_LIMIT, 10) : undefined
