@@ -9,9 +9,11 @@ export const metadata: Metadata = {
   description: 'Sort and organize your OnlineFix game library by popularity, date, and categories.',
   manifest: '/manifest.json',
   appleWebApp: {
-    capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Hydra Sorter',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
   },
 };
 
