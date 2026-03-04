@@ -6,7 +6,7 @@
     "scripts": {
         "start": "ts-node src/index.ts",
         "debug:rawg": "ts-node src/debug_rawg.ts",
-        "debug:igdb": "ts-node src/debug_fields.ts"
+        "debug:igdb": "ts-node src/debug_igdb.ts"
     },
     "dependencies": {
         "axios": "^1.6.0",

@@ -5,31 +5,9 @@
     "uploadDate": "2026-03-02T16:28:32.000Z",
     "isEnriched": true,
     "igdbId": 338156,
-    "rawgId": 993884,
-    "totalRatingCount": 1,
-    "ratings": [
-      {
-        "title": "recommended",
-        "count": 1,
-        "percent": 100
-      }
-    ],
-    "added": 3,
-    "addedByStatus": {
-      "owned": 1,
-      "beaten": 1,
-      "toplay": 1
-    },
-    "playtime": 47,
-    "coverUrl": "https://media.rawg.io/media/screenshots/219/2196a76bd7003dd2b0d5508dbc84ecda.jpg",
-    "screenshots": [
-      "https://media.rawg.io/media/screenshots/a31/a319c9da9cae93a9a63444e082530693.jpg",
-      "https://media.rawg.io/media/screenshots/308/308e536892f9055fc5b3fde9d4038198.jpg",
-      "https://media.rawg.io/media/screenshots/f39/f39b8aa9be2387cb24d8babdf5c58b29.jpg",
-      "https://media.rawg.io/media/screenshots/026/02649038ecc85f97db332144044d31d4.jpg",
-      "https://media.rawg.io/media/screenshots/33c/33cfa4e415440016ff95521ca7787eb6.jpg",
-      "https://media.rawg.io/media/screenshots/82e/82e2eaecc0491d2beab03d8a3bcdb48f.jpg"
-    ],
+    "totalRatingCount": null,
+    "coverUrl": "//images.igdb.com/igdb/image/upload/t_cover_big/co9pm4.jpg",
+    "screenshots": [],
     "videos": [],
     "genres": [
       "Strategy",
@@ -37,29 +15,12 @@
     ],
     "platforms": [
       "PC (Microsoft Windows)",
-      "Mac",
-      "PC",
-      "macOS"
+      "Mac"
     ],
-    "themes": [
-      "Steam Achievements",
-      "Full controller support",
-      "Early Access",
-      "PvP",
-      "Online PvP",
-      "PvE",
-      "Resource Management",
-      "Family Sharing",
-      "Board Game",
-      "Tutorial",
-      "tabletop",
-      "Steam Turn Notifications",
-      "Asynchronous Multiplayer"
-    ],
+    "themes": [],
     "gameModes": [
       "Single player",
-      "Multiplayer",
-      "Singleplayer"
+      "Multiplayer"
     ],
     "languageSupports": [
       "English (Interface)"
