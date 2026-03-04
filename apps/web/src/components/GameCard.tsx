@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import type { EnrichedGame } from '@hydra/core-domain';
 import Image from 'next/image';
+import { formatRating, formatPopularity, formatUploadDate } from '@/utils/formatters';
 
 interface GameCardProps {
     game: EnrichedGame;
@@ -13,8 +14,8 @@ interface GameCardProps {
 }
 
 export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onToggleIgnored }: GameCardProps) {
-    const rating = game.totalRating ? Math.round(game.totalRating) : null;
-    const popularity = game.added ? formatPopularity(game.added) : null;
+    const rating = formatRating(game.totalRating);
+    const popularity = formatPopularity(game.added);
     const genres = game.genres?.slice(0, 2) ?? [];
 
     return (
@@ -75,7 +76,7 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
                 </div>
 
                 <p className="text-[11px] text-muted-foreground">
-                    {new Date(game.uploadDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                    {formatUploadDate(game.uploadDate)}
                 </p>
 
                 {/* Actions */}
@@ -114,9 +115,3 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
         </div>
     );
 });
-
-function formatPopularity(n: number): string {
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
-    return String(n);
-}
