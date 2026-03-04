@@ -72,7 +72,7 @@ export function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onTogg
                 </div>
 
                 <p className="text-[11px] text-muted-foreground">
-                    {new Date(game.uploadDate).toLocaleDateString('pt-BR')}
+                    {new Date(game.uploadDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                 </p>
 
                 {/* Actions */}
