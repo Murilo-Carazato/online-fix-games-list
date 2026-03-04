@@ -114,12 +114,11 @@ export class PostgresGameDataRepository {
 
         // Map the results, combining the nested JSON payload with the current relational user preference state
         const results = await query;
-        return results.map(r => {
-            const game = r.data as EnrichedGame;
-            game.wantToPlay = r.wantToPlay ?? false;
-            game.ignored = r.ignored ?? false;
-            return game;
-        });
+        return results.map(r => ({
+            ...(r.data as any),
+            wantToPlay: r.wantToPlay ?? false,
+            ignored: r.ignored ?? false
+        } as EnrichedGame));
     }
 
     async getGlobalStats(): Promise<{ total: number; wantToPlay: number; ignored: number }> {
