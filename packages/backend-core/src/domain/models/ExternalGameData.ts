@@ -1,6 +1,6 @@
 import { VideoEntity } from '../entities/VideoEntity';
 
-export interface BaseGameDto {
+export interface BaseGameData {
     totalRating?: number | null;
     totalRatingCount?: number | null;
     genres?: string[] | null;
@@ -8,7 +8,7 @@ export interface BaseGameDto {
     screenshots?: string[] | null;
 }
 
-export interface IgdbGameDto extends BaseGameDto {
+export interface IgdbGameData extends BaseGameData {
     igdbId?: number | null;
     themes?: string[] | null;
     gameModes?: string[] | null;
@@ -19,7 +19,7 @@ export interface IgdbGameDto extends BaseGameDto {
     coverUrl?: string | null;
 }
 
-export interface RawgGameDto extends BaseGameDto {
+export interface RawgGameData extends BaseGameData {
     rawgId?: number | null;
     ratings?: { title: string; count: number; percent: number; score: number }[] | null;
     added?: number | null;
@@ -27,8 +27,8 @@ export interface RawgGameDto extends BaseGameDto {
     playtime?: number | null;
 }
 
-export interface ExternalGameDto {
-    igdbResult: Partial<IgdbGameDto> | null;
-    rawgResult: Partial<RawgGameDto> | null;
+export interface ExternalGameData {
+    igdbResult: Partial<IgdbGameData> | null;
+    rawgResult: Partial<RawgGameData> | null;
     videoResults: VideoEntity[] | null;
 }

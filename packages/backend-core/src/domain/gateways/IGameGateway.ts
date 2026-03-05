@@ -1,5 +1,5 @@
-import { ExternalGameDto } from '../dtos/ExternalGameDto';
+import { ExternalGameData } from '../models/ExternalGameData';
 
 export interface IGameGateway {
-    getGameDetails(cleanTitle: string): Promise<ExternalGameDto | null>;
+    getGameDetails(cleanTitle: string): Promise<ExternalGameData | null>;
 }

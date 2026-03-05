@@ -3,7 +3,6 @@ import { IGameRepository } from '../../domain/repositories/IGameRepository';
 import { ITitleCleanerService } from '../../domain/services/TitleCleanerService';
 import { IGameDataMergerService } from '../../domain/services/GameDataMergerService';
 import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
-import { HydraGameEntity } from '../../domain/entities/HydraGameEntity';
 
 export class EnrichGamesUseCase {
     constructor(

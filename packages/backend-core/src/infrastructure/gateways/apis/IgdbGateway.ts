@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { IGameGateway } from '../../../domain/gateways/IGameGateway';
-import { ExternalGameDto, IgdbGameDto } from '../../../domain/dtos/ExternalGameDto';
+import { ExternalGameData, IgdbGameData } from '../../../domain/models/ExternalGameData';
 import { IgdbGameModel } from './models/IgdbGameModel';
 
 export class IgdbGateway implements IGameGateway {
@@ -63,7 +63,7 @@ export class IgdbGateway implements IGameGateway {
         return { storeName, categoryIcon, url };
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<ExternalGameDto | null> {
+    public async getGameDetails(cleanTitle: string): Promise<ExternalGameData | null> {
         await this.authenticate();
         await this.delayNextRequest();
 
@@ -95,7 +95,7 @@ export class IgdbGateway implements IGameGateway {
                 const gameData = response.data[0];
 
                 // Map IGDB response to our DTO
-                const parsedData: IgdbGameDto = {
+                const parsedData: IgdbGameData = {
                     igdbId: gameData.id,
                     totalRating: gameData.total_rating ?? null,
                     totalRatingCount: gameData.total_rating_count ?? null,

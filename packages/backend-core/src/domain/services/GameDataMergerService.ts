@@ -1,15 +1,15 @@
 import { EnrichedGameEntity } from '../entities/EnrichedGameEntity';
 import { HydraGameEntity } from '../entities/HydraGameEntity';
-import { IgdbGameDto, RawgGameDto, ExternalGameDto } from '../dtos/ExternalGameDto';
+import { IgdbGameData, RawgGameData, ExternalGameData } from '../models/ExternalGameData';
 
 export interface IGameDataMergerService {
-    merge(externalData: ExternalGameDto, hydraData: HydraGameEntity): EnrichedGameEntity | null;
+    merge(externalData: ExternalGameData, hydraData: HydraGameEntity): EnrichedGameEntity | null;
 }
 
 
 export class GameDataMergerService implements IGameDataMergerService {
 
-    public merge(externalData: ExternalGameDto, hydraData: HydraGameEntity): EnrichedGameEntity | null {
+    public merge(externalData: ExternalGameData, hydraData: HydraGameEntity): EnrichedGameEntity | null {
         const { igdbResult: rawIgdbResult, rawgResult, videoResults } = externalData;
 
         if (!rawIgdbResult && !rawgResult) {
@@ -63,14 +63,14 @@ export class GameDataMergerService implements IGameDataMergerService {
         );
     }
 
-    private getRatingSources(igdbResult: Partial<IgdbGameDto> | null, rawgResult: Partial<RawgGameDto> | null): (any | null)[] {
+    private getRatingSources(igdbResult: Partial<IgdbGameData> | null, rawgResult: Partial<RawgGameData> | null): (any | null)[] {
         // For ratings, prioritize RAWG if it has ratings data, otherwise fallback to IGDB
         return (rawgResult?.ratings && rawgResult.ratings.length > 0)
             ? [rawgResult, igdbResult]
             : [igdbResult, rawgResult];
     }
 
-    private calculateAverageRatingIfMissing(currentRating: number | null | undefined, rawgResult: Partial<RawgGameDto> | null): number | null {
+    private calculateAverageRatingIfMissing(currentRating: number | null | undefined, rawgResult: Partial<RawgGameData> | null): number | null {
         if (currentRating && currentRating > 0) {
             return currentRating;
         }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { IGameGateway } from '../../../domain/gateways/IGameGateway';
-import { ExternalGameDto, RawgGameDto } from '../../../domain/dtos/ExternalGameDto';
+import { ExternalGameData, RawgGameData } from '../../../domain/models/ExternalGameData';
 import { RawgGameModel } from './models/RawgGameModel';
 
 export class RawgGateway implements IGameGateway {
@@ -31,7 +31,7 @@ export class RawgGateway implements IGameGateway {
         this.lastRequestTime = Date.now();
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<ExternalGameDto | null> {
+    public async getGameDetails(cleanTitle: string): Promise<ExternalGameData | null> {
         await this.delayNextRequest();
 
         try {
@@ -45,7 +45,7 @@ export class RawgGateway implements IGameGateway {
             if (response.data?.results && response.data.results.length > 0) {
                 const gameData = response.data.results[0];
 
-                const parsedData: RawgGameDto = {
+                const parsedData: RawgGameData = {
                     rawgId: gameData.id,
                     totalRating: gameData.rating,
                     totalRatingCount: gameData.reviews_count || gameData.ratings_count || null,
