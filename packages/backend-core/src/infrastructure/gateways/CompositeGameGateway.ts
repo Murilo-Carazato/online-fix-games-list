@@ -1,8 +1,6 @@
 import { IGameGateway } from '../../domain/gateways/IGameGateway';
 import { IVideoGateway } from '../../domain/gateways/IVideoGateway';
 import { ExternalGameDto } from '../../domain/dtos/ExternalGameDto';
-import { IgdbGameDto } from './apis/models/IgdbGameDto';
-import { RawgGameDto } from './apis/models/RawgGameDto';
 
 export class CompositeGameGateway implements IGameGateway {
     constructor(

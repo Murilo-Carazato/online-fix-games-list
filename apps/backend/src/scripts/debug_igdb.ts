@@ -39,7 +39,7 @@ async function debugFields() {
 
         if (response.data && response.data.length > 0) {
             const data = response.data[0];
-            const outputPath = path.resolve(__dirname, '../../data/debug/igdb_full_debug.json');
+            const outputPath = path.resolve(__dirname, '../../../../data/debug/igdb_full_debug.json');
             fs.mkdirSync(path.dirname(outputPath), { recursive: true });
             fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
             console.log(`Full IGDB data saved to: ${outputPath}`);
