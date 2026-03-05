@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { IVideoGateway } from '../../domain/interfaces/IVideoGateway';
+import { IVideoGateway } from '../../domain/gateways/IVideoGateway';
 import { IVideoResult } from '../../domain/entities/Game';
 import { YoutubeVideoModel } from '../models/YoutubeVideoModel';
 

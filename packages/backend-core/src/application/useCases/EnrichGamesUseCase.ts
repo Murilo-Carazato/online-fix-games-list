@@ -1,13 +1,13 @@
-import { IGameGateway } from '../../domain/interfaces/IGameGateway';
-import { IGameRepository } from '../../domain/interfaces/IGameRepository';
-import { ITitleCleaner } from '../../domain/interfaces/ITitleCleaner';
-import { EnrichedGame } from '../../domain/entities/Game';
+import { IGameGateway } from '../../domain/gateways/IGameGateway';
+import { IGameRepository } from '../../domain/repositories/IGameRepository';
+import { ITitleCleanerService } from '../../domain/services/TitleCleanerService';
+import { EnrichedGameEntity } from '../../domain/entities/Game';
 
 export class EnrichGamesUseCase {
     constructor(
         private dataProvider: IGameGateway,
         private storageProvider: IGameRepository,
-        private nameCleaner: ITitleCleaner
+        private nameCleaner: ITitleCleanerService
     ) { }
 
     public async enrichDataset(inputPath: string, outputPath: string, limit?: number): Promise<void> {
@@ -16,7 +16,7 @@ export class EnrichGamesUseCase {
         console.log(`Successfully loaded ${rawGames.length} games.`);
 
         const gamesToProcess = limit ? rawGames.slice(0, limit) : rawGames;
-        const enrichedGames: EnrichedGame[] = [];
+        const enrichedGames: EnrichedGameEntity[] = [];
 
         console.log(`Starting enrichment for ${gamesToProcess.length} games in groups...`);
 
@@ -30,7 +30,7 @@ export class EnrichGamesUseCase {
                 try {
                     const enrichedData = await this.dataProvider.getGameDetails(cleanTitle);
 
-                    const finalGame: EnrichedGame = {
+                    const finalGame: EnrichedGameEntity = {
                         ...game, // keep original properties (fileSize, uploadDate)
                         ...enrichedData, // merge new properties
                         title: cleanTitle, // Clean title without versions
@@ -47,7 +47,7 @@ export class EnrichGamesUseCase {
                 } catch (error: unknown) {
                     const errorMessage = error instanceof Error ? error.message : String(error);
                     console.error(`   > Error fetching data for "${cleanTitle}". Skipping: ${errorMessage}`);
-                    return { ...game, isEnriched: false } as EnrichedGame;
+                    return { ...game, isEnriched: false } as EnrichedGameEntity;
                 }
             });
 

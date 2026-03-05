@@ -1,9 +1,9 @@
-import { IGameGateway } from '../../domain/interfaces/IGameGateway';
-import { GameDataMerger } from '../../domain/services/GameDataMerger';
+import { IGameGateway } from '../../domain/gateways/IGameGateway';
+import { GameDataMergerService } from '../../domain/services/GameDataMergerService';
 import { AppConfig } from '../../domain/config/AppConfig';
-import { IgdbGateway } from '../gateways/IgdbGateway';
-import { RawgGateway } from '../gateways/RawgGateway';
-import { YoutubeGateway } from '../gateways/YoutubeGateway';
+import { IgdbGateway } from '../gateways/apis/IgdbGateway';
+import { RawgGateway } from '../gateways/apis/RawgGateway';
+import { YoutubeGateway } from '../gateways/apis/YoutubeGateway';
 import { CompositeGameGateway } from '../gateways/CompositeGameGateway';
 
 export class GameGatewayFactory {
@@ -16,7 +16,7 @@ export class GameGatewayFactory {
             const rawg = new RawgGateway(config.rawgApiKey);
             const igdb = new IgdbGateway(config.igdbClientId, config.igdbClientSecret);
             const youtube = new YoutubeGateway(config.youtubeApiKey, config.youtubeChannelId);
-            const merger = new GameDataMerger();
+            const merger = new GameDataMergerService();
 
             console.log("Configured to use: COMPOSITE API (IGDB + RAWG + Youtube)");
             return new CompositeGameGateway(igdb, rawg, youtube, merger);

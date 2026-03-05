@@ -1,12 +1,12 @@
 'use client';
 
 import { memo } from 'react';
-import type { EnrichedGame } from '@hydra/backend-core/src/domain/entities/Game';
+import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/Game';
 import Image from 'next/image';
 import { formatRating, formatPopularity, formatUploadDate } from '@/utils/formatters';
 
 interface GameCardProps {
-    game: EnrichedGame;
+    game: EnrichedGameEntity;
     wantToPlay: boolean;
     ignored: boolean;
     onToggleWantToPlay: () => void;

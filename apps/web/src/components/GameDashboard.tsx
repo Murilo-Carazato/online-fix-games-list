@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import type { EnrichedGame } from '@hydra/backend-core/src/domain/entities/Game';
+import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/Game';
 import { GameCard } from '@/components/GameCard';
 import { FilterBar } from '@/components/FilterBar';
 import { StatsHeader } from '@/components/StatsHeader';
@@ -17,7 +17,7 @@ export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
 // the current wantToPlay/ignored state from the parent Sets.
 // This prevents inline arrow functions in .map() from defeating React.memo.
 interface GameCardWrapperProps {
-    game: EnrichedGame;
+    game: EnrichedGameEntity;
     wantToPlay: boolean;
     ignored: boolean;
     onToggleWantToPlay: (title: string, current: boolean) => void;
@@ -49,7 +49,7 @@ const GameCardWrapper = memo(function GameCardWrapper({
 // ── GameDashboard ────────────────────────────────────────────────────────────
 
 interface GameDashboardProps {
-    initialGames: EnrichedGame[];
+    initialGames: EnrichedGameEntity[];
     initialStats: { total: number; wantToPlay: number; ignored: number };
 }
 

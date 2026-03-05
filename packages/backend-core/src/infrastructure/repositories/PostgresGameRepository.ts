@@ -1,8 +1,8 @@
 import { eq, ilike, desc, asc, and, or, isNull, sql } from "drizzle-orm";
 import { db } from "../database";
 import { enrichedGames, gamePreferences } from "../database/schema";
-import { HydraGame, EnrichedGame } from "../../domain/entities/Game";
-import { IGameRepository } from "../../domain/interfaces/IGameRepository";
+import { HydraGameEntity, EnrichedGameEntity } from "../../domain/entities/Game";
+import { IGameRepository } from "../../domain/repositories/IGameRepository";
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
 export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
@@ -17,11 +17,11 @@ export interface PaginatedQueryProps {
 }
 
 export class PostgresGameDataRepository implements IGameRepository {
-    async loadGames(path: string): Promise<HydraGame[]> {
+    async loadGames(path: string): Promise<HydraGameEntity[]> {
         throw new Error("PostgresGameDataRepository.loadGames is not implemented. Use JsonGameRepository to read local files.");
     }
 
-    async saveGames(path: string, games: EnrichedGame[]): Promise<void> {
+    async saveGames(path: string, games: EnrichedGameEntity[]): Promise<void> {
         if (!games || games.length === 0) return;
 
         // Drizzle insert supports arrays for bulk inserts
@@ -59,7 +59,7 @@ export class PostgresGameDataRepository implements IGameRepository {
         }
     }
 
-    async getGamesPaginated({ limit = 50, offset = 0, search = '', sortBy = 'date', sortDir = 'desc', filterBy = 'all' }: PaginatedQueryProps = {}): Promise<EnrichedGame[]> {
+    async getGamesPaginated({ limit = 50, offset = 0, search = '', sortBy = 'date', sortDir = 'desc', filterBy = 'all' }: PaginatedQueryProps = {}): Promise<EnrichedGameEntity[]> {
         let query = db
             .select({
                 data: enrichedGames.data,
@@ -123,7 +123,7 @@ export class PostgresGameDataRepository implements IGameRepository {
             ...(r.data as any),
             wantToPlay: r.wantToPlay ?? false,
             ignored: r.ignored ?? false
-        } as EnrichedGame));
+        } as EnrichedGameEntity));
     }
 
     async getGlobalStats(): Promise<{ total: number; wantToPlay: number; ignored: number }> {

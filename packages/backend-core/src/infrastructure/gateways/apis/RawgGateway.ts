@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { IGameGateway } from '../../domain/interfaces/IGameGateway';
+import { IGameGateway } from '../../domain/gateways/IGameGateway';
 import { RawgGameData } from '../../domain/entities/Game';
 import { RawgGameModel } from '../models/RawgGameModel';
 

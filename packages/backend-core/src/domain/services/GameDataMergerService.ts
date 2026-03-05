@@ -1,9 +1,13 @@
-import { IGameDataMerger } from '../interfaces/IGameDataMerger';
-import { EnrichedGame, IgdbGameData, RawgGameData, BaseGameData, IVideoResult } from '../entities/Game';
+import { EnrichedGameEntity, IgdbGameData, RawgGameData, BaseGameData, IVideoResult } from '../entities/Game';
 
-export class GameDataMerger implements IGameDataMerger {
+export interface IGameDataMergerService {
+    merge(igdbData: Partial<IgdbGameData> | null, rawgData: Partial<RawgGameData> | null, videoData: IVideoResult[] | null): Partial<EnrichedGameEntity> | null;
+}
 
-    public merge(rawIgdbResult: Partial<IgdbGameData> | null, rawgResult: Partial<RawgGameData> | null, videoResults: IVideoResult[] | null): Partial<EnrichedGame> | null {
+
+export class GameDataMergerService implements IGameDataMergerService {
+
+    public merge(rawIgdbResult: Partial<IgdbGameData> | null, rawgResult: Partial<RawgGameData> | null, videoResults: IVideoResult[] | null): Partial<EnrichedGameEntity> | null {
         if (!rawIgdbResult && !rawgResult) {
             return null; // Both failed to find the game
         }

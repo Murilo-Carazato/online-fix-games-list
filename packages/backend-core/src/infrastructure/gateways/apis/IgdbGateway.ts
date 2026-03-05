@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { IGameGateway } from '../../domain/interfaces/IGameGateway';
+import { IGameGateway } from '../../domain/gateways/IGameGateway';
 import { IgdbGameData } from '../../domain/entities/Game';
 import { IgdbGameModel } from '../models/IgdbGameModel';
 
@@ -94,7 +94,7 @@ export class IgdbGateway implements IGameGateway<Partial<IgdbGameData>> {
             if (response.data && response.data.length > 0) {
                 const gameData = response.data[0];
 
-                // Map IGDB response to our Partial<EnrichedGame>
+                // Map IGDB response to our Partial<EnrichedGameEntity>
                 return {
                     igdbId: gameData.id,
                     totalRating: gameData.total_rating ?? null,

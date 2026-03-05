@@ -1,6 +1,11 @@
-import { ITitleCleaner } from '../interfaces/ITitleCleaner';
+export interface ITitleCleanerService {
+    /**
+     * Cleans game titles to improve integration and API search results.
+     */
+    clean(title: string): string;
+}
 
-export class TitleCleaner implements ITitleCleaner {
+export class TitleCleanerService implements ITitleCleanerService {
     private readonly filters: RegExp[] = [
         // Remove text in parentheses/brackets e.g. "Game (Update1)" -> "Game"
         /\([^)]*\)|\[[^\]]*\]/g,

@@ -1,15 +1,15 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { EnrichedGame } from '@hydra/backend-core/src/domain/entities/Game';
+import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/Game';
 import { toggleWantToPlayAction, toggleIgnoredAction, fetchMoreGamesAction } from '@/actions/gameActions';
 import type { SortKey, FilterKey } from '@/components/GameDashboard';
 
 interface UseGameDashboardProps {
-    initialGames: EnrichedGame[];
+    initialGames: EnrichedGameEntity[];
     initialStats: { total: number; wantToPlay: number; ignored: number };
 }
 
 export function useGameDashboard({ initialGames, initialStats }: UseGameDashboardProps) {
-    const [gamesList, setGamesList] = useState<EnrichedGame[]>(initialGames);
+    const [gamesList, setGamesList] = useState<EnrichedGameEntity[]>(initialGames);
     const [wantSet, setWantSet] = useState<Set<string>>(() => new Set(initialGames.filter(g => g.wantToPlay).map(g => g.title)));
     const [ignSet, setIgnSet] = useState<Set<string>>(() => new Set(initialGames.filter(g => g.ignored).map(g => g.title)));
     const [globalStats, setGlobalStats] = useState(initialStats);
@@ -42,7 +42,7 @@ export function useGameDashboard({ initialGames, initialStats }: UseGameDashboar
         await toggleIgnoredAction(title, isCurrentlyIgn);
     }, []);
 
-    const appendMetadataSets = useCallback((games: EnrichedGame[], replace = false) => {
+    const appendMetadataSets = useCallback((games: EnrichedGameEntity[], replace = false) => {
         setWantSet(prev => {
             const n = replace ? new Set<string>() : new Set(prev);
             games.forEach(g => { if (g.wantToPlay) n.add(g.title); });

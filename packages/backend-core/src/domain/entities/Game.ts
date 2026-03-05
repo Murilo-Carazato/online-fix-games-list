@@ -39,7 +39,7 @@ export interface IVideoResult {
   channelTitle: string;
 }
 
-export interface EnrichedGame extends HydraGame, Partial<IgdbGameData>, Partial<RawgGameData> {
+export interface EnrichedGameEntity extends HydraGame, Partial<IgdbGameData>, Partial<RawgGameData> {
   isEnriched: boolean;
   alanzokaVideos?: IVideoResult[] | null;
   wantToPlay?: boolean;

@@ -1,5 +1,5 @@
 import { pgTable, varchar, timestamp, boolean, integer, jsonb, real } from "drizzle-orm/pg-core";
-import type { EnrichedGame } from "../../domain";
+import type { EnrichedGameEntity } from "../../domain";
 
 // We store only custom preferences associated with a game title.
 // For now, we use the `title` as the primary key since it's the unique identifier 
@@ -21,6 +21,6 @@ export const enrichedGames = pgTable("enriched_games", {
     isEnriched: boolean("is_enriched").default(false).notNull(),
     // Store the complete payload as JSONB to prevent enormous table schemas
     // while keeping vital fields above as native SQL columns for the ORDER BY performance
-    data: jsonb("data").$type<EnrichedGame>().notNull(),
+    data: jsonb("data").$type<EnrichedGameEntity>().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

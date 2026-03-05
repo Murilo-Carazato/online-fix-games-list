@@ -1,8 +1,8 @@
 import { GameGatewayFactory } from '@hydra/backend-core/src/infrastructure/factories/GameGatewayFactory';
 import { JsonGameRepository } from '@hydra/backend-core/src/infrastructure/repositories/JsonGameRepository';
-import { PostgresGameDataRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameDataRepository';
-import { TitleCleaner } from '@hydra/backend-core/src/domain/services/TitleCleaner';
-import type { IGameRepository } from '@hydra/backend-core/src/domain/interfaces/IGameRepository';
+import { PostgresGameDataRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository';
+import { TitleCleanerService } from '@hydra/backend-core/src/domain/services/TitleCleanerService';
+import type { IGameRepository } from '@hydra/backend-core/src/domain/repositories/IGameRepository';
 import { EnrichGamesUseCase } from '@hydra/backend-core/src/application/useCases/EnrichGamesUseCase';
 import { loadConfig } from './config/AppConfig';
 
@@ -25,7 +25,7 @@ async function main() {
         saveGames: (path, games) => pgStorage.saveGames(path, games),
     };
 
-    const nameCleaner = new TitleCleaner();
+    const nameCleaner = new TitleCleanerService();
 
     const enricherUseCase = new EnrichGamesUseCase(
         apiProvider,
