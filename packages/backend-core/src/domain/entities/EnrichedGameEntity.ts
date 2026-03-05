@@ -1,8 +1,7 @@
 import { HydraGameEntity } from './HydraGameEntity';
 import { VideoEntity } from './VideoEntity';
-import { IgdbGameDto, RawgGameDto } from './ExternalGameDto';
 
-export class EnrichedGameEntity extends HydraGameEntity implements IgdbGameDto, RawgGameDto {
+export class EnrichedGameEntity extends HydraGameEntity {
   public isEnriched: boolean;
 
   // Identifiers
@@ -39,7 +38,7 @@ export class EnrichedGameEntity extends HydraGameEntity implements IgdbGameDto, 
   public ignored?: boolean = false;
 
   constructor(
-    hydraData: { fileSize: string; title: string; uploadDate: string },
+    hydraData: HydraGameEntity,
     enrichedData?: Partial<Omit<EnrichedGameEntity, 'fileSize' | 'title' | 'uploadDate' | 'isEnriched'>>
   ) {
     super(hydraData.fileSize, hydraData.title, hydraData.uploadDate);

@@ -6,18 +6,18 @@ import { RawgGameDto } from './apis/models/RawgGameDto';
 
 export class CompositeGameGateway implements IGameGateway {
     constructor(
-        private igdbProvider: IGameGateway,
-        private rawgProvider: IGameGateway,
-        private videoProvider: IVideoGateway
+        private igdbGateway: IGameGateway,
+        private rawgGateway: IGameGateway,
+        private videoGateway: IVideoGateway
     ) { }
 
     public async getGameDetails(cleanTitle: string): Promise<ExternalGameDto> {
         console.log(`[Composite] Fetching data for "${cleanTitle}"...`);
         // Run API requests concurrently for performance
         const [igdbResult, rawgResult, videoResults] = await Promise.all([
-            this.igdbProvider.getGameDetails(cleanTitle),
-            this.rawgProvider.getGameDetails(cleanTitle),
-            this.videoProvider.getVideosForGame(cleanTitle)
+            this.igdbGateway.getGameDetails(cleanTitle),
+            this.rawgGateway.getGameDetails(cleanTitle),
+            this.videoGateway.getVideosForGame(cleanTitle)
         ]);
 
         return {

@@ -1,12 +1,12 @@
 import { IGameGateway } from '../../domain/gateways/IGameGateway';
-import { AppConfig } from '../../domain/config/AppConfig';
+import { IAppConfig } from '../../domain/config/IAppConfig';
 import { IgdbGateway } from '../gateways/apis/IgdbGateway';
 import { RawgGateway } from '../gateways/apis/RawgGateway';
 import { YoutubeGateway } from '../gateways/apis/YoutubeGateway';
 import { CompositeGameGateway } from '../gateways/CompositeGameGateway';
 
 export class GameGatewayFactory {
-    public static createGateway(config: AppConfig): IGameGateway {
+    public static createGateway(config: IAppConfig): IGameGateway {
         if (config.apiProvider === 'composite') {
             if (!config.rawgApiKey || !config.igdbClientId || !config.igdbClientSecret) {
                 throw new Error("RAWG_API_KEY, IGDB_CLIENT_ID and IGDB_CLIENT_SECRET must be set to use the composite provider.");

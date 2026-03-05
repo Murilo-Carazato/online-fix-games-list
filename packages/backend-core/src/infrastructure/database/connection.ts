@@ -2,8 +2,13 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL || "postgres://postgres:password@localhost:5432/hydradb";
-
-// Disable prefetch as it is not supported for "Transaction" pool mode
-export const client = postgres(connectionString, { prepare: false });
-export const db = drizzle(client, { schema });
+/**
+ * Creates a Drizzle DB instance from an explicit connection string.
+ * The caller (factory/entry-point) is responsible for reading
+ * DATABASE_URL from the environment so this module stays pure.
+ */
+export function createDatabase(connectionString: string) {
+    // Disable prefetch — not supported for "Transaction" pool mode
+    const client = postgres(connectionString, { prepare: false });
+    return { db: drizzle(client, { schema }), client };
+}

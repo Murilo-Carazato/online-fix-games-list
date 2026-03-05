@@ -3,7 +3,7 @@
  * Kept in core-domain so that infrastructure/factories can depend on it
  * without introducing circular dependencies.
  */
-export interface AppConfig {
+export interface IAppConfig {
     apiProvider: string;
     rawgApiKey: string;
     igdbClientId: string;

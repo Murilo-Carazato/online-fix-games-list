@@ -7,15 +7,15 @@ import { HydraGameEntity } from '../../domain/entities/HydraGameEntity';
 
 export class EnrichGamesUseCase {
     constructor(
-        private dataProvider: IGameGateway,
-        private storageProvider: IGameRepository,
-        private nameCleaner: ITitleCleanerService,
+        private gameGateway: IGameGateway,
+        private gameRepository: IGameRepository,
+        private titleCleaner: ITitleCleanerService,
         private gameDataMerger: IGameDataMergerService
     ) { }
 
     public async enrichDataset(inputPath: string, outputPath: string, limit?: number): Promise<void> {
         console.log(`Loading games from ${inputPath}...`);
-        const rawGames = await this.storageProvider.loadGames(inputPath);
+        const rawGames = await this.gameRepository.loadGames(inputPath);
         console.log(`Successfully loaded ${rawGames.length} games.`);
 
         const gamesToProcess = limit ? rawGames.slice(0, limit) : rawGames;
@@ -29,9 +29,9 @@ export class EnrichGamesUseCase {
         for (let i = 0; i < gamesToProcess.length; i += CHUNK_SIZE) {
             const chunk = gamesToProcess.slice(i, i + CHUNK_SIZE);
             const promises = chunk.map(async (game) => {
-                const cleanTitle = this.nameCleaner.clean(game.title);
+                const cleanTitle = this.titleCleaner.clean(game.title);
                 try {
-                    const externalData = await this.dataProvider.getGameDetails(cleanTitle);
+                    const externalData = await this.gameGateway.getGameDetails(cleanTitle);
 
                     if (!externalData) {
                         console.log(`   > [${cleanTitle}] No external data found.`);
@@ -63,7 +63,7 @@ export class EnrichGamesUseCase {
         }
 
         console.log(`Enrichment complete. Saving to ${outputPath} (Postgres)...`);
-        await this.storageProvider.saveGames(outputPath, enrichedGames);
+        await this.gameRepository.saveGames(outputPath, enrichedGames);
         console.log('Save complete!');
     }
 }
