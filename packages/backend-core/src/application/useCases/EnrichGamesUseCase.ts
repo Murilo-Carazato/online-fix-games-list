@@ -1,9 +1,12 @@
-import { IGameDataProvider, IStorageProvider, ITitleCleaner, EnrichedGame, HydraGame } from '../../domain';
+import { IGameGateway } from '../../domain/interfaces/IGameGateway';
+import { IGameRepository } from '../../domain/interfaces/IGameRepository';
+import { ITitleCleaner } from '../../domain/interfaces/ITitleCleaner';
+import { EnrichedGame } from '../../domain/entities/Game';
 
 export class EnrichGamesUseCase {
     constructor(
-        private dataProvider: IGameDataProvider,
-        private storageProvider: IStorageProvider,
+        private dataProvider: IGameGateway,
+        private storageProvider: IGameRepository,
         private nameCleaner: ITitleCleaner
     ) { }
 

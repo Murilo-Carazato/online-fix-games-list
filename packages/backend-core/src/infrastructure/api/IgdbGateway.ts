@@ -1,25 +1,9 @@
 import axios from 'axios';
-import { IGameDataProvider, IgdbGameData } from '../../domain';
+import { IGameGateway } from '../../domain/interfaces/IGameGateway';
+import { IgdbGameData } from '../../domain/entities/Game';
+import { IgdbGameModel } from '../models/IgdbGameModel';
 
-export interface IgdbGameResponse {
-    id: number;
-    total_rating?: number;
-    total_rating_count?: number;
-    genres?: Array<{ name: string }>;
-    themes?: Array<{ name: string }>;
-    platforms?: Array<{ name: string }>;
-    game_modes?: Array<{ name: string }>;
-    franchises?: Array<{ name: string }>;
-    cover?: { url: string };
-    videos?: Array<{ video_id: string }>;
-    language_supports?: Array<{
-        language?: { name: string };
-        language_support_type?: { name: string };
-    }>;
-    external_games?: Array<{ url: string }>;
-}
-
-export class IgdbApiProvider implements IGameDataProvider<Partial<IgdbGameData>> {
+export class IgdbGateway implements IGameGateway<Partial<IgdbGameData>> {
     private clientId: string;
     private clientSecret: string;
     private accessToken: string | null = null;
@@ -98,7 +82,7 @@ export class IgdbApiProvider implements IGameDataProvider<Partial<IgdbGameData>>
     `;
 
         try {
-            const response = await axios.post<IgdbGameResponse[]>('https://api.igdb.com/v4/games', query, {
+            const response = await axios.post<IgdbGameModel[]>('https://api.igdb.com/v4/games', query, {
                 headers: {
                     'Client-ID': this.clientId,
                     'Authorization': `Bearer ${this.accessToken}`,

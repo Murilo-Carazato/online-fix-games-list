@@ -1,7 +1,8 @@
 import * as fs from 'fs/promises';
-import { IStorageProvider, HydraGame, EnrichedGame } from '../../domain';
+import { IGameRepository } from '../../domain/interfaces/IGameRepository';
+import { HydraGame, EnrichedGame } from '../../domain/entities/Game';
 
-export class JsonStorageProvider implements IStorageProvider {
+export class JsonGameRepository implements IGameRepository {
     async loadGames(path: string): Promise<HydraGame[]> {
         try {
             const data = await fs.readFile(path, 'utf8');

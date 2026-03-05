@@ -1,26 +1,9 @@
 import axios from 'axios';
-import { IGameDataProvider, RawgGameData } from '../../domain';
+import { IGameGateway } from '../../domain/interfaces/IGameGateway';
+import { RawgGameData } from '../../domain/entities/Game';
+import { RawgGameModel } from '../models/RawgGameModel';
 
-export interface RawgGameResponse {
-    id: number;
-    rating: number;
-    reviews_count?: number;
-    ratings_count?: number;
-    added?: number;
-    added_by_status?: Record<string, number>;
-    playtime?: number;
-    background_image?: string;
-    ratings?: Array<{
-        title: string;
-        count: number;
-        percent: number;
-    }>;
-    genres?: Array<{ name: string }>;
-    platforms?: Array<{ platform: { name: string } }>;
-    short_screenshots?: Array<{ image: string }>;
-}
-
-export class RawgApiProvider implements IGameDataProvider<Partial<RawgGameData>> {
+export class RawgGateway implements IGameGateway<Partial<RawgGameData>> {
     private apiKey: string;
     // RAWG has a limit of 20,000 requests per month. A slight delay is good practice.
     private requestDelayMs = 250;
@@ -57,7 +40,7 @@ export class RawgApiProvider implements IGameDataProvider<Partial<RawgGameData>>
 
             // Call RAWG API search
             const searchUrl = `https://api.rawg.io/api/games?key=${this.apiKey}&search=${searchTerm}&page_size=1`;
-            const response = await axios.get<{ results: RawgGameResponse[] }>(searchUrl);
+            const response = await axios.get<{ results: RawgGameModel[] }>(searchUrl);
 
             if (response.data?.results && response.data.results.length > 0) {
                 const gameData = response.data.results[0];
@@ -71,7 +54,7 @@ export class RawgApiProvider implements IGameDataProvider<Partial<RawgGameData>>
                             title: r.title,
                             count: r.count,
                             percent: r.percent,
-                            score: RawgApiProvider.RATING_WEIGHTS[r.title.toLowerCase()] || 0
+                            score: RawgGateway.RATING_WEIGHTS[r.title.toLowerCase()] || 0
                         };
                     }) || [],
                     added: gameData.added || undefined,

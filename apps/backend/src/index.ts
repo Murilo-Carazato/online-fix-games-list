@@ -1,11 +1,9 @@
-import {
-    GameProviderFactory,
-    JsonStorageProvider,
-    PostgresGameDataRepository,
-    TitleCleaner,
-    type IStorageProvider,
-    EnrichGamesUseCase
-} from '@hydra/backend-core';
+import { GameGatewayFactory } from '@hydra/backend-core/src/infrastructure/factories/GameGatewayFactory';
+import { JsonGameRepository } from '@hydra/backend-core/src/infrastructure/storage/JsonGameRepository';
+import { PostgresGameDataRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameDataRepository';
+import { TitleCleaner } from '@hydra/backend-core/src/domain/services/TitleCleaner';
+import type { IGameRepository } from '@hydra/backend-core/src/domain/interfaces/IGameRepository';
+import { EnrichGamesUseCase } from '@hydra/backend-core/src/application/useCases/EnrichGamesUseCase';
 import { loadConfig } from './config/AppConfig';
 
 async function main() {
@@ -15,17 +13,16 @@ async function main() {
     // 1. Load configuration safely at the application boundary
     const config = loadConfig();
 
-    // 2. Initialize Dependency Graph (Errors thrown here are caught below)
-    const apiProvider = GameProviderFactory.createProvider(config);
+    const apiProvider = GameGatewayFactory.createGateway(config);
 
-    const jsonStorage = new JsonStorageProvider();
+    const jsonStorage = new JsonGameRepository();
     const pgStorage = new PostgresGameDataRepository();
 
     // Hybrid adapter: reads from JSON file, writes enriched results to Postgres.
-    // Satisfies IStorageProvider without modifying the use case.
-    const hybridStorage: IStorageProvider = {
+    // Satisfies IGameRepository without modifying the use case.
+    const hybridStorage: IGameRepository = {
         loadGames: (path) => jsonStorage.loadGames(path),
-        saveGames: (_path, games) => pgStorage.saveGames(games),
+        saveGames: (path, games) => pgStorage.saveGames(path, games),
     };
 
     const nameCleaner = new TitleCleaner();

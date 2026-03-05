@@ -1,10 +1,13 @@
-import { IGameDataProvider, IVideoProvider, IGameDataMerger, EnrichedGame, IgdbGameData, RawgGameData } from '../../domain';
+import { IGameGateway } from '../../domain/interfaces/IGameGateway';
+import { IVideoGateway } from '../../domain/interfaces/IVideoGateway';
+import { IGameDataMerger } from '../../domain/interfaces/IGameDataMerger';
+import { EnrichedGame, IgdbGameData, RawgGameData } from '../../domain/entities/Game';
 
-export class CompositeGameDataProvider implements IGameDataProvider {
+export class CompositeGameGateway implements IGameGateway {
     constructor(
-        private igdbProvider: IGameDataProvider<Partial<IgdbGameData>>,
-        private rawgProvider: IGameDataProvider<Partial<RawgGameData>>,
-        private videoProvider: IVideoProvider,
+        private igdbProvider: IGameGateway<Partial<IgdbGameData>>,
+        private rawgProvider: IGameGateway<Partial<RawgGameData>>,
+        private videoProvider: IVideoGateway,
         private gameDataMerger: IGameDataMerger
     ) { }
 

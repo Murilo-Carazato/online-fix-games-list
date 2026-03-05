@@ -1,5 +1,5 @@
 import { IGameDataMerger } from '../interfaces/IGameDataMerger';
-import { EnrichedGame, IgdbGameData, RawgGameData, BaseGameData, IVideoResult } from '../models/Game';
+import { EnrichedGame, IgdbGameData, RawgGameData, BaseGameData, IVideoResult } from '../entities/Game';
 
 export class GameDataMerger implements IGameDataMerger {
 

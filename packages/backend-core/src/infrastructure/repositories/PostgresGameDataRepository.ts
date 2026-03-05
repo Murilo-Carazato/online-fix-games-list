@@ -1,7 +1,8 @@
 import { eq, ilike, desc, asc, and, or, isNull, sql } from "drizzle-orm";
 import { db } from "../database";
 import { enrichedGames, gamePreferences } from "../database/schema";
-import type { EnrichedGame } from "../../domain";
+import { HydraGame, EnrichedGame } from "../../domain/entities/Game";
+import { IGameRepository } from "../../domain/interfaces/IGameRepository";
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
 export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
@@ -15,8 +16,12 @@ export interface PaginatedQueryProps {
     filterBy?: FilterKey;
 }
 
-export class PostgresGameDataRepository {
-    async saveGames(games: EnrichedGame[]): Promise<void> {
+export class PostgresGameDataRepository implements IGameRepository {
+    async loadGames(path: string): Promise<HydraGame[]> {
+        throw new Error("PostgresGameDataRepository.loadGames is not implemented. Use JsonGameRepository to read local files.");
+    }
+
+    async saveGames(path: string, games: EnrichedGame[]): Promise<void> {
         if (!games || games.length === 0) return;
 
         // Drizzle insert supports arrays for bulk inserts

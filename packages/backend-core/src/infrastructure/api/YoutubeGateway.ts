@@ -1,27 +1,9 @@
 import axios from 'axios';
-import { IVideoProvider, IVideoResult } from '../../domain';
+import { IVideoGateway } from '../../domain/interfaces/IVideoGateway';
+import { IVideoResult } from '../../domain/entities/Game';
+import { YoutubeVideoModel } from '../models/YoutubeVideoModel';
 
-export interface YoutubeSearchItem {
-    id: {
-        videoId: string;
-    };
-    snippet: {
-        title: string;
-        publishedAt: string;
-        channelTitle: string;
-        thumbnails?: {
-            high?: {
-                url: string;
-            };
-        };
-    };
-}
-
-export interface YoutubeSearchResponse {
-    items?: YoutubeSearchItem[];
-}
-
-export class YoutubeApiProvider implements IVideoProvider {
+export class YoutubeGateway implements IVideoGateway {
     private apiKey: string;
     private channelId: string;
     private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
@@ -45,7 +27,7 @@ export class YoutubeApiProvider implements IVideoProvider {
         try {
             console.log(`[Youtube] Searching video for "${cleanTitle}"...`);
 
-            const response = await axios.get<YoutubeSearchResponse>(this.baseUrl, {
+            const response = await axios.get<YoutubeVideoModel>(this.baseUrl, {
                 params: {
                     key: this.apiKey,
                     channelId: this.channelId,
