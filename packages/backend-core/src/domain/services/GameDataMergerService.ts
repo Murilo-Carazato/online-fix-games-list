@@ -1,13 +1,17 @@
-import { EnrichedGameEntity, IgdbGameData, RawgGameData, BaseGameData, IVideoResult } from '../entities/Game';
+import { EnrichedGameEntity } from '../entities/EnrichedGameEntity';
+import { HydraGameEntity } from '../entities/HydraGameEntity';
+import { IgdbGameDto, RawgGameDto, ExternalGameDto } from '../dtos/ExternalGameDto';
 
 export interface IGameDataMergerService {
-    merge(igdbData: Partial<IgdbGameData> | null, rawgData: Partial<RawgGameData> | null, videoData: IVideoResult[] | null): Partial<EnrichedGameEntity> | null;
+    merge(externalData: ExternalGameDto, hydraData: HydraGameEntity): EnrichedGameEntity | null;
 }
 
 
 export class GameDataMergerService implements IGameDataMergerService {
 
-    public merge(rawIgdbResult: Partial<IgdbGameData> | null, rawgResult: Partial<RawgGameData> | null, videoResults: IVideoResult[] | null): Partial<EnrichedGameEntity> | null {
+    public merge(externalData: ExternalGameDto, hydraData: HydraGameEntity): EnrichedGameEntity | null {
+        const { igdbResult: rawIgdbResult, rawgResult, videoResults } = externalData;
+
         if (!rawIgdbResult && !rawgResult) {
             return null; // Both failed to find the game
         }
@@ -25,46 +29,48 @@ export class GameDataMergerService implements IGameDataMergerService {
         let rating = this.getFirstAvailableValue('totalRating', ...ratingSources);
         rating = this.calculateAverageRatingIfMissing(rating, rawgResult);
 
-        return {
-            isEnriched: true,
-            igdbId: igdbResult?.igdbId ?? null,
-            rawgId: rawgResult?.rawgId ?? null,
+        return new EnrichedGameEntity(
+            hydraData,
+            {
+                igdbId: igdbResult?.igdbId ?? null,
+                rawgId: rawgResult?.rawgId ?? null,
 
-            // Shared properties prioritising IGDB/RAWG fallbacks
-            totalRating: rating ? Number(Number(rating).toFixed(1)) : null,
-            totalRatingCount: this.getFirstAvailableValue('totalRatingCount', ...ratingSources),
-            genres: this.getFirstAvailableValue('genres', ...defaultSources),
-            platforms: this.getFirstAvailableValue('platforms', ...defaultSources),
-            screenshots: this.getFirstAvailableValue('screenshots', ...defaultSources),
+                // Shared properties prioritising IGDB/RAWG fallbacks
+                totalRating: rating ? Number(Number(rating).toFixed(1)) : null,
+                totalRatingCount: this.getFirstAvailableValue('totalRatingCount', ...ratingSources),
+                genres: this.getFirstAvailableValue('genres', ...defaultSources),
+                platforms: this.getFirstAvailableValue('platforms', ...defaultSources),
+                screenshots: this.getFirstAvailableValue('screenshots', ...defaultSources),
 
-            // RAWG Specific Properties
-            ratings: rawgResult?.ratings ?? null,
-            added: rawgResult?.added ?? null,
-            addedByStatus: rawgResult?.addedByStatus ?? null,
-            playtime: rawgResult?.playtime ?? null,
+                // RAWG Specific Properties
+                ratings: rawgResult?.ratings ?? null,
+                added: rawgResult?.added ?? null,
+                addedByStatus: rawgResult?.addedByStatus ?? null,
+                playtime: rawgResult?.playtime ?? null,
 
-            // IGDB Specific Properties
-            videos: igdbResult?.videos ?? null,
-            themes: igdbResult?.themes ?? null,
-            gameModes: igdbResult?.gameModes ?? null,
-            coverUrl: igdbResult?.coverUrl ?? null,
-            languageSupports: igdbResult?.languageSupports ?? null,
-            franchises: igdbResult?.franchises ?? null,
-            externalGames: igdbResult?.externalGames ?? null,
+                // IGDB Specific Properties
+                videos: igdbResult?.videos ?? null,
+                themes: igdbResult?.themes ?? null,
+                gameModes: igdbResult?.gameModes ?? null,
+                coverUrl: igdbResult?.coverUrl ?? null,
+                languageSupports: igdbResult?.languageSupports ?? null,
+                franchises: igdbResult?.franchises ?? null,
+                externalGames: igdbResult?.externalGames ?? null,
 
-            // External Providers
-            alanzokaVideos: videoResults
-        };
+                // External Providers
+                contentCreatorVideos: videoResults
+            }
+        );
     }
 
-    private getRatingSources(igdbResult: Partial<IgdbGameData> | null, rawgResult: Partial<RawgGameData> | null): (Partial<BaseGameData> | null)[] {
+    private getRatingSources(igdbResult: Partial<IgdbGameDto> | null, rawgResult: Partial<RawgGameDto> | null): (any | null)[] {
         // For ratings, prioritize RAWG if it has ratings data, otherwise fallback to IGDB
         return (rawgResult?.ratings && rawgResult.ratings.length > 0)
             ? [rawgResult, igdbResult]
             : [igdbResult, rawgResult];
     }
 
-    private calculateAverageRatingIfMissing(currentRating: number | null | undefined, rawgResult: Partial<RawgGameData> | null): number | null {
+    private calculateAverageRatingIfMissing(currentRating: number | null | undefined, rawgResult: Partial<RawgGameDto> | null): number | null {
         if (currentRating && currentRating > 0) {
             return currentRating;
         }
@@ -86,10 +92,10 @@ export class GameDataMergerService implements IGameDataMergerService {
         return totalVotes > 0 ? (totalScore / totalVotes) : null;
     }
 
-    private getFirstAvailableValue<K extends keyof BaseGameData>(
-        key: K,
-        ...sources: (Partial<BaseGameData> | undefined | null)[]
-    ): BaseGameData[K] | null {
+    private getFirstAvailableValue(
+        key: string,
+        ...sources: (any | undefined | null)[]
+    ): any | null {
         for (const source of sources) {
             if (!source || source[key] === undefined || source[key] === null) continue;
 

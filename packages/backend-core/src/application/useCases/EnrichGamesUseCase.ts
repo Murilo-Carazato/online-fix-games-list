@@ -1,13 +1,16 @@
 import { IGameGateway } from '../../domain/gateways/IGameGateway';
 import { IGameRepository } from '../../domain/repositories/IGameRepository';
 import { ITitleCleanerService } from '../../domain/services/TitleCleanerService';
-import { EnrichedGameEntity } from '../../domain/entities/Game';
+import { IGameDataMergerService } from '../../domain/services/GameDataMergerService';
+import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
+import { HydraGameEntity } from '../../domain/entities/HydraGameEntity';
 
 export class EnrichGamesUseCase {
     constructor(
         private dataProvider: IGameGateway,
         private storageProvider: IGameRepository,
-        private nameCleaner: ITitleCleanerService
+        private nameCleaner: ITitleCleanerService,
+        private gameDataMerger: IGameDataMergerService
     ) { }
 
     public async enrichDataset(inputPath: string, outputPath: string, limit?: number): Promise<void> {
@@ -28,20 +31,21 @@ export class EnrichGamesUseCase {
             const promises = chunk.map(async (game) => {
                 const cleanTitle = this.nameCleaner.clean(game.title);
                 try {
-                    const enrichedData = await this.dataProvider.getGameDetails(cleanTitle);
+                    const externalData = await this.dataProvider.getGameDetails(cleanTitle);
 
-                    const finalGame: EnrichedGameEntity = {
-                        ...game, // keep original properties (fileSize, uploadDate)
-                        ...enrichedData, // merge new properties
-                        title: cleanTitle, // Clean title without versions
-                        isEnriched: !!enrichedData
-                    };
-
-                    if (!enrichedData) {
-                        console.log(`   > [${cleanTitle}] No data found on IGDB.`);
-                    } else {
-                        console.log(`   > [${cleanTitle}] Found! Rating: ${enrichedData.totalRating || 'N/A'}, Popularity: ${enrichedData.added || 'N/A'}`);
+                    if (!externalData) {
+                        console.log(`   > [${cleanTitle}] No external data found.`);
+                        return { ...game, isEnriched: false } as EnrichedGameEntity;
                     }
+
+                    const finalGame = this.gameDataMerger.merge(externalData, game);
+
+                    if (!finalGame) {
+                        console.log(`   > [${cleanTitle}] Failed to merge data (No IGDB/RAWG data).`);
+                        return { ...game, isEnriched: false } as EnrichedGameEntity;
+                    }
+
+                    console.log(`   > [${cleanTitle}] Found! Rating: ${finalGame.totalRating || 'N/A'}, Popularity: ${finalGame.added || 'N/A'}`);
 
                     return finalGame;
                 } catch (error: unknown) {

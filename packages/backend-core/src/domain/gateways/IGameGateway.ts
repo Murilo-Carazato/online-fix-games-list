@@ -1,5 +1,5 @@
-import { EnrichedGameEntity } from "../entities/Game";
+import { ExternalGameDto } from '../dtos/ExternalGameDto';
 
-export interface IGameGateway<T = Partial<EnrichedGameEntity>> {
-    getGameDetails(cleanTitle: string): Promise<T | null>;
+export interface IGameGateway {
+    getGameDetails(cleanTitle: string): Promise<ExternalGameDto | null>;
 }

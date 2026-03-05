@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { IVideoGateway } from '../../domain/gateways/IVideoGateway';
-import { IVideoResult } from '../../domain/entities/Game';
-import { YoutubeVideoModel } from '../models/YoutubeVideoModel';
+import { IVideoGateway } from '../../../domain/gateways/IVideoGateway';
+import { VideoEntity } from '../../../domain/entities/VideoEntity';
+import { YoutubeVideoModel } from './models/YoutubeVideoModel';
 
 export class YoutubeGateway implements IVideoGateway {
     private apiKey: string;
@@ -18,7 +18,7 @@ export class YoutubeGateway implements IVideoGateway {
      * @param cleanTitle The game title to search for.
      * @returns An array of video details objects, or null if none found.
      */
-    public async getVideosForGame(cleanTitle: string): Promise<IVideoResult[] | null> {
+    public async getVideosForGame(cleanTitle: string): Promise<VideoEntity[] | null> {
         if (!this.apiKey) {
             console.warn('[Youtube] API Key not provided. Skipping search.');
             return null;
@@ -40,7 +40,7 @@ export class YoutubeGateway implements IVideoGateway {
             });
 
             if (response.data.items && response.data.items.length > 0) {
-                const relevantVideos: IVideoResult[] = [];
+                const relevantVideos: VideoEntity[] = [];
                 const titleWords = cleanTitle.toLowerCase().split(' ').filter(w => w.length > 2);
 
                 for (const item of response.data.items) {
@@ -55,13 +55,13 @@ export class YoutubeGateway implements IVideoGateway {
                         const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
                         const snippet = item.snippet;
 
-                        relevantVideos.push({
-                            url: videoUrl,
-                            title: snippet.title,
-                            publishedAt: snippet.publishedAt,
-                            thumbnailUrl: snippet.thumbnails?.high?.url || '',
-                            channelTitle: snippet.channelTitle
-                        });
+                        relevantVideos.push(new VideoEntity(
+                            videoUrl,
+                            snippet.title,
+                            snippet.publishedAt,
+                            snippet.thumbnails?.high?.url || '',
+                            snippet.channelTitle
+                        ));
                     }
                 }
 
@@ -76,9 +76,9 @@ export class YoutubeGateway implements IVideoGateway {
             }
 
             return null;
-        } catch (error: unknown) {
+        } catch (error: any) {
             if (axios.isAxiosError(error)) {
-                console.error(`[Youtube] API Error searching for video:`, error.response?.data || error.message);
+                console.error(`YouTube API Error for "${cleanTitle}":`, error.response?.status, (error.response?.data as any) || error.message);
             } else {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 console.error(`[Youtube] Unexpected error searching for video:`, errorMessage);

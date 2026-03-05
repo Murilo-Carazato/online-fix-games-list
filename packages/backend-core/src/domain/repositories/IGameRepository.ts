@@ -1,4 +1,5 @@
-import { HydraGameEntity, EnrichedGameEntity } from "../entities/Game";
+import { EnrichedGameEntity } from '../entities/EnrichedGameEntity';
+import { HydraGameEntity } from '../entities/HydraGameEntity';
 
 export interface IGameRepository {
     loadGames(path: string): Promise<HydraGameEntity[]>;

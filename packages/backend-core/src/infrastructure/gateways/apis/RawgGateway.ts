@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { IGameGateway } from '../../domain/gateways/IGameGateway';
-import { RawgGameData } from '../../domain/entities/Game';
-import { RawgGameModel } from '../models/RawgGameModel';
+import { IGameGateway } from '../../../domain/gateways/IGameGateway';
+import { ExternalGameDto, RawgGameDto } from '../../../domain/dtos/ExternalGameDto';
+import { RawgGameModel } from './models/RawgGameModel';
 
-export class RawgGateway implements IGameGateway<Partial<RawgGameData>> {
+export class RawgGateway implements IGameGateway {
     private apiKey: string;
     // RAWG has a limit of 20,000 requests per month. A slight delay is good practice.
     private requestDelayMs = 250;
@@ -31,7 +31,7 @@ export class RawgGateway implements IGameGateway<Partial<RawgGameData>> {
         this.lastRequestTime = Date.now();
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<Partial<RawgGameData> | null> {
+    public async getGameDetails(cleanTitle: string): Promise<ExternalGameDto | null> {
         await this.delayNextRequest();
 
         try {
@@ -45,7 +45,7 @@ export class RawgGateway implements IGameGateway<Partial<RawgGameData>> {
             if (response.data?.results && response.data.results.length > 0) {
                 const gameData = response.data.results[0];
 
-                return {
+                const parsedData: RawgGameDto = {
                     rawgId: gameData.id,
                     totalRating: gameData.rating,
                     totalRatingCount: gameData.reviews_count || gameData.ratings_count || null,
@@ -66,11 +66,12 @@ export class RawgGateway implements IGameGateway<Partial<RawgGameData>> {
                         ?.map(s => s.image)
                         ?.filter(img => img !== gameData.background_image) || []
                 };
+                return { igdbResult: null, rawgResult: parsedData, videoResults: null };
             }
             return null;
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                console.error(`RAWG API Error for "${cleanTitle}":`, error.response?.status, error.response?.data || error.message);
+                console.error(`RAWG API Error for "${cleanTitle}":`, error.response?.status, (error.response?.data as any) || error.message);
             } else {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 console.error(`Error processing "${cleanTitle}":`, errorMessage);

@@ -1,5 +1,5 @@
-import { IVideoResult } from '../entities/Game';
+import { VideoEntity } from '../entities/VideoEntity';
 
 export interface IVideoGateway {
-    getVideosForGame(gameTitle: string): Promise<IVideoResult[] | null>;
+    getVideosForGame(gameTitle: string): Promise<VideoEntity[] | null>;
 }

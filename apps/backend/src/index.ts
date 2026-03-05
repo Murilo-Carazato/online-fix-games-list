@@ -1,7 +1,8 @@
 import { GameGatewayFactory } from '@hydra/backend-core/src/infrastructure/factories/GameGatewayFactory';
 import { JsonGameRepository } from '@hydra/backend-core/src/infrastructure/repositories/JsonGameRepository';
-import { PostgresGameDataRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository';
+import { PostgresGameRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository';
 import { TitleCleanerService } from '@hydra/backend-core/src/domain/services/TitleCleanerService';
+import { GameDataMergerService } from '@hydra/backend-core/src/domain/services/GameDataMergerService';
 import type { IGameRepository } from '@hydra/backend-core/src/domain/repositories/IGameRepository';
 import { EnrichGamesUseCase } from '@hydra/backend-core/src/application/useCases/EnrichGamesUseCase';
 import { loadConfig } from './config/AppConfig';
@@ -16,7 +17,7 @@ async function main() {
     const apiProvider = GameGatewayFactory.createGateway(config);
 
     const jsonStorage = new JsonGameRepository();
-    const pgStorage = new PostgresGameDataRepository();
+    const pgStorage = new PostgresGameRepository();
 
     // Hybrid adapter: reads from JSON file, writes enriched results to Postgres.
     // Satisfies IGameRepository without modifying the use case.
@@ -26,11 +27,13 @@ async function main() {
     };
 
     const nameCleaner = new TitleCleanerService();
+    const gameDataMerger = new GameDataMergerService();
 
     const enricherUseCase = new EnrichGamesUseCase(
         apiProvider,
         hybridStorage,
-        nameCleaner
+        nameCleaner,
+        gameDataMerger
     );
 
     console.log(`Starting execution to enrich up to ${config.enrichmentLimit ?? 'ALL'} games...`);

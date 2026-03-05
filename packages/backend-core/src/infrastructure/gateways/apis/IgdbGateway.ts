@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { IGameGateway } from '../../domain/gateways/IGameGateway';
-import { IgdbGameData } from '../../domain/entities/Game';
-import { IgdbGameModel } from '../models/IgdbGameModel';
+import { IGameGateway } from '../../../domain/gateways/IGameGateway';
+import { ExternalGameDto, IgdbGameDto } from '../../../domain/dtos/ExternalGameDto';
+import { IgdbGameModel } from './models/IgdbGameModel';
 
-export class IgdbGateway implements IGameGateway<Partial<IgdbGameData>> {
+export class IgdbGateway implements IGameGateway {
     private clientId: string;
     private clientSecret: string;
     private accessToken: string | null = null;
@@ -63,7 +63,7 @@ export class IgdbGateway implements IGameGateway<Partial<IgdbGameData>> {
         return { storeName, categoryIcon, url };
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<Partial<IgdbGameData> | null> {
+    public async getGameDetails(cleanTitle: string): Promise<ExternalGameDto | null> {
         await this.authenticate();
         await this.delayNextRequest();
 
@@ -94,8 +94,8 @@ export class IgdbGateway implements IGameGateway<Partial<IgdbGameData>> {
             if (response.data && response.data.length > 0) {
                 const gameData = response.data[0];
 
-                // Map IGDB response to our Partial<EnrichedGameEntity>
-                return {
+                // Map IGDB response to our DTO
+                const parsedData: IgdbGameDto = {
                     igdbId: gameData.id,
                     totalRating: gameData.total_rating ?? null,
                     totalRatingCount: gameData.total_rating_count ?? null,
@@ -116,12 +116,14 @@ export class IgdbGateway implements IGameGateway<Partial<IgdbGameData>> {
                     videos: gameData.videos?.map(v => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
                 };
+
+                return { igdbResult: parsedData, rawgResult: null, videoResults: null };
             }
 
             return null;
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                console.error(`IGDB API Error for "${cleanTitle}":`, error.response?.status, error.response?.data || error.message);
+                console.error(`IGDB API Error for "${cleanTitle}":`, error.response?.status, (error.response?.data as any) || error.message);
             } else {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 console.error(`Error processing "${cleanTitle}":`, errorMessage);

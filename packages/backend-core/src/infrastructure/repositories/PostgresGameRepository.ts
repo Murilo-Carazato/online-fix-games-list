@@ -1,7 +1,8 @@
 import { eq, ilike, desc, asc, and, or, isNull, sql } from "drizzle-orm";
 import { db } from "../database";
 import { enrichedGames, gamePreferences } from "../database/schema";
-import { HydraGameEntity, EnrichedGameEntity } from "../../domain/entities/Game";
+import { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
+import { HydraGameEntity } from "../../domain/entities/HydraGameEntity";
 import { IGameRepository } from "../../domain/repositories/IGameRepository";
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
@@ -16,7 +17,7 @@ export interface PaginatedQueryProps {
     filterBy?: FilterKey;
 }
 
-export class PostgresGameDataRepository implements IGameRepository {
+export class PostgresGameRepository implements IGameRepository {
     async loadGames(path: string): Promise<HydraGameEntity[]> {
         throw new Error("PostgresGameDataRepository.loadGames is not implemented. Use JsonGameRepository to read local files.");
     }

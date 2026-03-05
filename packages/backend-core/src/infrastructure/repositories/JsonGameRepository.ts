@@ -1,6 +1,7 @@
 import * as fs from 'fs/promises';
 import { IGameRepository } from '../../domain/repositories/IGameRepository';
-import { HydraGameEntity, EnrichedGameEntity } from '../../domain/entities/Game';
+import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
+import { HydraGameEntity } from '../../domain/entities/HydraGameEntity';
 
 export class JsonGameRepository implements IGameRepository {
     async loadGames(path: string): Promise<HydraGameEntity[]> {
