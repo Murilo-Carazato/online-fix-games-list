@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import type { EnrichedGame } from '@hydra/core-domain';
+import type { EnrichedGame } from '@hydra/backend-core/src/domain/entities/Game';
 import { GameCard } from '@/components/GameCard';
 import { FilterBar } from '@/components/FilterBar';
 import { StatsHeader } from '@/components/StatsHeader';

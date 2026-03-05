@@ -1,5 +1,5 @@
 import { GameGatewayFactory } from '@hydra/backend-core/src/infrastructure/factories/GameGatewayFactory';
-import { JsonGameRepository } from '@hydra/backend-core/src/infrastructure/storage/JsonGameRepository';
+import { JsonGameRepository } from '@hydra/backend-core/src/infrastructure/repositories/JsonGameRepository';
 import { PostgresGameDataRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameDataRepository';
 import { TitleCleaner } from '@hydra/backend-core/src/domain/services/TitleCleaner';
 import type { IGameRepository } from '@hydra/backend-core/src/domain/interfaces/IGameRepository';

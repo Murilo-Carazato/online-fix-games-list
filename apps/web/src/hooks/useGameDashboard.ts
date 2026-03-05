@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { EnrichedGame } from '@hydra/core-domain';
+import type { EnrichedGame } from '@hydra/backend-core/src/domain/entities/Game';
 import { toggleWantToPlayAction, toggleIgnoredAction, fetchMoreGamesAction } from '@/actions/gameActions';
 import type { SortKey, FilterKey } from '@/components/GameDashboard';
 

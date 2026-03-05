@@ -1,10 +1,11 @@
 "use server";
 
-import { PostgresGameRepository, PostgresGameDataRepository } from "@hydra/infrastructure";
-import type { SortKey, FilterKey } from "@hydra/infrastructure";
+import { PostgresGamePreferenceRepository } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGamePreferenceRepository";
+import { PostgresGameDataRepository } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGameDataRepository";
+import type { SortKey, FilterKey } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGameDataRepository";
 
 // Instantiate the repositories once (Clean Architecture service boundary)
-const prefRepository = new PostgresGameRepository();
+const prefRepository = new PostgresGamePreferenceRepository();
 const dataRepository = new PostgresGameDataRepository();
 
 // ─── Initial data fetch (replaces direct repo access in page.tsx) ────────────

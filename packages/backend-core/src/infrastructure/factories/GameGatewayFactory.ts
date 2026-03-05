@@ -1,10 +1,10 @@
 import { IGameGateway } from '../../domain/interfaces/IGameGateway';
 import { GameDataMerger } from '../../domain/services/GameDataMerger';
 import { AppConfig } from '../../domain/config/AppConfig';
-import { IgdbGateway } from '../api/IgdbGateway';
-import { RawgGateway } from '../api/RawgGateway';
-import { YoutubeGateway } from '../api/YoutubeGateway';
-import { CompositeGameGateway } from '../providers/CompositeGameGateway';
+import { IgdbGateway } from '../gateways/IgdbGateway';
+import { RawgGateway } from '../gateways/RawgGateway';
+import { YoutubeGateway } from '../gateways/YoutubeGateway';
+import { CompositeGameGateway } from '../gateways/CompositeGameGateway';
 
 export class GameGatewayFactory {
     public static createGateway(config: AppConfig): IGameGateway {

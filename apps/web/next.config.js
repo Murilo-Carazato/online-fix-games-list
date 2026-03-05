@@ -6,7 +6,7 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 
 const nextConfig = {
     // Enable transpiling of internal monorepo packages
-    transpilePackages: ['@hydra/core-domain', '@hydra/core-usecases', '@hydra/infrastructure'],
+    transpilePackages: ['@hydra/backend-core'],
 
     // Allow Next.js Image Optimization to compress API covers
     images: {
