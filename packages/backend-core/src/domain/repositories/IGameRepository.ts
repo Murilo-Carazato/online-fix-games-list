@@ -1,7 +1,9 @@
 import { EnrichedGameEntity } from '../entities/EnrichedGameEntity';
-import { HydraGameEntity } from '../entities/HydraGameEntity';
 
+/**
+ * Contract for persisting and querying enriched game data.
+ * Implementations write to and read from a database (Postgres).
+ */
 export interface IGameRepository {
-    loadGames(path: string): Promise<HydraGameEntity[]>;
-    saveGames(path: string, games: EnrichedGameEntity[]): Promise<void>;
+    saveGames(games: EnrichedGameEntity[]): Promise<void>;
 }

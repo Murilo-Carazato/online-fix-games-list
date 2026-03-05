@@ -1,20 +1,23 @@
 import { IGameGateway } from '../../domain/gateways/IGameGateway';
+import { IHydraGateway } from '../../domain/gateways/IHydraGateway';
 import { IGameRepository } from '../../domain/repositories/IGameRepository';
 import { ITitleCleanerService } from '../../domain/services/TitleCleanerService';
 import { IGameDataMergerService } from '../../domain/services/GameDataMergerService';
 import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
+import { EnrichmentResult } from './EnrichmentResult';
 
 export class EnrichGamesUseCase {
     constructor(
         private gameGateway: IGameGateway,
+        private hydraGateway: IHydraGateway,
         private gameRepository: IGameRepository,
         private titleCleaner: ITitleCleanerService,
         private gameDataMerger: IGameDataMergerService
     ) { }
 
-    public async enrichDataset(inputPath: string, outputPath: string, limit?: number): Promise<void> {
-        console.log(`Loading games from ${inputPath}...`);
-        const rawGames = await this.gameRepository.loadGames(inputPath);
+    public async enrichDataset(inputFilePath: string, limit?: number): Promise<EnrichmentResult> {
+        console.log(`Loading games from ${inputFilePath}...`);
+        const rawGames = await this.hydraGateway.loadGames(inputFilePath);
         console.log(`Successfully loaded ${rawGames.length} games.`);
 
         const gamesToProcess = limit ? rawGames.slice(0, limit) : rawGames;
@@ -24,6 +27,8 @@ export class EnrichGamesUseCase {
 
         const CHUNK_SIZE = 10;
         let processedCount = 0;
+        let enrichedCount = 0;
+        let failedCount = 0;
 
         for (let i = 0; i < gamesToProcess.length; i += CHUNK_SIZE) {
             const chunk = gamesToProcess.slice(i, i + CHUNK_SIZE);
@@ -34,6 +39,7 @@ export class EnrichGamesUseCase {
 
                     if (!externalData) {
                         console.log(`   > [${cleanTitle}] No external data found.`);
+                        failedCount++;
                         return { ...game, isEnriched: false } as EnrichedGameEntity;
                     }
 
@@ -41,15 +47,17 @@ export class EnrichGamesUseCase {
 
                     if (!finalGame) {
                         console.log(`   > [${cleanTitle}] Failed to merge data (No IGDB/RAWG data).`);
+                        failedCount++;
                         return { ...game, isEnriched: false } as EnrichedGameEntity;
                     }
 
                     console.log(`   > [${cleanTitle}] Found! Rating: ${finalGame.totalRating || 'N/A'}, Popularity: ${finalGame.added || 'N/A'}`);
-
+                    enrichedCount++;
                     return finalGame;
                 } catch (error: unknown) {
                     const errorMessage = error instanceof Error ? error.message : String(error);
                     console.error(`   > Error fetching data for "${cleanTitle}". Skipping: ${errorMessage}`);
+                    failedCount++;
                     return { ...game, isEnriched: false } as EnrichedGameEntity;
                 }
             });
@@ -61,8 +69,10 @@ export class EnrichGamesUseCase {
             console.log(`[Batch Progress] ${processedCount}/${gamesToProcess.length} processed.`);
         }
 
-        console.log(`Enrichment complete. Saving to ${outputPath} (Postgres)...`);
-        await this.gameRepository.saveGames(outputPath, enrichedGames);
+        console.log(`Enrichment complete. Saving ${enrichedGames.length} games to Postgres...`);
+        await this.gameRepository.saveGames(enrichedGames);
         console.log('Save complete!');
+
+        return { processed: processedCount, enriched: enrichedCount, failed: failedCount };
     }
 }

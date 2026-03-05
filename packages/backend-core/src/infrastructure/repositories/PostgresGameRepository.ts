@@ -4,6 +4,7 @@ import { enrichedGames, gamePreferences } from "../database/schema";
 import { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
 import { HydraGameEntity } from "../../domain/entities/HydraGameEntity";
 import { IGameRepository } from "../../domain/repositories/IGameRepository";
+import { GameMapper } from "../mappers/GameMapper";
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
 export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
@@ -18,11 +19,8 @@ export interface PaginatedQueryProps {
 }
 
 export class PostgresGameRepository implements IGameRepository {
-    async loadGames(path: string): Promise<HydraGameEntity[]> {
-        throw new Error("PostgresGameDataRepository.loadGames is not implemented. Use JsonGameRepository to read local files.");
-    }
 
-    async saveGames(path: string, games: EnrichedGameEntity[]): Promise<void> {
+    async saveGames(games: EnrichedGameEntity[]): Promise<void> {
         if (!games || games.length === 0) return;
 
         // Drizzle insert supports arrays for bulk inserts
@@ -32,16 +30,18 @@ export class PostgresGameRepository implements IGameRepository {
         for (let i = 0; i < games.length; i += chunkSize) {
             const chunk = games.slice(i, i + chunkSize);
 
-            const values = chunk.map(game => ({
-                title: game.title,
-                // Parse date or fallback to now
-                uploadDate: game.uploadDate ? new Date(game.uploadDate) : new Date(),
-                totalRating: game.totalRating ?? null,
-                added: game.added ?? null,
-                playtime: game.playtime ?? null,
-                isEnriched: game.isEnriched,
-                data: game,
-            }));
+            const values = chunk.map(game => {
+                const dbModel = GameMapper.toDbModel(game);
+                return {
+                    title: dbModel.title,
+                    uploadDate: dbModel.uploadDate,
+                    totalRating: dbModel.totalRating,
+                    added: dbModel.added,
+                    playtime: dbModel.playtime,
+                    isEnriched: dbModel.isEnriched,
+                    data: game, // schema expects EnrichedGameEntity via $type<>
+                };
+            });
 
             await db.insert(enrichedGames)
                 .values(values)
@@ -118,13 +118,12 @@ export class PostgresGameRepository implements IGameRepository {
 
         query = query.limit(limit).offset(offset);
 
-        // Map the results, combining the nested JSON payload with the current relational user preference state
         const results = await query;
-        return results.map(r => ({
+        return results.map(r => GameMapper.toDomain({
             ...(r.data as any),
             wantToPlay: r.wantToPlay ?? false,
-            ignored: r.ignored ?? false
-        } as EnrichedGameEntity));
+            ignored: r.ignored ?? false,
+        }));
     }
 
     async getGlobalStats(): Promise<{ total: number; wantToPlay: number; ignored: number }> {
