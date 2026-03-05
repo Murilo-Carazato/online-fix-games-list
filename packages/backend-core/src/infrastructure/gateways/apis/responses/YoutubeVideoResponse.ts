@@ -1,4 +1,4 @@
-export interface YoutubeVideoModel {
+export interface YoutubeVideoResponse {
     kind: string;
     etag: string;
     nextPageToken?: string;

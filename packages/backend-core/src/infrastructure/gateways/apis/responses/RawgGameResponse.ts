@@ -1,4 +1,4 @@
-export interface RawgGameModel {
+export interface RawgGameResponse {
     id: number;
     name?: string;
     background_image?: string;

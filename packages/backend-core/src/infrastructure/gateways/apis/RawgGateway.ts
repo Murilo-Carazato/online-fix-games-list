@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { IGameGateway } from '../../../domain/gateways/IGameGateway';
-import { ExternalGameData, RawgGameData } from '../../../domain/models/ExternalGameData';
-import { RawgGameModel } from './models/RawgGameModel';
+import { ExternalGameData, RawgGameData } from '../../../domain/data/ExternalGameData';
+import { RawgGameResponse } from './responses/RawgGameResponse';
 
 export class RawgGateway implements IGameGateway {
     private apiKey: string;
@@ -40,7 +40,7 @@ export class RawgGateway implements IGameGateway {
 
             // Call RAWG API search
             const searchUrl = `https://api.rawg.io/api/games?key=${this.apiKey}&search=${searchTerm}&page_size=1`;
-            const response = await axios.get<{ results: RawgGameModel[] }>(searchUrl);
+            const response = await axios.get<{ results: RawgGameResponse[] }>(searchUrl);
 
             if (response.data?.results && response.data.results.length > 0) {
                 const gameData = response.data.results[0];

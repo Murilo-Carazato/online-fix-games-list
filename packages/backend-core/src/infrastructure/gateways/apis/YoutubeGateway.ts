@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { IVideoGateway } from '../../../domain/gateways/IVideoGateway';
 import { VideoEntity } from '../../../domain/entities/VideoEntity';
-import { YoutubeVideoModel } from './models/YoutubeVideoModel';
+import { YoutubeVideoResponse } from './responses/YoutubeVideoResponse';
 
 export class YoutubeGateway implements IVideoGateway {
     private apiKey: string;
@@ -27,7 +27,7 @@ export class YoutubeGateway implements IVideoGateway {
         try {
             console.log(`[Youtube] Searching video for "${cleanTitle}"...`);
 
-            const response = await axios.get<YoutubeVideoModel>(this.baseUrl, {
+            const response = await axios.get<YoutubeVideoResponse>(this.baseUrl, {
                 params: {
                     key: this.apiKey,
                     channelId: this.channelId,

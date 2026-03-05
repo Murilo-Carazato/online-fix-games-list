@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { IGameGateway } from '../../../domain/gateways/IGameGateway';
-import { ExternalGameData, IgdbGameData } from '../../../domain/models/ExternalGameData';
-import { IgdbGameModel } from './models/IgdbGameModel';
+import { ExternalGameData, IgdbGameData } from '../../../domain/data/ExternalGameData';
+import { IgdbGameResponse } from './responses/IgdbGameResponse';
 
 export class IgdbGateway implements IGameGateway {
     private clientId: string;
@@ -82,7 +82,7 @@ export class IgdbGateway implements IGameGateway {
     `;
 
         try {
-            const response = await axios.post<IgdbGameModel[]>('https://api.igdb.com/v4/games', query, {
+            const response = await axios.post<IgdbGameResponse[]>('https://api.igdb.com/v4/games', query, {
                 headers: {
                     'Client-ID': this.clientId,
                     'Authorization': `Bearer ${this.accessToken}`,

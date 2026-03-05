@@ -1,6 +1,6 @@
 import { EnrichedGameEntity } from '../entities/EnrichedGameEntity';
 import { HydraGameEntity } from '../entities/HydraGameEntity';
-import { IgdbGameData, RawgGameData, ExternalGameData } from '../models/ExternalGameData';
+import { IgdbGameData, RawgGameData, ExternalGameData } from '../data/ExternalGameData';
 
 export interface IGameDataMergerService {
     merge(externalData: ExternalGameData, hydraData: HydraGameEntity): EnrichedGameEntity | null;

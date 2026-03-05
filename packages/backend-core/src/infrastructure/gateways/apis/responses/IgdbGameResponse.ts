@@ -1,4 +1,4 @@
-export interface IgdbGameModel {
+export interface IgdbGameResponse {
     id: number;
     name?: string;
     total_rating?: number;
