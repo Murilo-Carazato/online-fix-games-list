@@ -4,6 +4,7 @@ import { enrichedGames, gamePreferences } from "../database/config/schema";
 import { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
 import { HydraGameEntity } from "../../domain/entities/HydraGameEntity";
 import { IGameRepository } from "../../domain/repositories/IGameRepository";
+import { ILoggerService } from "../../domain/services/ILoggerService";
 import { GameMapper } from "../mappers/GameMapper";
 import { Result } from "../../domain/common/Result";
 import { StorageFailure } from "../../domain/common/Failure";
@@ -21,6 +22,7 @@ export interface PaginatedQueryProps {
 }
 
 export class PostgresGameRepository implements IGameRepository {
+    constructor(private readonly logger: ILoggerService) { }
 
     async saveGames(games: EnrichedGameEntity[]): Promise<Result<void, StorageFailure>> {
         if (!games || games.length === 0) return Result.ok();
@@ -65,7 +67,7 @@ export class PostgresGameRepository implements IGameRepository {
             return Result.ok();
         } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : String(error);
-            console.error('Error saving games to Postgres:', msg);
+            this.logger.error(`Error saving games to Postgres: ${msg}`);
             return Result.fail(new StorageFailure(`Failed to save games to DB: ${msg}`));
         }
     }
@@ -129,11 +131,11 @@ export class PostgresGameRepository implements IGameRepository {
         query = query.limit(limit).offset(offset);
 
         const results = await query;
-        return results.map(r => GameMapper.toDomain({
-            ...(r.data as any),
-            wantToPlay: r.wantToPlay ?? false,
-            ignored: r.ignored ?? false,
-        }));
+        return results.map(r => GameMapper.toDomain(
+            r.data,
+            r.wantToPlay ?? false,
+            r.ignored ?? false
+        ));
     }
 
     async getGlobalStats(): Promise<{ total: number; wantToPlay: number; ignored: number }> {

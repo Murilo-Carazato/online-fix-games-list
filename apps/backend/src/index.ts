@@ -16,9 +16,9 @@ async function main() {
     const config = loadConfig();
 
     // 2. Compose dependencies — Dependency Inversion in action
-    const apiGateway = GameGatewayFactory.createGateway(config);
-    const hydraGateway = new JsonHydraGateway();
-    const gameRepository = new PostgresGameRepository();
+    const apiGateway = GameGatewayFactory.createGateway(config, logger);
+    const hydraGateway = new JsonHydraGateway(logger);
+    const gameRepository = new PostgresGameRepository(logger);
     const titleCleaner = new TitleCleanerService();
     const gameDataMerger = new GameDataMergerService();
 
@@ -49,6 +49,8 @@ async function main() {
 }
 
 main().catch(error => {
-    console.error('Fatal Error:', error);
+    const logger = new ConsoleLoggerService();
+    const msg = error instanceof Error ? error.message : String(error);
+    logger.error(`Fatal Error: ${msg}`);
     process.exit(1);
 });

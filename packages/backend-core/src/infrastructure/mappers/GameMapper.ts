@@ -10,6 +10,8 @@ export class GameMapper {
 
     /**
      * Converts a Domain Entity into a DB row ready for insertion/update.
+     * Object.assign<Target, Source> serializes the class instance to a plain record
+     * without requiring `as` type assertions.
      */
     static toDbModel(entity: EnrichedGameEntity): EnrichedGameDbModel {
         return new EnrichedGameDbModel(
@@ -19,26 +21,30 @@ export class GameMapper {
             entity.added ?? null,
             entity.playtime ?? null,
             entity.isEnriched,
-            entity as unknown as Record<string, unknown>,
+            Object.assign<Record<string, unknown>, EnrichedGameEntity>({}, entity),
             new Date()
         );
     }
 
     /**
-     * Converts a DB row (plus joined preference columns) back into a Domain Entity.
+     * Converts a typed JSONB data row back into a Domain Entity.
+     * The data parameter is already typed as EnrichedGameEntity by the Drizzle schema,
+     * so no type assertions are needed.
      */
     static toDomain(
-        row: EnrichedGameDbModel & { wantToPlay?: boolean | null; ignored?: boolean | null }
+        data: EnrichedGameEntity,
+        wantToPlay: boolean,
+        ignored: boolean
     ): EnrichedGameEntity {
         const hydraData = new HydraGameEntity(
-            (row.data as any).fileSize,
-            (row.data as any).title,
-            (row.data as any).uploadDate,
+            data.fileSize,
+            data.title,
+            data.uploadDate,
         );
 
-        const entity = new EnrichedGameEntity(hydraData, row.data as any);
-        entity.wantToPlay = row.wantToPlay ?? false;
-        entity.ignored = row.ignored ?? false;
+        const entity = new EnrichedGameEntity(hydraData, data);
+        entity.wantToPlay = wantToPlay;
+        entity.ignored = ignored;
         return entity;
     }
 }

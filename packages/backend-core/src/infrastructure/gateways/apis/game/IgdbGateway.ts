@@ -2,46 +2,46 @@ import axios from 'axios';
 import { IGameGateway } from '../../../../domain/gateways/IGameGateway';
 import { ExternalGameData, IgdbGameData } from '../../../../domain/data/ExternalGameData';
 import { IgdbGameResponse } from './responses/IgdbGameResponse';
+import { ILoggerService } from '../../../../domain/services/ILoggerService';
 import { Result } from '../../../../domain/common/Result';
 import { Failure, ServerFailure } from '../../../../domain/common/Failure';
 
 export class IgdbGateway implements IGameGateway {
-    private clientId: string;
-    private clientSecret: string;
+    // IGDB Limit: 4 requests per second
+    private readonly requestDelayMs = 300;
     private accessToken: string | null = null;
     private tokenExpiration: number = 0;
-
-    // IGDB Limit: 4 requests per second
-    private requestDelayMs = 300;
     private lastRequestTime = 0;
 
-    constructor(clientId: string, clientSecret: string) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-    }
+    constructor(
+        private readonly clientId: string,
+        private readonly clientSecret: string,
+        private readonly logger: ILoggerService
+    ) { }
 
-    private async authenticate() {
+    private async authenticate(): Promise<void> {
         const now = Date.now();
         // Refresh token if it doesn't exist or is about to expire (within 5 minutes)
         if (!this.accessToken || now > this.tokenExpiration - 300000) {
             try {
-                console.info('Authenticating with Twitch/IGDB...');
-                const response = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`);
+                this.logger.info('Authenticating with Twitch/IGDB...');
+                const response = await axios.post(
+                    `https://id.twitch.tv/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`
+                );
                 this.accessToken = response.data.access_token;
-                // set expiration time (expires_in is in seconds)
                 this.tokenExpiration = now + (response.data.expires_in * 1000);
-                console.info('Authentication successful.');
-            } catch (error) {
-                console.error("Failed to authenticate with IGDB", error);
-                throw new Error("IGDB Authentication failed");
+                this.logger.info('Authentication successful.');
+            } catch (error: unknown) {
+                const msg = error instanceof Error ? error.message : String(error);
+                this.logger.error(`Failed to authenticate with IGDB: ${msg}`);
+                throw new Error('IGDB Authentication failed');
             }
         }
     }
 
-    private async delayNextRequest() {
+    private async delayNextRequest(): Promise<void> {
         const now = Date.now();
         const timeSinceLastRequest = now - this.lastRequestTime;
-
         if (timeSinceLastRequest < this.requestDelayMs) {
             const waitTime = this.requestDelayMs - timeSinceLastRequest;
             await new Promise(resolve => setTimeout(resolve, waitTime));
@@ -61,7 +61,6 @@ export class IgdbGateway implements IGameGateway {
 
         const domain = new URL(url).hostname;
         const categoryIcon = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-
         return { storeName, categoryIcon, url };
     }
 
@@ -69,11 +68,7 @@ export class IgdbGateway implements IGameGateway {
         await this.authenticate();
         await this.delayNextRequest();
 
-        // Escape quotes to prevent syntax errors in apicalypse string
         const safeTitle = cleanTitle.replace(/"/g, '\\"');
-
-        // Searching games using Apicalypse syntax
-        // We want expanded metadata to enrich our data
         const query = `
       search "${safeTitle}"; 
       fields name, genres.name, cover.url, total_rating, total_rating_count, 
@@ -94,28 +89,27 @@ export class IgdbGateway implements IGameGateway {
             });
 
             if (response.data && response.data.length > 0) {
-                const gameData = response.data[0];
+                const gameData: IgdbGameResponse = response.data[0];
 
-                // Map IGDB response to our DTO
                 const parsedData: IgdbGameData = {
                     igdbId: gameData.id,
                     totalRating: gameData.total_rating ?? null,
                     totalRatingCount: gameData.total_rating_count ?? null,
-                    genres: gameData.genres?.map(g => g.name) || [],
-                    themes: gameData.themes?.map(t => t.name) || [],
-                    platforms: gameData.platforms?.map(p => p.name) || [],
-                    gameModes: gameData.game_modes?.map(m => m.name) || [],
+                    genres: gameData.genres?.map(g => g.name) ?? [],
+                    themes: gameData.themes?.map(t => t.name) ?? [],
+                    platforms: gameData.platforms?.map(p => p.name) ?? [],
+                    gameModes: gameData.game_modes?.map(m => m.name) ?? [],
                     languageSupports: gameData.language_supports
                         ?.filter(l => {
-                            const name = l.language?.name?.toLowerCase() || '';
+                            const name = l.language?.name?.toLowerCase() ?? '';
                             return name.includes('english') || name.includes('portuguese');
                         })
-                        ?.map(l => `${l.language?.name ?? 'Unknown'} (${l.language_support_type?.name ?? 'Unknown'})`) || [],
-                    franchises: gameData.franchises?.map(f => f.name) || [],
+                        ?.map(l => `${l.language?.name ?? 'Unknown'} (${l.language_support_type?.name ?? 'Unknown'})`) ?? [],
+                    franchises: gameData.franchises?.map(f => f.name) ?? [],
                     externalGames: gameData.external_games
                         ?.filter(e => e.url && !e.url.includes('twitch.tv'))
-                        ?.map(e => this.mapExternalGame(e.url)) || [],
-                    videos: gameData.videos?.map(v => `https://www.youtube.com/watch?v=${v.video_id}`) || [],
+                        ?.map(e => this.mapExternalGame(e.url)) ?? [],
+                    videos: gameData.videos?.map(v => `https://www.youtube.com/watch?v=${v.video_id}`) ?? [],
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
                 };
 
@@ -125,11 +119,13 @@ export class IgdbGateway implements IGameGateway {
             return Result.ok(null);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                console.error(`IGDB API Error for "${cleanTitle}":`, error.response?.status, (error.response?.data as any) || error.message);
+                const status = error.response?.status ?? 'unknown';
+                const detail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+                this.logger.error(`IGDB API Error for "${cleanTitle}": status=${status} ${detail}`);
                 return Result.fail(new ServerFailure(`IGDB API Error: ${error.message}`));
             } else {
                 const errorMessage = error instanceof Error ? error.message : String(error);
-                console.error(`Error processing "${cleanTitle}":`, errorMessage);
+                this.logger.error(`Error processing "${cleanTitle}": ${errorMessage}`);
                 return Result.fail(new ServerFailure(`IGDB API Error: ${errorMessage}`));
             }
         }

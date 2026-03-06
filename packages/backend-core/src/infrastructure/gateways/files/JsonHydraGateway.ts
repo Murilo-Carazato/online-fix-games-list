@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises';
 import { IHydraGateway } from '../../../domain/gateways/IHydraGateway';
+import { ILoggerService } from '../../../domain/services/ILoggerService';
 import { HydraGameEntity } from '../../../domain/entities/HydraGameEntity';
 import { Result } from '../../../domain/common/Result';
 import { InitializationFailure } from '../../../domain/common/Failure';
@@ -10,14 +11,17 @@ import { InitializationFailure } from '../../../domain/common/Failure';
  * Future sources (RSS, remote API, S3) would implement the same interface.
  */
 export class JsonHydraGateway implements IHydraGateway {
+    constructor(private readonly logger: ILoggerService) { }
+
     async loadGames(filePath: string): Promise<Result<HydraGameEntity[], InitializationFailure>> {
         try {
             const data = await fs.readFile(filePath, 'utf8');
-            const games = JSON.parse(data) as HydraGameEntity[];
+            // JSON.parse returns `any` — typed assignment is safe and avoids `as`
+            const games: HydraGameEntity[] = JSON.parse(data);
             return Result.ok(games);
         } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : String(error);
-            console.error(`Error loading games from ${filePath}:`, msg);
+            this.logger.error(`Error loading games from ${filePath}: ${msg}`);
             return Result.fail(new InitializationFailure(`Could not parse JSON: ${msg}`));
         }
     }
