@@ -2,6 +2,8 @@ import axios from 'axios';
 import { IGameGateway } from '../../../domain/gateways/IGameGateway';
 import { ExternalGameData, IgdbGameData } from '../../../domain/data/ExternalGameData';
 import { IgdbGameResponse } from './responses/IgdbGameResponse';
+import { Result } from '../../../domain/common/Result';
+import { Failure, ServerFailure } from '../../../domain/common/Failure';
 
 export class IgdbGateway implements IGameGateway {
     private clientId: string;
@@ -63,7 +65,7 @@ export class IgdbGateway implements IGameGateway {
         return { storeName, categoryIcon, url };
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<ExternalGameData | null> {
+    public async getGameDetails(cleanTitle: string): Promise<Result<ExternalGameData | null, Failure>> {
         await this.authenticate();
         await this.delayNextRequest();
 
@@ -117,18 +119,19 @@ export class IgdbGateway implements IGameGateway {
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
                 };
 
-                return { igdbResult: parsedData, rawgResult: null, videoResults: null };
+                return Result.ok({ igdbResult: parsedData, rawgResult: null, videoResults: null });
             }
 
-            return null;
+            return Result.ok(null);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 console.error(`IGDB API Error for "${cleanTitle}":`, error.response?.status, (error.response?.data as any) || error.message);
+                return Result.fail(new ServerFailure(`IGDB API Error: ${error.message}`));
             } else {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 console.error(`Error processing "${cleanTitle}":`, errorMessage);
+                return Result.fail(new ServerFailure(`IGDB API Error: ${errorMessage}`));
             }
-            return null;
         }
     }
 }

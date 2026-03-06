@@ -2,6 +2,8 @@ import axios from 'axios';
 import { IGameGateway } from '../../../domain/gateways/IGameGateway';
 import { ExternalGameData, RawgGameData } from '../../../domain/data/ExternalGameData';
 import { RawgGameResponse } from './responses/RawgGameResponse';
+import { Result } from '../../../domain/common/Result';
+import { Failure, ServerFailure } from '../../../domain/common/Failure';
 
 export class RawgGateway implements IGameGateway {
     private apiKey: string;
@@ -31,7 +33,7 @@ export class RawgGateway implements IGameGateway {
         this.lastRequestTime = Date.now();
     }
 
-    public async getGameDetails(cleanTitle: string): Promise<ExternalGameData | null> {
+    public async getGameDetails(cleanTitle: string): Promise<Result<ExternalGameData | null, Failure>> {
         await this.delayNextRequest();
 
         try {
@@ -66,17 +68,18 @@ export class RawgGateway implements IGameGateway {
                         ?.map(s => s.image)
                         ?.filter(img => img !== gameData.background_image) || []
                 };
-                return { igdbResult: null, rawgResult: parsedData, videoResults: null };
+                return Result.ok({ igdbResult: null, rawgResult: parsedData, videoResults: null });
             }
-            return null;
+            return Result.ok(null);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 console.error(`RAWG API Error for "${cleanTitle}":`, error.response?.status, (error.response?.data as any) || error.message);
+                return Result.fail(new ServerFailure(`RAWG API Error: ${error.message}`));
             } else {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 console.error(`Error processing "${cleanTitle}":`, errorMessage);
+                return Result.fail(new ServerFailure(`RAWG API Error: ${errorMessage}`));
             }
-            return null;
         }
     }
 }

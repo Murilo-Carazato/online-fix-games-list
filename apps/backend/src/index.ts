@@ -1,5 +1,5 @@
 import { GameGatewayFactory } from '@hydra/backend-core/src/infrastructure/factories/GameGatewayFactory';
-import { JsonHydraGateway } from '@hydra/backend-core/src/infrastructure/gateways/JsonHydraGateway';
+import { JsonHydraGateway } from '@hydra/backend-core/src/infrastructure/gateways/files/JsonHydraGateway';
 import { PostgresGameRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository';
 import { TitleCleanerService } from '@hydra/backend-core/src/domain/services/TitleCleanerService';
 import { GameDataMergerService } from '@hydra/backend-core/src/domain/services/GameDataMergerService';
@@ -34,7 +34,14 @@ async function main() {
     const result = await enricherUseCase.enrichDataset(config.inputFilePath, config.enrichmentLimit);
 
     console.log("=== DONE ===");
-    console.log(`Processed: ${result.processed} | Enriched: ${result.enriched} | Failed: ${result.failed}`);
+    if (result.isFailure) {
+        console.error("Enrichment Process Failed:");
+        console.error(result.getError().message);
+        process.exit(1);
+    } else {
+        const stats = result.getValue();
+        console.log(`Processed: ${stats.processed} | Enriched: ${stats.enriched} | Failed: ${stats.failed}`);
+    }
 }
 
 main().catch(error => {

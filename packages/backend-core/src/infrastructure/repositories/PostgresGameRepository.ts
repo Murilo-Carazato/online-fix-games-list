@@ -5,6 +5,8 @@ import { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
 import { HydraGameEntity } from "../../domain/entities/HydraGameEntity";
 import { IGameRepository } from "../../domain/repositories/IGameRepository";
 import { GameMapper } from "../mappers/GameMapper";
+import { Result } from "../../domain/common/Result";
+import { StorageFailure } from "../../domain/common/Failure";
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
 export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
@@ -20,43 +22,51 @@ export interface PaginatedQueryProps {
 
 export class PostgresGameRepository implements IGameRepository {
 
-    async saveGames(games: EnrichedGameEntity[]): Promise<void> {
-        if (!games || games.length === 0) return;
+    async saveGames(games: EnrichedGameEntity[]): Promise<Result<void, StorageFailure>> {
+        if (!games || games.length === 0) return Result.ok();
 
         // Drizzle insert supports arrays for bulk inserts
         // But to avoid transaction limits on very large datasets, we can chunk it
         const chunkSize = 200;
 
-        for (let i = 0; i < games.length; i += chunkSize) {
-            const chunk = games.slice(i, i + chunkSize);
+        try {
 
-            const values = chunk.map(game => {
-                const dbModel = GameMapper.toDbModel(game);
-                return {
-                    title: dbModel.title,
-                    uploadDate: dbModel.uploadDate,
-                    totalRating: dbModel.totalRating,
-                    added: dbModel.added,
-                    playtime: dbModel.playtime,
-                    isEnriched: dbModel.isEnriched,
-                    data: game, // schema expects EnrichedGameEntity via $type<>
-                };
-            });
+            for (let i = 0; i < games.length; i += chunkSize) {
+                const chunk = games.slice(i, i + chunkSize);
 
-            await db.insert(enrichedGames)
-                .values(values)
-                .onConflictDoUpdate({
-                    target: enrichedGames.title,
-                    set: {
-                        uploadDate: sql`excluded.upload_date`,
-                        totalRating: sql`excluded.total_rating`,
-                        added: sql`excluded.added`,
-                        playtime: sql`excluded.playtime`,
-                        isEnriched: sql`excluded.is_enriched`,
-                        data: sql`excluded.data`,
-                        updatedAt: new Date(),
-                    }
+                const values = chunk.map(game => {
+                    const dbModel = GameMapper.toDbModel(game);
+                    return {
+                        title: dbModel.title,
+                        uploadDate: dbModel.uploadDate,
+                        totalRating: dbModel.totalRating,
+                        added: dbModel.added,
+                        playtime: dbModel.playtime,
+                        isEnriched: dbModel.isEnriched,
+                        data: game, // schema expects EnrichedGameEntity via $type<>
+                    };
                 });
+
+                await db.insert(enrichedGames)
+                    .values(values)
+                    .onConflictDoUpdate({
+                        target: enrichedGames.title,
+                        set: {
+                            uploadDate: sql`excluded.upload_date`,
+                            totalRating: sql`excluded.total_rating`,
+                            added: sql`excluded.added`,
+                            playtime: sql`excluded.playtime`,
+                            isEnriched: sql`excluded.is_enriched`,
+                            data: sql`excluded.data`,
+                            updatedAt: new Date(),
+                        }
+                    });
+            }
+            return Result.ok();
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
+            console.error('Error saving games to Postgres:', msg);
+            return Result.fail(new StorageFailure(`Failed to save games to DB: ${msg}`));
         }
     }
 

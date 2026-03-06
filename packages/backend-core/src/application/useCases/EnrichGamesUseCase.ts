@@ -4,7 +4,9 @@ import { IGameRepository } from '../../domain/repositories/IGameRepository';
 import { ITitleCleanerService } from '../../domain/services/TitleCleanerService';
 import { IGameDataMergerService } from '../../domain/services/GameDataMergerService';
 import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
-import { EnrichmentResult } from './EnrichmentResult';
+import { Result } from '../../domain/common/Result';
+import { Failure } from '../../domain/common/Failure';
+import { EnrichmentResult } from './results/EnrichmentResult';
 
 export class EnrichGamesUseCase {
     constructor(
@@ -15,9 +17,16 @@ export class EnrichGamesUseCase {
         private gameDataMerger: IGameDataMergerService
     ) { }
 
-    public async enrichDataset(inputFilePath: string, limit?: number): Promise<EnrichmentResult> {
+    public async enrichDataset(inputFilePath: string, limit?: number): Promise<Result<EnrichmentResult, Failure>> {
         console.log(`Loading games from ${inputFilePath}...`);
-        const rawGames = await this.hydraGateway.loadGames(inputFilePath);
+
+        // Dependency boundary handles formatting its own exceptions into Result
+        const loadResult = await this.hydraGateway.loadGames(inputFilePath);
+        if (loadResult.isFailure) {
+            return Result.fail(loadResult.getError());
+        }
+
+        const rawGames = loadResult.getValue();
         console.log(`Successfully loaded ${rawGames.length} games.`);
 
         const gamesToProcess = limit ? rawGames.slice(0, limit) : rawGames;
@@ -32,10 +41,20 @@ export class EnrichGamesUseCase {
 
         for (let i = 0; i < gamesToProcess.length; i += CHUNK_SIZE) {
             const chunk = gamesToProcess.slice(i, i + CHUNK_SIZE);
-            const promises = chunk.map(async (game) => {
+            const promises = chunk.map(async (game: import('../../domain/entities/HydraGameEntity').HydraGameEntity) => {
                 const cleanTitle = this.titleCleaner.clean(game.title);
+
+                // We keep a fallback try-catch just in case but the Gateway logic should NEVER throw
                 try {
-                    const externalData = await this.gameGateway.getGameDetails(cleanTitle);
+                    const externalDataRes = await this.gameGateway.getGameDetails(cleanTitle);
+
+                    if (externalDataRes.isFailure) {
+                        console.log(`   > [${cleanTitle}] Gateway Error: ${externalDataRes.getError().message}`);
+                        failedCount++;
+                        return { ...game, isEnriched: false } as EnrichedGameEntity;
+                    }
+
+                    const externalData = externalDataRes.getValue();
 
                     if (!externalData) {
                         console.log(`   > [${cleanTitle}] No external data found.`);
@@ -46,17 +65,17 @@ export class EnrichGamesUseCase {
                     const finalGame = this.gameDataMerger.merge(externalData, game);
 
                     if (!finalGame) {
-                        console.log(`   > [${cleanTitle}] Failed to merge data (No IGDB/RAWG data).`);
+                        console.log(`   > [${cleanTitle}] Failed to merge data.`);
                         failedCount++;
                         return { ...game, isEnriched: false } as EnrichedGameEntity;
                     }
 
-                    console.log(`   > [${cleanTitle}] Found! Rating: ${finalGame.totalRating || 'N/A'}, Popularity: ${finalGame.added || 'N/A'}`);
+                    console.log(`   > [${cleanTitle}] Found! Rating: ${finalGame.totalRating || 'N/A'}`);
                     enrichedCount++;
                     return finalGame;
-                } catch (error: unknown) {
-                    const errorMessage = error instanceof Error ? error.message : String(error);
-                    console.error(`   > Error fetching data for "${cleanTitle}". Skipping: ${errorMessage}`);
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    console.log(`   > [${cleanTitle}] Unexpected Error: ${msg}`);
                     failedCount++;
                     return { ...game, isEnriched: false } as EnrichedGameEntity;
                 }
@@ -64,15 +83,18 @@ export class EnrichGamesUseCase {
 
             const results = await Promise.all(promises);
             enrichedGames.push(...results);
-
-            processedCount += chunk.length;
-            console.log(`[Batch Progress] ${processedCount}/${gamesToProcess.length} processed.`);
+            processedCount += results.length;
         }
 
-        console.log(`Enrichment complete. Saving ${enrichedGames.length} games to Postgres...`);
-        await this.gameRepository.saveGames(enrichedGames);
+        console.log(`Saving ${enrichedGames.length} games to PostgreSQL...`);
+
+        const saveResult = await this.gameRepository.saveGames(enrichedGames);
+        if (saveResult.isFailure) {
+            return Result.fail(saveResult.getError());
+        }
+
         console.log('Save complete!');
 
-        return { processed: processedCount, enriched: enrichedCount, failed: failedCount };
+        return Result.ok({ processed: processedCount, enriched: enrichedCount, failed: failedCount });
     }
 }

@@ -8,6 +8,9 @@ import { HydraGameEntity } from '../entities/HydraGameEntity';
  * Belongs to the Domain layer, following the Dependency Inversion Principle:
  * the Use Case depends on this abstraction, not on the concrete file reader.
  */
+import { Result } from '../common/Result';
+import { Failure } from '../common/Failure';
+
 export interface IHydraGateway {
-    loadGames(filePath: string): Promise<HydraGameEntity[]>;
+    loadGames(filePath: string): Promise<Result<HydraGameEntity[], Failure>>;
 }

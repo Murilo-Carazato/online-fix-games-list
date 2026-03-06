@@ -2,6 +2,8 @@ import axios from 'axios';
 import { IVideoGateway } from '../../../domain/gateways/IVideoGateway';
 import { VideoEntity } from '../../../domain/entities/VideoEntity';
 import { YoutubeVideoResponse } from './responses/YoutubeVideoResponse';
+import { Result } from '../../../domain/common/Result';
+import { Failure, ServerFailure } from '../../../domain/common/Failure';
 
 export class YoutubeGateway implements IVideoGateway {
     private apiKey: string;
@@ -18,10 +20,10 @@ export class YoutubeGateway implements IVideoGateway {
      * @param cleanTitle The game title to search for.
      * @returns An array of video details objects, or null if none found.
      */
-    public async getVideosForGame(cleanTitle: string): Promise<VideoEntity[] | null> {
+    public async getVideosForGame(cleanTitle: string): Promise<Result<VideoEntity[] | null, Failure>> {
         if (!this.apiKey) {
             console.warn('[Youtube] API Key not provided. Skipping search.');
-            return null;
+            return Result.ok(null);
         }
 
         try {
@@ -67,7 +69,7 @@ export class YoutubeGateway implements IVideoGateway {
 
                 if (relevantVideos.length > 0) {
                     console.log(`[Youtube] Found ${relevantVideos.length} video(s) for "${cleanTitle}".`);
-                    return relevantVideos;
+                    return Result.ok(relevantVideos);
                 }
 
                 console.log(`[Youtube] Videos found but none were sufficiently relevant for "${cleanTitle}".`);
@@ -75,15 +77,16 @@ export class YoutubeGateway implements IVideoGateway {
                 console.log(`[Youtube] No video found for "${cleanTitle}" on the channel.`);
             }
 
-            return null;
-        } catch (error: any) {
+            return Result.ok(null);
+        } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 console.error(`YouTube API Error for "${cleanTitle}":`, error.response?.status, (error.response?.data as any) || error.message);
+                return Result.fail(new ServerFailure(`Youtube API Error: ${error.message}`));
             } else {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 console.error(`[Youtube] Unexpected error searching for video:`, errorMessage);
+                return Result.fail(new ServerFailure(`Youtube API Error: ${errorMessage}`));
             }
-            return null;
         }
     }
 }

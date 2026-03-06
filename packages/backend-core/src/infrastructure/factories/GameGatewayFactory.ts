@@ -3,7 +3,7 @@ import { IAppConfig } from '../../domain/config/IAppConfig';
 import { IgdbGateway } from '../gateways/apis/IgdbGateway';
 import { RawgGateway } from '../gateways/apis/RawgGateway';
 import { YoutubeGateway } from '../gateways/apis/YoutubeGateway';
-import { CompositeGameGateway } from '../gateways/CompositeGameGateway';
+import { CompositeGameGateway } from '../gateways/orchestration/CompositeGameGateway';
 
 export class GameGatewayFactory {
     public static createGateway(config: IAppConfig): IGameGateway {
