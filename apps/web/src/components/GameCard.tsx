@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/Game';
+import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/EnrichedGameEntity';
 import Image from 'next/image';
 import { formatRating, formatPopularity, formatUploadDate } from '@/utils/formatters';
 

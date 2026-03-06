@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/Game';
+import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/EnrichedGameEntity';
 import { GameCard } from '@/components/GameCard';
 import { FilterBar } from '@/components/FilterBar';
 import { StatsHeader } from '@/components/StatsHeader';
@@ -10,7 +10,7 @@ import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 import { useGameDashboard } from '@/hooks/useGameDashboard';
 
 export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
-export type FilterKey = 'all' | 'wantToPlay' | 'ignored' | 'untagged';
+export type FilterKey = 'all';
 
 // ── GameCardWrapper ──────────────────────────────────────────────────────────
 // A memoized wrapper that closes over stable toggle callbacks and resolves

@@ -38,10 +38,6 @@ export class EnrichedGameEntity extends HydraGameEntity {
   // Content Creators & Extra
   public contentCreatorVideos?: VideoEntity[] | null;
 
-  // User State
-  public wantToPlay: boolean = false;
-  public ignored: boolean = false;
-
   constructor(
     hydraData: HydraGameEntity,
     enrichedData?: Partial<Omit<EnrichedGameEntity, 'fileSize' | 'title' | 'uploadDate' | 'isEnriched'>>
@@ -54,13 +50,34 @@ export class EnrichedGameEntity extends HydraGameEntity {
     }
   }
 
-  public markAsIgnored(): void {
-    this.ignored = true;
-    this.wantToPlay = false;
-  }
+  public hasChanges(other: EnrichedGameEntity): boolean {
+    if (this.title !== other.title) return true;
+    if (this.fileSize !== other.fileSize) return true;
+    if (this.uploadDate !== other.uploadDate) return true;
+    if (this.igdbId !== other.igdbId) return true;
+    if (this.rawgId !== other.rawgId) return true;
+    if (this.totalRating !== other.totalRating) return true;
+    if (this.totalRatingCount !== other.totalRatingCount) return true;
+    if (this.playtime !== other.playtime) return true;
+    if (this.coverUrl !== other.coverUrl) return true;
 
-  public markAsWantToPlay(): void {
-    this.wantToPlay = true;
-    this.ignored = false;
+    // Quick string-match for nested value-objects. Assuming deterministic array ordering from APIs.
+    const stringify = (val: unknown) => JSON.stringify(val ?? null);
+
+    if (stringify(this.genres) !== stringify(other.genres)) return true;
+    if (stringify(this.platforms) !== stringify(other.platforms)) return true;
+    if (stringify(this.themes) !== stringify(other.themes)) return true;
+    if (stringify(this.gameModes) !== stringify(other.gameModes)) return true;
+    if (stringify(this.franchises) !== stringify(other.franchises)) return true;
+    if (stringify(this.languageSupports) !== stringify(other.languageSupports)) return true;
+    if (stringify(this.externalGames) !== stringify(other.externalGames)) return true;
+    if (stringify(this.screenshots) !== stringify(other.screenshots)) return true;
+    if (stringify(this.ratings) !== stringify(other.ratings)) return true;
+    if (stringify(this.addedByStatus) !== stringify(other.addedByStatus)) return true;
+    if (stringify(this.added) !== stringify(other.added)) return true;
+    if (stringify(this.videos) !== stringify(other.videos)) return true;
+    if (stringify(this.contentCreatorVideos) !== stringify(other.contentCreatorVideos)) return true;
+
+    return false;
   }
 }

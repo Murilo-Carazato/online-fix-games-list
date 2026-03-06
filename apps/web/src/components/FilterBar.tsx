@@ -24,12 +24,7 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
     { value: 'title', label: '🔤 Título' },
 ];
 
-const FILTER_OPTIONS: { value: FilterKey; label: string }[] = [
-    { value: 'all', label: 'Todos' },
-    { value: 'wantToPlay', label: '✅ Quero jogar' },
-    { value: 'ignored', label: '🚫 Ignorados' },
-    { value: 'untagged', label: '❓ Sem tag' },
-];
+// Removed FILTER_OPTIONS as preferences (wantToPlay/ignored) were deleted from schema.
 
 export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, setFilterBy, search, setSearch, resultCount, hasMore }: FilterBarProps) {
     const [localSearch, setLocalSearch] = useDebouncedInput(search, setSearch, 300);
@@ -67,22 +62,7 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, se
                         {sortDir === 'desc' ? '↓' : '↑'}
                     </button>
 
-                    {/* Filter tabs */}
-                    <div className="flex rounded-lg border border-border bg-secondary overflow-hidden">
-                        {FILTER_OPTIONS.map(o => (
-                            <button
-                                key={o.value}
-                                id={`filter-${o.value}`}
-                                onClick={() => setFilterBy(o.value)}
-                                className={`px-3 py-2 text-xs transition-all ${filterBy === o.value
-                                    ? 'bg-primary text-primary-foreground font-medium'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                                    }`}
-                            >
-                                {o.label}
-                            </button>
-                        ))}
-                    </div>
+                    {/* Filter tabs removed */}
                 </div>
 
                 <span className="text-xs text-muted-foreground whitespace-nowrap">

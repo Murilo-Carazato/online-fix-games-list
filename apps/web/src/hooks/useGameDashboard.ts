@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/Game';
-import { toggleWantToPlayAction, toggleIgnoredAction, fetchMoreGamesAction } from '@/actions/gameActions';
+import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/EnrichedGameEntity';
+import { fetchMoreGamesAction } from '@/actions/gameActions';
 import type { SortKey, FilterKey } from '@/components/GameDashboard';
 
 interface UseGameDashboardProps {
@@ -10,8 +10,8 @@ interface UseGameDashboardProps {
 
 export function useGameDashboard({ initialGames, initialStats }: UseGameDashboardProps) {
     const [gamesList, setGamesList] = useState<EnrichedGameEntity[]>(initialGames);
-    const [wantSet, setWantSet] = useState<Set<string>>(() => new Set(initialGames.filter(g => g.wantToPlay).map(g => g.title)));
-    const [ignSet, setIgnSet] = useState<Set<string>>(() => new Set(initialGames.filter(g => g.ignored).map(g => g.title)));
+    const [wantSet, setWantSet] = useState<Set<string>>(() => new Set<string>());
+    const [ignSet, setIgnSet] = useState<Set<string>>(() => new Set<string>());
     const [globalStats, setGlobalStats] = useState(initialStats);
 
     const [sortBy, setSortBy] = useState<SortKey>('date');
@@ -30,7 +30,6 @@ export function useGameDashboard({ initialGames, initialStats }: UseGameDashboar
         if (!isCurrentlyWant) {
             setIgnSet(prev => { const n = new Set(prev); n.delete(title); return n; });
         }
-        await toggleWantToPlayAction(title, isCurrentlyWant);
     }, []);
 
     const toggleIgnored = useCallback(async (title: string, isCurrentlyIgn: boolean) => {
@@ -39,20 +38,13 @@ export function useGameDashboard({ initialGames, initialStats }: UseGameDashboar
         if (!isCurrentlyIgn) {
             setWantSet(prev => { const n = new Set(prev); n.delete(title); return n; });
         }
-        await toggleIgnoredAction(title, isCurrentlyIgn);
     }, []);
 
-    const appendMetadataSets = useCallback((games: EnrichedGameEntity[], replace = false) => {
-        setWantSet(prev => {
-            const n = replace ? new Set<string>() : new Set(prev);
-            games.forEach(g => { if (g.wantToPlay) n.add(g.title); });
-            return n;
-        });
-        setIgnSet(prev => {
-            const n = replace ? new Set<string>() : new Set(prev);
-            games.forEach(g => { if (g.ignored) n.add(g.title); });
-            return n;
-        });
+    // appendMetadataSets kept for future preference feature extension — currently a no-op
+    // since wantToPlay/ignored were removed from domain entity and schema.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const appendMetadataSets = useCallback((_games: EnrichedGameEntity[]) => {
+        // No-op: preference sets always empty while feature is absent from schema
     }, []);
 
     const loadMore = useCallback(async () => {
@@ -84,7 +76,7 @@ export function useGameDashboard({ initialGames, initialStats }: UseGameDashboar
         fetchMoreGamesAction(0, 50, search, sortBy, sortDir, filterBy).then(res => {
             if (!isCurrent) return;
             if (res.success && res.games) {
-                appendMetadataSets(res.games, true);
+                appendMetadataSets(res.games);
                 setGamesList(res.games);
                 setHasMore(res.games.length >= 50);
             } else {

@@ -1,7 +1,7 @@
-import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
-import { HydraGameEntity } from '../../domain/entities/HydraGameEntity';
-import { IgdbGameData, RawgGameData, ExternalGameData } from '../../domain/data/ExternalGameData';
-import { IGameDataMergerService } from '../../domain/services/IGameDataMergerService';
+import { EnrichedGameEntity } from '../entities/EnrichedGameEntity';
+import { HydraGameEntity } from '../entities/HydraGameEntity';
+import { IgdbGameData, RawgGameData, ExternalGameData } from '../data/ExternalGameData';
+import { IGameDataMergerService } from './IGameDataMergerService';
 
 type AnySource = Partial<IgdbGameData> | Partial<RawgGameData> | null;
 

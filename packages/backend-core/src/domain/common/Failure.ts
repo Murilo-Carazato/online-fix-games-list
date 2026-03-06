@@ -24,3 +24,9 @@ export class StorageFailure extends Failure {
         super(message);
     }
 }
+
+export class NotFoundFailure extends Failure {
+    constructor(message: string = 'Entity not found') {
+        super(message);
+    }
+}

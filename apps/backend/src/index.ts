@@ -1,8 +1,8 @@
 import { GameGatewayFactory } from '@hydra/backend-core/src/infrastructure/factories/GameGatewayFactory';
 import { JsonHydraGateway } from '@hydra/backend-core/src/infrastructure/gateways/files/JsonHydraGateway';
 import { PostgresGameRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository';
-import { TitleCleanerService } from '@hydra/backend-core/src/infrastructure/services/TitleCleanerService';
-import { GameDataMergerService } from '@hydra/backend-core/src/infrastructure/services/GameDataMergerService';
+import { TitleCleanerService } from '@hydra/backend-core/src/domain/services/TitleCleanerService';
+import { GameDataMergerService } from '@hydra/backend-core/src/domain/services/GameDataMergerService';
 import { ConsoleLoggerService } from '@hydra/backend-core/src/infrastructure/logging/ConsoleLoggerService';
 import { DbStoreMatcherService } from '@hydra/backend-core/src/infrastructure/services/DbStoreMatcherService';
 import { EnrichGamesUseCase, EnrichGamesParams } from '@hydra/backend-core/src/application/useCases/EnrichGamesUseCase';

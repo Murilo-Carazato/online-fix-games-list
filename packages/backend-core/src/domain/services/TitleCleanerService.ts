@@ -1,4 +1,4 @@
-import { ITitleCleanerService } from '../../domain/services/ITitleCleanerService';
+import { ITitleCleanerService } from './ITitleCleanerService';
 
 /**
  * Concrete implementation of ITitleCleanerService.

@@ -1,24 +1,22 @@
 "use server";
 
 import { PostgresGameRepository } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository";
-import type { SortKey, FilterKey } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository";
+import type { SortKey, FilterKey } from "@hydra/backend-core/src/domain/repositories/IGameRepository";
+import { ConsoleLoggerService } from '@hydra/backend-core/src/infrastructure/logging/ConsoleLoggerService';
 
-// Instantiate the repositories once (Clean Architecture service boundary)
-const dataRepository = new PostgresGameRepository();
+// Composition root — the web app depends on the domain contract, not the infra impl
+const dataRepository = new PostgresGameRepository(new ConsoleLoggerService());
 
-// ─── Initial data fetch (replaces direct repo access in page.tsx) ────────────
+// ─── Initial data fetch ───────────────────────────────────────────────────────
 
 export async function fetchInitialGamesAction() {
-    try {
-        const games = await dataRepository.getGamesPaginated({ limit: 50, offset: 0 });
-        return { success: true, games };
-    } catch (error) {
-        console.error("Failed to fetch initial games:", error);
-        return { success: false, error: "Database error", games: [] };
-    }
+    const result = await dataRepository.getGamesPaginated({ limit: 50, offset: 0 });
+    if (result.isSuccess) return { success: true, games: result.getValue() };
+    console.error("Failed to fetch initial games:", result.getError().message);
+    return { success: false, error: result.getError().message, games: [] };
 }
 
-// ─── Paginated fetch (used by client for Load More / filter changes) ─────────
+// ─── Paginated fetch (client — Load More / filter changes) ───────────────────
 
 export async function fetchMoreGamesAction(
     offset: number,
@@ -26,27 +24,12 @@ export async function fetchMoreGamesAction(
     search: string = '',
     sortBy: SortKey = 'date',
     sortDir: 'asc' | 'desc' = 'desc',
-    filterBy: FilterKey = 'all'
+    filterBy: FilterKey = 'all',
 ) {
-    try {
-        const games = await dataRepository.getGamesPaginated({ offset, limit, search, sortBy, sortDir, filterBy });
-        return { success: true, games };
-    } catch (error) {
-        console.error("Failed to fetch more games:", error);
-        return { success: false, error: "Database error", games: [] };
-    }
+    const result = await dataRepository.getGamesPaginated({
+        offset, limit, search, sort: sortBy, sortDirection: sortDir, filter: filterBy,
+    });
+    if (result.isSuccess) return { success: true, games: result.getValue() };
+    console.error("Failed to fetch more games:", result.getError().message);
+    return { success: false, error: result.getError().message, games: [] };
 }
-
-// ─── Global statistics (COUNT queries — no full table scan) ──────────────────
-
-export async function getGlobalStatsAction() {
-    try {
-        const stats = await dataRepository.getGlobalStats();
-        return { success: true, stats };
-    } catch (error) {
-        console.error("Failed to fetch global stats:", error);
-        return { success: false, error: "Database error", stats: { total: 0, wantToPlay: 0, ignored: 0 } };
-    }
-}
-
-// ─── Preference mutations have been removed as part of schema refactoring ────
