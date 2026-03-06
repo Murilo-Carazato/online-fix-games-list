@@ -5,9 +5,9 @@ import { RawgGameResponse } from './responses/RawgGameResponse';
 import { ILoggerService } from '../../../../domain/services/ILoggerService';
 import { Result } from '../../../../domain/common/Result';
 import { Failure } from '../../../../domain/common/Failure';
-import { RateLimitedGateway } from '../../base/RateLimitedGateway';
+import { AxiosRateLimitedGateway } from '../../base/AxiosRateLimitedGateway';
 
-export class RawgGateway extends RateLimitedGateway implements IGameGateway {
+export class RawgGateway extends AxiosRateLimitedGateway implements IGameGateway {
     // RAWG: 20,000 req/month. A conservative delay prevents bursting.
     private static readonly RATE_LIMIT_MS = 250;
 

@@ -8,7 +8,7 @@ import {
     screenshots as screenshotsTable, gameRatings, gameAddedStats,
     igdbVideos, alanzokaVideos, videos as videosTable, ratingCategories,
 } from "../../database/config/schema";
-import { JoinedGameDbRow } from "../../mappers/GameMapper";
+import { JoinedGameDbRow } from "../../database/models/JoinedGameDbRow";
 
 /**
  * Responsible for executing all queries required to reconstruct a single full

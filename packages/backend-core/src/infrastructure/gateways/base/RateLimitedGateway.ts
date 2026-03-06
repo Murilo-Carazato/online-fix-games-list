@@ -1,14 +1,15 @@
-import axios from 'axios';
 import { ILoggerService } from '../../../domain/services/ILoggerService';
 import { Result } from '../../../domain/common/Result';
-import { Failure, ServerFailure } from '../../../domain/common/Failure';
+import { Failure } from '../../../domain/common/Failure';
 
 /**
  * Abstract base class for external API gateways requiring rate limiting.
  *
  * Applies the Template Method pattern: subclasses inherit the shared
- * rate-limiting, try/catch, and error-handling skeleton, while only
- * implementing the API-specific mapping logic.
+ * rate-limiting and try/catch skeleton, while implementing the API-specific
+ * request logic and error parsing.
+ * 
+ * STRICT CLEAN ARCH: No HTTP-client specific imports (like Axios) live here.
  */
 export abstract class RateLimitedGateway {
     private lastRequestTime = 0;
@@ -31,8 +32,7 @@ export abstract class RateLimitedGateway {
 
     /**
      * Template method: applies the full rate-limited request lifecycle.
-     * Handles delay → execute → Result wrapping → error handling.
-     * Subclasses provide only the API-specific `operation` callback.
+     * Handles delay → execute → Result wrapping → error parsing.
      */
     protected async executeWithRateLimit<T>(
         cleanTitle: string,
@@ -44,23 +44,13 @@ export abstract class RateLimitedGateway {
             const result = await operation();
             return Result.ok(result);
         } catch (error: unknown) {
-            return this.handleApiError(error, cleanTitle, apiName);
+            return Result.fail(this.parseError(error, cleanTitle, apiName));
         }
     }
 
     /**
-     * Converts an Axios or unknown error into a Result.fail(ServerFailure).
-     * Avoids `as any` by using JSON.stringify on the response data.
+     * Parses the caught error into a Failure. Subclasses implement this 
+     * based on their specific HTTP client (e.g. Axios, fetch, SDK).
      */
-    protected handleApiError<T>(error: unknown, context: string, apiName: string): Result<T, Failure> {
-        if (axios.isAxiosError(error)) {
-            const status = error.response?.status ?? 'unknown';
-            const detail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
-            this.logger.error(`${apiName} Error for "${context}": status=${status} ${detail}`);
-            return Result.fail(new ServerFailure(`${apiName} Error: ${error.message}`));
-        }
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        this.logger.error(`${apiName} unexpected error for "${context}": ${errorMessage}`);
-        return Result.fail(new ServerFailure(`${apiName} Error: ${errorMessage}`));
-    }
+    protected abstract parseError(error: unknown, context: string, apiName: string): Failure;
 }

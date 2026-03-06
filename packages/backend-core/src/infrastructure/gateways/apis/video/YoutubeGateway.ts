@@ -5,9 +5,9 @@ import { VideoEntity } from '../../../../domain/entities/VideoEntity';
 import { YoutubeVideoResponse } from './responses/YoutubeVideoResponse';
 import { Result } from '../../../../domain/common/Result';
 import { Failure } from '../../../../domain/common/Failure';
-import { RateLimitedGateway } from '../../base/RateLimitedGateway';
+import { AxiosRateLimitedGateway } from '../../base/AxiosRateLimitedGateway';
 
-export class YoutubeGateway extends RateLimitedGateway implements IVideoGateway {
+export class YoutubeGateway extends AxiosRateLimitedGateway implements IVideoGateway {
     // YouTube Data API v3: search costs 100 units; ~100 searches/day on free tier.
     private static readonly RATE_LIMIT_MS = 200;
     private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';

@@ -6,9 +6,9 @@ import { IgdbGameResponse } from './responses/IgdbGameResponse';
 import { ILoggerService } from '../../../../domain/services/ILoggerService';
 import { Result } from '../../../../domain/common/Result';
 import { Failure } from '../../../../domain/common/Failure';
-import { RateLimitedGateway } from '../../base/RateLimitedGateway';
+import { AxiosRateLimitedGateway } from '../../base/AxiosRateLimitedGateway';
 
-export class IgdbGateway extends RateLimitedGateway implements IGameGateway {
+export class IgdbGateway extends AxiosRateLimitedGateway implements IGameGateway {
     private static readonly RATE_LIMIT_MS = 300;
 
     private accessToken: string | null = null;
