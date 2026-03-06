@@ -12,16 +12,16 @@ export class GameMapper {
      * Converts a Domain Entity into a DB row ready for insertion/update.
      */
     static toDbModel(entity: EnrichedGameEntity): EnrichedGameDbModel {
-        return {
-            title: entity.title,
-            uploadDate: entity.uploadDate ? new Date(entity.uploadDate) : new Date(),
-            totalRating: entity.totalRating ?? null,
-            added: entity.added ?? null,
-            playtime: entity.playtime ?? null,
-            isEnriched: entity.isEnriched,
-            data: entity as unknown as Record<string, unknown>,
-            updatedAt: new Date(),
-        };
+        return new EnrichedGameDbModel(
+            entity.title,
+            entity.uploadDate ? new Date(entity.uploadDate) : new Date(),
+            entity.totalRating ?? null,
+            entity.added ?? null,
+            entity.playtime ?? null,
+            entity.isEnriched,
+            entity as unknown as Record<string, unknown>,
+            new Date()
+        );
     }
 
     /**

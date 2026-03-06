@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { IGameGateway } from '../../../domain/gateways/IGameGateway';
-import { ExternalGameData, RawgGameData } from '../../../domain/data/ExternalGameData';
+import { IGameGateway } from '../../../../domain/gateways/IGameGateway';
+import { ExternalGameData, RawgGameData } from '../../../../domain/data/ExternalGameData';
 import { RawgGameResponse } from './responses/RawgGameResponse';
-import { Result } from '../../../domain/common/Result';
-import { Failure, ServerFailure } from '../../../domain/common/Failure';
+import { Result } from '../../../../domain/common/Result';
+import { Failure, ServerFailure } from '../../../../domain/common/Failure';
 
 export class RawgGateway implements IGameGateway {
     private apiKey: string;
@@ -68,7 +68,7 @@ export class RawgGateway implements IGameGateway {
                         ?.map(s => s.image)
                         ?.filter(img => img !== gameData.background_image) || []
                 };
-                return Result.ok({ igdbResult: null, rawgResult: parsedData, videoResults: null });
+                return Result.ok(new ExternalGameData(null, parsedData, null));
             }
             return Result.ok(null);
         } catch (error: unknown) {

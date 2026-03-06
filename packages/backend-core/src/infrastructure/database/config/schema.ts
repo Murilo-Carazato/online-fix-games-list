@@ -1,5 +1,5 @@
 import { pgTable, varchar, timestamp, boolean, integer, jsonb, real } from "drizzle-orm/pg-core";
-import type { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
+import type { EnrichedGameEntity } from "../../../domain/entities/EnrichedGameEntity";
 
 // We store only custom preferences associated with a game title.
 // For now, we use the `title` as the primary key since it's the unique identifier 

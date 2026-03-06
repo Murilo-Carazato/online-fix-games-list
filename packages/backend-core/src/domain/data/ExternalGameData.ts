@@ -1,5 +1,8 @@
 import { VideoEntity } from '../entities/VideoEntity';
 
+/**
+ * Shared base fields available from both IGDB and RAWG.
+ */
 export interface BaseGameData {
     totalRating?: number | null;
     totalRatingCount?: number | null;
@@ -27,8 +30,16 @@ export interface RawgGameData extends BaseGameData {
     playtime?: number | null;
 }
 
-export interface ExternalGameData {
-    igdbResult: Partial<IgdbGameData> | null;
-    rawgResult: Partial<RawgGameData> | null;
-    videoResults: VideoEntity[] | null;
+/**
+ * Value Object representing the aggregated result of external API lookups.
+ * Constructed explicitly inside Gateways and returned as Result<ExternalGameData>.
+ * Being a class (not an interface) enforces that it is always built intentionally,
+ * never accidentally assembled as a raw object literal.
+ */
+export class ExternalGameData {
+    constructor(
+        public readonly igdbResult: Partial<IgdbGameData> | null,
+        public readonly rawgResult: Partial<RawgGameData> | null,
+        public readonly videoResults: VideoEntity[] | null
+    ) { }
 }

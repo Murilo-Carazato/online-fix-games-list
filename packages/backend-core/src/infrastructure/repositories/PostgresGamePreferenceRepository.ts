@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../database";
-import { gamePreferences } from "../database/schema";
+import { db } from "../database/config";
+import { gamePreferences } from "../database/config/schema";
 
 export class PostgresGameRepository {
     async getPreferences(title: string) {

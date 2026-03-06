@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { IVideoGateway } from '../../../domain/gateways/IVideoGateway';
-import { VideoEntity } from '../../../domain/entities/VideoEntity';
+import { IVideoGateway } from '../../../../domain/gateways/IVideoGateway';
+import { VideoEntity } from '../../../../domain/entities/VideoEntity';
 import { YoutubeVideoResponse } from './responses/YoutubeVideoResponse';
-import { Result } from '../../../domain/common/Result';
-import { Failure, ServerFailure } from '../../../domain/common/Failure';
+import { Result } from '../../../../domain/common/Result';
+import { Failure, ServerFailure } from '../../../../domain/common/Failure';
 
 export class YoutubeGateway implements IVideoGateway {
     private apiKey: string;

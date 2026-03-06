@@ -1,6 +1,6 @@
 import { eq, ilike, desc, asc, and, or, isNull, sql } from "drizzle-orm";
-import { db } from "../database";
-import { enrichedGames, gamePreferences } from "../database/schema";
+import { db } from "../database/config";
+import { enrichedGames, gamePreferences } from "../database/config/schema";
 import { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
 import { HydraGameEntity } from "../../domain/entities/HydraGameEntity";
 import { IGameRepository } from "../../domain/repositories/IGameRepository";

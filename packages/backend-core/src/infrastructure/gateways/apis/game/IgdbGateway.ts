@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { IGameGateway } from '../../../domain/gateways/IGameGateway';
-import { ExternalGameData, IgdbGameData } from '../../../domain/data/ExternalGameData';
+import { IGameGateway } from '../../../../domain/gateways/IGameGateway';
+import { ExternalGameData, IgdbGameData } from '../../../../domain/data/ExternalGameData';
 import { IgdbGameResponse } from './responses/IgdbGameResponse';
-import { Result } from '../../../domain/common/Result';
-import { Failure, ServerFailure } from '../../../domain/common/Failure';
+import { Result } from '../../../../domain/common/Result';
+import { Failure, ServerFailure } from '../../../../domain/common/Failure';
 
 export class IgdbGateway implements IGameGateway {
     private clientId: string;
@@ -25,12 +25,12 @@ export class IgdbGateway implements IGameGateway {
         // Refresh token if it doesn't exist or is about to expire (within 5 minutes)
         if (!this.accessToken || now > this.tokenExpiration - 300000) {
             try {
-                console.log("Authenticating with Twitch/IGDB...");
+                console.info('Authenticating with Twitch/IGDB...');
                 const response = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`);
                 this.accessToken = response.data.access_token;
                 // set expiration time (expires_in is in seconds)
                 this.tokenExpiration = now + (response.data.expires_in * 1000);
-                console.log("Authentication successful.");
+                console.info('Authentication successful.');
             } catch (error) {
                 console.error("Failed to authenticate with IGDB", error);
                 throw new Error("IGDB Authentication failed");
@@ -119,7 +119,7 @@ export class IgdbGateway implements IGameGateway {
                     coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
                 };
 
-                return Result.ok({ igdbResult: parsedData, rawgResult: null, videoResults: null });
+                return Result.ok(new ExternalGameData(parsedData, null, null));
             }
 
             return Result.ok(null);
