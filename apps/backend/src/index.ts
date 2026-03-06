@@ -52,7 +52,7 @@ async function main() {
 
 main().catch(error => {
     const logger = new ConsoleLoggerService();
-    const msg = error instanceof Error ? error.message : String(error);
-    logger.error(`Fatal Error: ${msg}`);
+    const msg = error instanceof Error ? error.stack || error.message : String(error);
+    logger.error(`Fatal Error: \n${msg}`);
     process.exit(1);
 });

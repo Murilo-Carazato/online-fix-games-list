@@ -1,11 +1,9 @@
 "use server";
 
-import { PostgresGamePreferenceRepository } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGamePreferenceRepository";
 import { PostgresGameRepository } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository";
 import type { SortKey, FilterKey } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository";
 
 // Instantiate the repositories once (Clean Architecture service boundary)
-const prefRepository = new PostgresGamePreferenceRepository();
 const dataRepository = new PostgresGameRepository();
 
 // ─── Initial data fetch (replaces direct repo access in page.tsx) ────────────
@@ -51,28 +49,4 @@ export async function getGlobalStatsAction() {
     }
 }
 
-// ─── Preference mutations ─────────────────────────────────────────────────────
-
-export async function toggleWantToPlayAction(title: string, currentState: boolean) {
-    try {
-        const newState = !currentState;
-        await prefRepository.setWantToPlay(title, newState);
-        // No revalidatePath: the client uses optimistic UI, a manual refresh triggers fresh SSR.
-        return { success: true, newState };
-    } catch (error) {
-        console.error("Failed to toggle want to play:", error);
-        return { success: false, error: "Database error" };
-    }
-}
-
-export async function toggleIgnoredAction(title: string, currentState: boolean) {
-    try {
-        const newState = !currentState;
-        await prefRepository.setIgnored(title, newState);
-        return { success: true, newState };
-    } catch (error) {
-        console.error("Failed to toggle ignored:", error);
-        return { success: false, error: "Database error" };
-    }
-}
-
+// ─── Preference mutations have been removed as part of schema refactoring ────

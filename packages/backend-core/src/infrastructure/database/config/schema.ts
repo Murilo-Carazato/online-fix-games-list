@@ -124,7 +124,8 @@ export const ratingCategories = pgTable("rating_categories", {
 export const games = pgTable("games", {
     id: serial("id").primaryKey(), // Surrogate key
     title: varchar("title", { length: 500 }).notNull().unique(),
-    fileSize: varchar("file_size", { length: 50 }),
+    fileSizeValue: real("file_size_value"),
+    fileSizeUnit: varchar("file_size_unit", { length: 10 }),
     uploadDate: timestamp("upload_date").notNull(),
     isEnriched: boolean("is_enriched").default(false).notNull(),
     igdbId: integer("igdb_id"),

@@ -5,7 +5,7 @@ import { IgdbLanguageSupport, IgdbExternalGame, RawgRating } from '../../domain/
 import { EnrichedGameDbModel } from '../database/models/EnrichedGameDbModel';
 
 export interface JoinedGameDbRow {
-    game: { title: string; fileSize: string | null; uploadDate: Date; isEnriched: boolean; igdbId: number | null; rawgId: number | null; playtime: number | null; coverUrl: string | null; totalRating: number | null; totalRatingCount: number | null; addedTotal: number | null };
+    game: { title: string; fileSizeValue: number | null; fileSizeUnit: string | null; uploadDate: Date; isEnriched: boolean; igdbId: number | null; rawgId: number | null; playtime: number | null; coverUrl: string | null; totalRating: number | null; totalRatingCount: number | null; addedTotal: number | null };
     genres: string[];
     themes: string[];
     modes: string[];
@@ -96,10 +96,21 @@ export class GameMapper {
             versions: Array.from(versionsSet)
         }));
 
+        let fileSizeValue: number | null = null;
+        let fileSizeUnit: string | null = null;
+        if (entity.fileSize) {
+            const match = entity.fileSize.match(/^([\d.]+)\s*([A-Za-z]+)$/);
+            if (match) {
+                fileSizeValue = parseFloat(match[1]);
+                fileSizeUnit = match[2].toUpperCase();
+            }
+        }
+
         return {
             core: {
                 title: entity.title,
-                fileSize: entity.fileSize ?? null,
+                fileSizeValue,
+                fileSizeUnit,
                 uploadDate: entity.uploadDate ? new Date(entity.uploadDate) : new Date(),
                 isEnriched: entity.isEnriched,
                 igdbId: entity.igdbId ?? null,
@@ -132,7 +143,7 @@ export class GameMapper {
         const { game } = row;
 
         const hydra = new HydraGameEntity(
-            game.fileSize ?? '',
+            game.fileSizeValue && game.fileSizeUnit ? `${game.fileSizeValue} ${game.fileSizeUnit}` : '',
             game.title,
             game.uploadDate.toISOString()
         );

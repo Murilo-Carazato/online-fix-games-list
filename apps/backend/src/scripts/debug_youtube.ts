@@ -77,8 +77,12 @@ async function debugYoutube() {
 
         console.log(`\nFull debug data saved to: ${outputPath}`);
 
-    } catch (error: any) {
-        console.error("Error fetching from YouTube:", error.response?.data || error.message);
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            console.error("Error fetching from YouTube:", error.response?.data || error.message);
+        } else {
+            console.error("Unknown error fetching from YouTube:", error);
+        }
     }
 }
 

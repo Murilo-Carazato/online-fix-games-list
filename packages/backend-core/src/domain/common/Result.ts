@@ -28,17 +28,17 @@ export class Result<T, E> {
     }
 
     public getValue(): T {
-        if (!this.isSuccess || this._value === null) {
+        if (!this.isSuccess) {
             throw new Error("Can't get the value of an error result. Use 'isFailure' to check first.");
         }
-        return this._value;
+        return this._value!;
     }
 
     public getError(): E {
-        if (!this.isFailure || this._error === null) {
+        if (!this.isFailure) {
             throw new Error("Can't get the error of a success result. Use 'isSuccess' to check first.");
         }
-        return this._error;
+        return this._error!;
     }
 
     public static ok<U>(value?: U): Result<U, never> {
