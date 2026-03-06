@@ -5,41 +5,54 @@ import {
     gameGenres, gameThemes, gameGameModes, gameFranchises,
 } from "../../database/config/schema";
 
+// ─── Discriminator ────────────────────────────────────────────────────────────
+
 /**
- * DAO responsible for all simple M:N lookup-table joins.
+ * Identifies which M:N lookup relation to persist.
+ * The DAO resolves the concrete table pair internally — callers never touch schema.
+ */
+export enum LookupRelation {
+    Genres = 'genres',
+    Themes = 'themes',
+    GameModes = 'gameModes',
+    Franchises = 'franchises',
+}
+
+// ─── Internal config map ──────────────────────────────────────────────────────
+
+type RelationConfig = {
+    lookupTable: typeof genres | typeof themes | typeof gameModes | typeof franchises;
+    joinTable: typeof gameGenres | typeof gameThemes | typeof gameGameModes | typeof gameFranchises;
+    fkField: 'genreId' | 'themeId' | 'gameModeId' | 'franchiseId';
+};
+
+const RELATION_CONFIG: Record<LookupRelation, RelationConfig> = {
+    [LookupRelation.Genres]: { lookupTable: genres, joinTable: gameGenres, fkField: 'genreId' },
+    [LookupRelation.Themes]: { lookupTable: themes, joinTable: gameThemes, fkField: 'themeId' },
+    [LookupRelation.GameModes]: { lookupTable: gameModes, joinTable: gameGameModes, fkField: 'gameModeId' },
+    [LookupRelation.Franchises]: { lookupTable: franchises, joinTable: gameFranchises, fkField: 'franchiseId' },
+};
+
+// ─── DAO ──────────────────────────────────────────────────────────────────────
+
+/**
+ * Handles all simple M:N lookup-table joins via a single, unified algorithm.
  *
- * Each method encapsulates the full upsert-lookup-join sequence for a
- * specific relation, so the Repository never needs to know which
- * intermediate tables are involved.
+ * The caller passes a {@link LookupRelation} discriminator to identify which
+ * relation to persist. The concrete table references are fully encapsulated here —
+ * the Repository never needs to know which intermediate tables are involved.
+ *
+ * DRY: one algorithm. Encapsulation: one place to modify if schema changes.
  */
 export class LookupJoinDao {
-    static async saveGenres(gameId: number, names: string[]): Promise<void> {
-        return LookupJoinDao.persistLookupJoin(gameId, names, genres, gameGenres, 'genreId');
-    }
-
-    static async saveThemes(gameId: number, names: string[]): Promise<void> {
-        return LookupJoinDao.persistLookupJoin(gameId, names, themes, gameThemes, 'themeId');
-    }
-
-    static async saveGameModes(gameId: number, names: string[]): Promise<void> {
-        return LookupJoinDao.persistLookupJoin(gameId, names, gameModes, gameGameModes, 'gameModeId');
-    }
-
-    static async saveFranchises(gameId: number, names: string[]): Promise<void> {
-        return LookupJoinDao.persistLookupJoin(gameId, names, franchises, gameFranchises, 'franchiseId');
-    }
-
-    // ─── Private implementation ───────────────────────────────────────────────
-    // The generic algorithm lives here, hidden from callers.
-
-    private static async persistLookupJoin(
+    static async save(
+        relation: LookupRelation,
         gameId: number,
         names: string[],
-        lookupTable: typeof genres | typeof themes | typeof gameModes | typeof franchises,
-        joinTable: typeof gameGenres | typeof gameThemes | typeof gameGameModes | typeof gameFranchises,
-        fkField: 'genreId' | 'themeId' | 'gameModeId' | 'franchiseId',
     ): Promise<void> {
         if (!names.length) return;
+
+        const { lookupTable, joinTable, fkField } = RELATION_CONFIG[relation];
 
         await Promise.all(names.map(name =>
             db.insert(lookupTable).values({ name }).onConflictDoNothing()

@@ -2,14 +2,16 @@ import { eq, ilike, desc, asc, inArray } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "../database/config";
 import { games } from "../database/config/schema";
-import { LookupJoinDao } from "./daos/LookupJoinDao";
+import { LookupJoinDao, LookupRelation } from "./daos/LookupJoinDao";
 import { PlatformDao } from "./daos/PlatformDao";
 import { LanguageDao } from "./daos/LanguageDao";
-import { MiscDao } from "./daos/MiscDao";
+import { ExternalLinkDao } from "./daos/ExternalLinkDao";
+import { ScreenshotDao } from "./daos/ScreenshotDao";
+import { AddedStatsDao } from "./daos/AddedStatsDao";
 import { RatingDao } from "./daos/RatingDao";
 import { VideoDao } from "./daos/VideoDao";
 import { GameWriteDao } from "./daos/GameWriteDao";
-import { GameQueryAssembler } from "./daos/GameQueryAssembler";
+import { GameQueryAssembler } from "./assemblers/GameQueryAssembler";
 import { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
 import { IGameRepository, PaginatedQueryProps, SortKey } from "../../domain/repositories/IGameRepository";
 import { ILoggerService } from "../../domain/services/ILoggerService";
@@ -74,16 +76,16 @@ export class PostgresGameRepository implements IGameRepository {
 
         // 3. Re-insert fresh relation rows via their dedicated DAOs
         await Promise.all([
-            LookupJoinDao.saveGenres(gameId, dbData.genres),
-            LookupJoinDao.saveThemes(gameId, dbData.themes),
-            LookupJoinDao.saveGameModes(gameId, dbData.gameModes),
-            LookupJoinDao.saveFranchises(gameId, dbData.franchises),
+            LookupJoinDao.save(LookupRelation.Genres, gameId, dbData.genres),
+            LookupJoinDao.save(LookupRelation.Themes, gameId, dbData.themes),
+            LookupJoinDao.save(LookupRelation.GameModes, gameId, dbData.gameModes),
+            LookupJoinDao.save(LookupRelation.Franchises, gameId, dbData.franchises),
             PlatformDao.save(gameId, dbData.platforms),
             LanguageDao.save(gameId, dbData.languageSupports),
-            MiscDao.saveExternalLinks(gameId, dbData.externalLinks),
-            MiscDao.saveScreenshots(gameId, dbData.screenshots),
+            ExternalLinkDao.save(gameId, dbData.externalLinks),
+            ScreenshotDao.save(gameId, dbData.screenshots),
             RatingDao.save(gameId, dbData.ratings),
-            MiscDao.saveAddedStats(gameId, dbData.addedStats),
+            AddedStatsDao.save(gameId, dbData.addedStats),
             VideoDao.save(gameId, dbData.igdbVideos, dbData.alanzokaVideos),
         ]);
     }
