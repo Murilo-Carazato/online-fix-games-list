@@ -1,17 +1,50 @@
 /**
- * Value Object representing a single row in the `enriched_games` table.
- * Constructed explicitly by GameMapper.toDbModel() before writing to the database.
+ * Strongly typed Persistence Model representing the full payload required 
+ * to save an EnrichedGame to the database.
+ * 
+ * Constructed exclusively by GameMapper.toDb() before writing to the database.
  * Lives in the Infrastructure layer — decouples the database schema from Domain Entities.
  */
-export class EnrichedGameDbModel {
-    constructor(
-        public readonly title: string,
-        public readonly uploadDate: Date,
-        public readonly totalRating: number | null,
-        public readonly added: number | null,
-        public readonly playtime: number | null,
-        public readonly isEnriched: boolean,
-        public readonly data: Record<string, unknown>,
-        public readonly updatedAt: Date
-    ) { }
+export interface EnrichedGameDbModel {
+    core: {
+        title: string;
+        fileSize: string | null;
+        uploadDate: Date;
+        isEnriched: boolean;
+        igdbId: number | null;
+        rawgId: number | null;
+        playtime: number | null;
+        coverUrl: string | null;
+        totalRating: number | null;
+        totalRatingCount: number | null;
+        addedTotal: number | null;
+        updatedAt: Date;
+    };
+    igdbVideos: {
+        url: string;
+    }[];
+    alanzokaVideos: {
+        url: string;
+        title: string;
+        publishedAt: Date;
+        thumbnailUrl: string | null;
+        channelTitle: string | null;
+    }[];
+    addedStats: {
+        yet: number;
+        owned: number;
+        beaten: number;
+        toplay: number;
+        dropped: number;
+        playing: number;
+    } | null;
+    screenshots: { url: string; }[];
+    externalLinks: { storeId: number; url: string; }[];
+    genres: string[];
+    themes: string[];
+    gameModes: string[];
+    platforms: { name: string; versions: string[] }[];
+    franchises: string[];
+    languageSupports: { language: string; supportTypes: string[] }[];
+    ratings: { title: string; count: number; percent: number; score?: number; }[];
 }

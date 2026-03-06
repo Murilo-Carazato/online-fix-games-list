@@ -1,5 +1,6 @@
 import { HydraGameEntity } from './HydraGameEntity';
 import { VideoEntity } from './VideoEntity';
+import { IgdbLanguageSupport, IgdbExternalGame, RawgRating } from '../data/ExternalGameData';
 
 export class EnrichedGameEntity extends HydraGameEntity {
   public isEnriched: boolean;
@@ -18,14 +19,18 @@ export class EnrichedGameEntity extends HydraGameEntity {
   // IGDB Specific
   public themes?: string[] | null;
   public gameModes?: string[] | null;
-  public languageSupports?: string[] | null;
+  /** Structured language supports — stored as join-table rows (language + supportType) */
+  public languageSupports?: IgdbLanguageSupport[] | null;
   public franchises?: string[] | null;
-  public externalGames?: { storeName: string; categoryIcon: string; url: string }[] | null;
+  /** Resolved store links with storeId from the DB-backed lookup table */
+  public externalGames?: IgdbExternalGame[] | null;
   public coverUrl?: string | null;
+  /** IGDB plain YouTube video URLs */
   public videos?: string[] | null;
 
   // RAWG Specific
-  public ratings?: { title: string; count: number; percent: number; score: number }[] | null;
+  /** Ratings without score — score lives in the rating_categories seed table */
+  public ratings?: RawgRating[] | null;
   public added?: number | null;
   public addedByStatus?: Record<string, number> | null;
   public playtime?: number | null;
@@ -34,8 +39,8 @@ export class EnrichedGameEntity extends HydraGameEntity {
   public contentCreatorVideos?: VideoEntity[] | null;
 
   // User State
-  public wantToPlay?: boolean = false;
-  public ignored?: boolean = false;
+  public wantToPlay: boolean = false;
+  public ignored: boolean = false;
 
   constructor(
     hydraData: HydraGameEntity,
@@ -49,7 +54,6 @@ export class EnrichedGameEntity extends HydraGameEntity {
     }
   }
 
-  // OOP Encapsulation Methods
   public markAsIgnored(): void {
     this.ignored = true;
     this.wantToPlay = false;

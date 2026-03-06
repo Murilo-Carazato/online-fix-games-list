@@ -4,6 +4,7 @@ import { PostgresGameRepository } from '@hydra/backend-core/src/infrastructure/r
 import { TitleCleanerService } from '@hydra/backend-core/src/infrastructure/services/TitleCleanerService';
 import { GameDataMergerService } from '@hydra/backend-core/src/infrastructure/services/GameDataMergerService';
 import { ConsoleLoggerService } from '@hydra/backend-core/src/infrastructure/logging/ConsoleLoggerService';
+import { DbStoreMatcherService } from '@hydra/backend-core/src/infrastructure/services/DbStoreMatcherService';
 import { EnrichGamesUseCase, EnrichGamesParams } from '@hydra/backend-core/src/application/useCases/EnrichGamesUseCase';
 import { loadConfig } from './config/AppConfig';
 
@@ -16,7 +17,8 @@ async function main() {
     const config = loadConfig();
 
     // 2. Compose dependencies — Dependency Inversion in action
-    const apiGateway = GameGatewayFactory.createGateway(config, logger);
+    const storeMatcher = new DbStoreMatcherService(logger);
+    const apiGateway = GameGatewayFactory.createGateway(config, logger, storeMatcher);
     const hydraGateway = new JsonHydraGateway(logger);
     const gameRepository = new PostgresGameRepository(logger);
     const titleCleaner = new TitleCleanerService();
