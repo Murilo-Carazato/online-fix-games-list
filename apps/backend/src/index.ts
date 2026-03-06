@@ -1,50 +1,54 @@
 import { GameGatewayFactory } from '@hydra/backend-core/src/infrastructure/factories/GameGatewayFactory';
 import { JsonHydraGateway } from '@hydra/backend-core/src/infrastructure/gateways/files/JsonHydraGateway';
 import { PostgresGameRepository } from '@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository';
-import { TitleCleanerService } from '@hydra/backend-core/src/domain/services/TitleCleanerService';
-import { GameDataMergerService } from '@hydra/backend-core/src/domain/services/GameDataMergerService';
-import { EnrichGamesUseCase } from '@hydra/backend-core/src/application/useCases/EnrichGamesUseCase';
+import { TitleCleanerService } from '@hydra/backend-core/src/infrastructure/services/TitleCleanerService';
+import { GameDataMergerService } from '@hydra/backend-core/src/infrastructure/services/GameDataMergerService';
+import { ConsoleLoggerService } from '@hydra/backend-core/src/infrastructure/logging/ConsoleLoggerService';
+import { EnrichGamesUseCase, EnrichGamesParams } from '@hydra/backend-core/src/application/useCases/EnrichGamesUseCase';
 import { loadConfig } from './config/AppConfig';
 
 async function main() {
-    console.log("=== HYDRA GAMES ENRICHER ===");
-    console.log("Initializing Services...");
+    const logger = new ConsoleLoggerService();
+    logger.info('=== HYDRA GAMES ENRICHER ===');
+    logger.info('Initializing Services...');
 
-    // 1. Load configuration at the application boundary
+    // 1. Load configuration at the application boundary (composition root)
     const config = loadConfig();
 
-    // 2. Compose dependencies — each with a single, clear responsibility
+    // 2. Compose dependencies — Dependency Inversion in action
     const apiGateway = GameGatewayFactory.createGateway(config);
-    const hydraGateway = new JsonHydraGateway();        // reads raw OnlineFix JSON
-    const gameRepository = new PostgresGameRepository(); // persists enriched data
+    const hydraGateway = new JsonHydraGateway();
+    const gameRepository = new PostgresGameRepository();
     const titleCleaner = new TitleCleanerService();
     const gameDataMerger = new GameDataMergerService();
 
+    // 3. Assemble the Use Case with all its dependencies injected
     const enricherUseCase = new EnrichGamesUseCase(
         apiGateway,
         hydraGateway,
         gameRepository,
         titleCleaner,
-        gameDataMerger
+        gameDataMerger,
+        logger
     );
 
-    console.log(`Starting execution to enrich up to ${config.enrichmentLimit ?? 'ALL'} games...`);
-    console.log(`Reading from: ${config.inputFilePath}`);
+    logger.info(`Starting execution to enrich up to ${config.enrichmentLimit ?? 'ALL'} games...`);
+    logger.info(`Reading from: ${config.inputFilePath}`);
 
-    const result = await enricherUseCase.enrichDataset(config.inputFilePath, config.enrichmentLimit);
+    const params = new EnrichGamesParams(config.inputFilePath, config.enrichmentLimit);
+    const result = await enricherUseCase.execute(params);
 
-    console.log("=== DONE ===");
+    logger.info('=== DONE ===');
     if (result.isFailure) {
-        console.error("Enrichment Process Failed:");
-        console.error(result.getError().message);
+        logger.error(`Enrichment Process Failed: ${result.getError().message}`);
         process.exit(1);
     } else {
         const stats = result.getValue();
-        console.log(`Processed: ${stats.processed} | Enriched: ${stats.enriched} | Failed: ${stats.failed}`);
+        logger.info(`Processed: ${stats.processed} | Enriched: ${stats.enriched} | Failed: ${stats.failed}`);
     }
 }
 
 main().catch(error => {
-    console.error("Fatal Error:", error);
+    console.error('Fatal Error:', error);
     process.exit(1);
 });

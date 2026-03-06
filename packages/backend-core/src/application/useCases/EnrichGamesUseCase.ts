@@ -1,100 +1,112 @@
 import { IGameGateway } from '../../domain/gateways/IGameGateway';
 import { IHydraGateway } from '../../domain/gateways/IHydraGateway';
 import { IGameRepository } from '../../domain/repositories/IGameRepository';
-import { ITitleCleanerService } from '../../domain/services/TitleCleanerService';
-import { IGameDataMergerService } from '../../domain/services/GameDataMergerService';
+import { ITitleCleanerService } from '../../domain/services/ITitleCleanerService';
+import { IGameDataMergerService } from '../../domain/services/IGameDataMergerService';
+import { ILoggerService } from '../../domain/services/ILoggerService';
 import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
+import { HydraGameEntity } from '../../domain/entities/HydraGameEntity';
 import { Result } from '../../domain/common/Result';
 import { Failure } from '../../domain/common/Failure';
-import { EnrichmentResult } from './results/EnrichmentResult';
+
+export class EnrichGamesParams {
+    constructor(
+        public readonly inputFilePath: string,
+        public readonly limit?: number,
+        public readonly chunkSize: number = 10
+    ) { }
+}
+
+export class EnrichGamesResponse {
+    constructor(
+        public readonly processed: number,
+        public readonly enriched: number,
+        public readonly failed: number
+    ) { }
+}
 
 export class EnrichGamesUseCase {
     constructor(
-        private gameGateway: IGameGateway,
-        private hydraGateway: IHydraGateway,
-        private gameRepository: IGameRepository,
-        private titleCleaner: ITitleCleanerService,
-        private gameDataMerger: IGameDataMergerService
+        private readonly gameGateway: IGameGateway,
+        private readonly hydraGateway: IHydraGateway,
+        private readonly gameRepository: IGameRepository,
+        private readonly titleCleaner: ITitleCleanerService,
+        private readonly gameDataMerger: IGameDataMergerService,
+        private readonly logger: ILoggerService
     ) { }
 
-    public async enrichDataset(inputFilePath: string, limit?: number): Promise<Result<EnrichmentResult, Failure>> {
-        console.log(`Loading games from ${inputFilePath}...`);
+    /**
+     * Executes the use case: loads raw games, fetches external data, merges, and saves.
+     */
+    public async execute(params: EnrichGamesParams): Promise<Result<EnrichGamesResponse, Failure>> {
+        this.logger.info(`Loading games from ${params.inputFilePath}...`);
 
-        // Dependency boundary handles formatting its own exceptions into Result
-        const loadResult = await this.hydraGateway.loadGames(inputFilePath);
+        const loadResult = await this.hydraGateway.loadGames(params.inputFilePath);
         if (loadResult.isFailure) {
             return Result.fail(loadResult.getError());
         }
 
         const rawGames = loadResult.getValue();
-        console.log(`Successfully loaded ${rawGames.length} games.`);
+        this.logger.info(`Successfully loaded ${rawGames.length} games.`);
 
-        const gamesToProcess = limit ? rawGames.slice(0, limit) : rawGames;
+        const gamesToProcess = params.limit ? rawGames.slice(0, params.limit) : rawGames;
+        this.logger.info(`Starting enrichment for ${gamesToProcess.length} games in groups of ${params.chunkSize}...`);
+
         const enrichedGames: EnrichedGameEntity[] = [];
-
-        console.log(`Starting enrichment for ${gamesToProcess.length} games in groups...`);
-
-        const CHUNK_SIZE = 10;
         let processedCount = 0;
         let enrichedCount = 0;
         let failedCount = 0;
 
-        for (let i = 0; i < gamesToProcess.length; i += CHUNK_SIZE) {
-            const chunk = gamesToProcess.slice(i, i + CHUNK_SIZE);
-            const promises = chunk.map(async (game: import('../../domain/entities/HydraGameEntity').HydraGameEntity) => {
+        for (let i = 0; i < gamesToProcess.length; i += params.chunkSize) {
+            const chunk = gamesToProcess.slice(i, i + params.chunkSize);
+            const promises = chunk.map(async (game: HydraGameEntity) => {
                 const cleanTitle = this.titleCleaner.clean(game.title);
 
-                // We keep a fallback try-catch just in case but the Gateway logic should NEVER throw
-                try {
-                    const externalDataRes = await this.gameGateway.getGameDetails(cleanTitle);
+                const externalDataRes = await this.gameGateway.getGameDetails(cleanTitle);
 
-                    if (externalDataRes.isFailure) {
-                        console.log(`   > [${cleanTitle}] Gateway Error: ${externalDataRes.getError().message}`);
-                        failedCount++;
-                        return { ...game, isEnriched: false } as EnrichedGameEntity;
-                    }
-
-                    const externalData = externalDataRes.getValue();
-
-                    if (!externalData) {
-                        console.log(`   > [${cleanTitle}] No external data found.`);
-                        failedCount++;
-                        return { ...game, isEnriched: false } as EnrichedGameEntity;
-                    }
-
-                    const finalGame = this.gameDataMerger.merge(externalData, game);
-
-                    if (!finalGame) {
-                        console.log(`   > [${cleanTitle}] Failed to merge data.`);
-                        failedCount++;
-                        return { ...game, isEnriched: false } as EnrichedGameEntity;
-                    }
-
-                    console.log(`   > [${cleanTitle}] Found! Rating: ${finalGame.totalRating || 'N/A'}`);
-                    enrichedCount++;
-                    return finalGame;
-                } catch (err) {
-                    const msg = err instanceof Error ? err.message : String(err);
-                    console.log(`   > [${cleanTitle}] Unexpected Error: ${msg}`);
+                if (externalDataRes.isFailure) {
+                    this.logger.warn(`[${cleanTitle}] Gateway Error: ${externalDataRes.getError().message}`);
                     failedCount++;
-                    return { ...game, isEnriched: false } as EnrichedGameEntity;
+                    return new EnrichedGameEntity(game);
                 }
+
+                const externalData = externalDataRes.getValue();
+
+                if (!externalData) {
+                    this.logger.warn(`[${cleanTitle}] No external data found.`);
+                    failedCount++;
+                    return new EnrichedGameEntity(game);
+                }
+
+                const finalGame = this.gameDataMerger.merge(externalData, game);
+
+                if (!finalGame) {
+                    this.logger.warn(`[${cleanTitle}] Failed to merge data.`);
+                    failedCount++;
+                    return new EnrichedGameEntity(game);
+                }
+
+                this.logger.info(`[${cleanTitle}] Enriched! Rating: ${finalGame.totalRating ?? 'N/A'}`);
+                enrichedCount++;
+                return finalGame;
             });
 
             const results = await Promise.all(promises);
-            enrichedGames.push(...results);
+            for (const res of results) {
+                enrichedGames.push(res);
+            }
             processedCount += results.length;
         }
 
-        console.log(`Saving ${enrichedGames.length} games to PostgreSQL...`);
+        this.logger.info(`Saving ${enrichedGames.length} games to repository...`);
 
         const saveResult = await this.gameRepository.saveGames(enrichedGames);
         if (saveResult.isFailure) {
             return Result.fail(saveResult.getError());
         }
 
-        console.log('Save complete!');
+        this.logger.info('Save complete!');
 
-        return Result.ok({ processed: processedCount, enriched: enrichedCount, failed: failedCount });
+        return Result.ok(new EnrichGamesResponse(processedCount, enrichedCount, failedCount));
     }
 }
