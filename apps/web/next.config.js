@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const withPWA = require("@ducanh2912/next-pwa").default({
     dest: "public",
-    disable: process.env.NODE_ENV === "development",
+    // Disable PWA during builds and development to prevent service worker interference.
+    // PWA is only fully activated on a deployed production server.
+    disable: process.env.NODE_ENV !== "production",
 });
 
 const nextConfig = {
@@ -28,7 +30,7 @@ const nextConfig = {
     },
 
     // Webpack optimisations for dev mode
-    webpack: (config, { dev, isServer }) => {
+    webpack: (config, { dev }) => {
         if (dev) {
             // Use polling for file-watching so WSL2/Docker volume changes are detected reliably
             config.watchOptions = {

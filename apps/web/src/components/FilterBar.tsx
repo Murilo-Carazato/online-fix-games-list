@@ -1,6 +1,6 @@
 'use client';
 
-import type { SortKey, FilterKey } from '@/components/GameDashboard';
+import type { SortKey } from '@/types/game.types';
 import { useDebouncedInput } from '@/hooks/useDebouncedInput';
 
 interface FilterBarProps {
@@ -8,8 +8,6 @@ interface FilterBarProps {
     setSortBy: (v: SortKey) => void;
     sortDir: 'asc' | 'desc';
     setSortDir: (v: 'asc' | 'desc') => void;
-    filterBy: FilterKey;
-    setFilterBy: (v: FilterKey) => void;
     search: string;
     setSearch: (v: string) => void;
     resultCount: number;
@@ -26,7 +24,7 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 
 // Removed FILTER_OPTIONS as preferences (wantToPlay/ignored) were deleted from schema.
 
-export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, filterBy, setFilterBy, search, setSearch, resultCount, hasMore }: FilterBarProps) {
+export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, search, setSearch, resultCount, hasMore }: FilterBarProps) {
     const [localSearch, setLocalSearch] = useDebouncedInput(search, setSearch, 300);
     return (
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border mb-6 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">

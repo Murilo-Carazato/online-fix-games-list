@@ -1,12 +1,11 @@
 'use client';
 
 import { memo } from 'react';
-import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/EnrichedGameEntity';
+import type { GameViewModel } from '@/presenters/GameViewModel';
 import Image from 'next/image';
-import { formatRating, formatPopularity, formatUploadDate } from '@/utils/formatters';
 
 interface GameCardProps {
-    game: EnrichedGameEntity;
+    game: GameViewModel;
     wantToPlay: boolean;
     ignored: boolean;
     onToggleWantToPlay: () => void;
@@ -14,10 +13,6 @@ interface GameCardProps {
 }
 
 export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onToggleWantToPlay, onToggleIgnored }: GameCardProps) {
-    const rating = formatRating(game.totalRating);
-    const popularity = formatPopularity(game.added);
-    const genres = game.genres?.slice(0, 2) ?? [];
-
     return (
         <div
             className={`
@@ -42,7 +37,7 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
                 )}
                 {/* Badges */}
                 <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
-                    {genres.map(g => (
+                    {game.genres.map(g => (
                         <span key={g} className="text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded-full backdrop-blur-sm">
                             {g}
                         </span>
@@ -58,25 +53,25 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
 
                 {/* Stats row */}
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    {rating !== null && (
+                    {game.rating !== null && (
                         <span className="flex items-center gap-1" title="Rating">
-                            ⭐ <span className="font-medium text-foreground">{rating}</span>
+                            ⭐ <span className="font-medium text-foreground">{game.rating}</span>
                         </span>
                     )}
-                    {popularity !== null && (
+                    {game.popularity !== null && (
                         <span className="flex items-center gap-1" title="Popularidade (usuários)">
-                            👥 <span className="font-medium text-foreground">{popularity}</span>
+                            👥 <span className="font-medium text-foreground">{game.popularity}</span>
                         </span>
                     )}
                     {game.playtime && (
                         <span className="flex items-center gap-1" title="Tempo médio">
-                            ⏱ <span className="font-medium text-foreground">{game.playtime}h</span>
+                            ⏱ <span className="font-medium text-foreground">{game.playtime}</span>
                         </span>
                     )}
                 </div>
 
                 <p className="text-[11px] text-muted-foreground">
-                    {formatUploadDate(game.uploadDate)}
+                    {game.formattedUploadDate}
                 </p>
 
                 {/* Actions */}
