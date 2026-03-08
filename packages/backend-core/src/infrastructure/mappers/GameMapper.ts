@@ -164,7 +164,7 @@ export class GameMapper {
         const externalLinks: IgdbExternalGame[] = row.externalLinks.map(r => ({
             storeId: r.storeId,
             storeName: r.storeName,
-            categoryIcon: `https://www.google.com/s2/favicons?domain=${r.domainPattern}&sz=128`,
+            categoryIcon: r.iconUrl ?? `https://www.google.com/s2/favicons?domain=${r.domainPattern}&sz=128`,
             url: r.url,
         }));
 

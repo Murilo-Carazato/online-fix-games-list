@@ -8,4 +8,14 @@ const connectionString =
     process.env.DATABASE_URL ||
     "postgres://postgres:password@localhost:5432/hydradb";
 
-export const { db, client } = createDatabase(connectionString);
+const globalForDb = globalThis as unknown as {
+    __dbCache: ReturnType<typeof createDatabase> | undefined;
+};
+
+const cache = globalForDb.__dbCache ?? createDatabase(connectionString);
+
+if (process.env.NODE_ENV !== 'production') {
+    globalForDb.__dbCache = cache;
+}
+
+export const { db, client } = cache;

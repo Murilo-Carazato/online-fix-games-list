@@ -59,7 +59,7 @@ export class GameQueryAssembler {
                 .innerJoin(languageSupportTypes, eq(languageSupportTypes.id, gameLanguageSupports.supportTypeId))
                 .where(eq(gameLanguages.gameId, gameId)),
 
-            db.select({ storeId: stores.id, storeName: stores.name, domainPattern: stores.domainPattern, url: gameExternalLinks.url })
+            db.select({ storeId: stores.id, storeName: stores.name, domainPattern: stores.domainPattern, url: gameExternalLinks.url, iconUrl: stores.iconUrl })
                 .from(gameExternalLinks)
                 .innerJoin(stores, eq(stores.id, gameExternalLinks.storeId))
                 .where(eq(gameExternalLinks.gameId, gameId)),

@@ -12,7 +12,7 @@ export interface JoinedGameDbRow {
     platforms: { name: string; versions: string[] }[];
     franchises: string[];
     languageSupports: { language: string; supportTypes: string[] }[];
-    externalLinks: { storeId: number; storeName: string; domainPattern: string; url: string }[];
+    externalLinks: { storeId: number; storeName: string; domainPattern: string; url: string; iconUrl: string | null }[];
     screenshots: string[];
     ratings: RawgRating[];
     addedStats: { yet: number; owned: number; beaten: number; toplay: number; dropped: number; playing: number } | null;

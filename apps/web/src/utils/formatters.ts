@@ -15,5 +15,6 @@ export function formatRating(totalRating: number | null | undefined): number | n
 }
 
 export function formatUploadDate(dateString: string | Date): string {
-    return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+    const date = new Date(dateString);
+    return `${date.getUTCDate().toString().padStart(2, '0')}/${(date.getUTCMonth() + 1).toString().padStart(2, '0')}/${date.getUTCFullYear()}`;
 }

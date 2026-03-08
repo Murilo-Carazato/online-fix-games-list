@@ -30,7 +30,7 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
                         alt={game.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-fill w-full h-full scale-100 group-hover:scale-105 transition-transform duration-300"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-3xl">🎮</div>
@@ -56,11 +56,17 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
                     {game.rating !== null && (
                         <span className="flex items-center gap-1" title="Rating">
                             ⭐ <span className="font-medium text-foreground">{game.rating}</span>
+                            {game.ratingCount !== null && <span className="text-[10px] opacity-70">({game.ratingCount})</span>}
                         </span>
                     )}
                     {game.popularity !== null && (
                         <span className="flex items-center gap-1" title="Popularidade (usuários)">
                             👥 <span className="font-medium text-foreground">{game.popularity}</span>
+                        </span>
+                    )}
+                    {game.fileSize && (
+                        <span className="flex items-center gap-1" title="Tamanho do Arquivo">
+                            💾 <span className="font-medium text-foreground">{game.fileSize}</span>
                         </span>
                     )}
                     {game.playtime && (
@@ -69,6 +75,27 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
                         </span>
                     )}
                 </div>
+
+                {/* Stores Only */}
+                {game.stores.length > 0 && (
+                    <div className="flex flex-col gap-1 mt-2 text-[10px]">
+                        <div className="flex flex-wrap gap-2 items-center text-muted-foreground mt-0.5">
+                            <span className="font-semibold text-foreground">Lojas:</span>
+                            {game.stores.map(s => (
+                                <a
+                                    key={s.name}
+                                    href={s.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:scale-110 transition-transform opacity-90 hover:opacity-100"
+                                    title={`Abrir página na loja: ${s.name}`}
+                                >
+                                    <img src={s.icon} alt={s.name} className="w-4 h-4 rounded-sm object-cover bg-black/20" />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <p className="text-[11px] text-muted-foreground">
                     {game.formattedUploadDate}

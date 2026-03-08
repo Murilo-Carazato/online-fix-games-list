@@ -95,7 +95,9 @@ export class IgdbGateway extends AxiosRateLimitedGateway implements IGameGateway
             franchises: gameData.franchises?.map(f => f.name) ?? [],
             externalGames,
             videos: gameData.videos?.map(v => `https://www.youtube.com/watch?v=${v.video_id}`) ?? [],
-            coverUrl: gameData.cover?.url ? gameData.cover.url.replace('t_thumb', 't_cover_big') : undefined
+            coverUrl: gameData.cover?.url
+                ? (gameData.cover.url.startsWith('//') ? `https:${gameData.cover.url}` : gameData.cover.url).replace('t_thumb', 't_cover_big')
+                : undefined
         };
 
         return new ExternalGameData(parsedData, null, null);
