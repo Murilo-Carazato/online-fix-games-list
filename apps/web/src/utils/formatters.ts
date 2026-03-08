@@ -11,7 +11,7 @@ export function formatPopularity(n: number | null | undefined): string | null {
 }
 
 export function formatRating(totalRating: number | null | undefined): number | null {
-    return totalRating ? Math.round(totalRating) : null;
+    return totalRating ? Number(totalRating.toFixed(1)) : null;
 }
 
 export function formatUploadDate(dateString: string | Date): string {

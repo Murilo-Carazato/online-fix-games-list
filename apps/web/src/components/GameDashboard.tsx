@@ -9,6 +9,8 @@ import { FilterBar } from '@/components/FilterBar';
 import { StatsHeader } from '@/components/StatsHeader';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 import { useGameDashboard } from '@/hooks/useGameDashboard';
+import { AdvancedFiltersDrawer } from '@/components/AdvancedFiltersDrawer';
+import { useState } from 'react';
 
 // ── GameCardWrapper ──────────────────────────────────────────────────────────
 // Memoized wrapper — closes over stable toggle callbacks and resolves
@@ -56,10 +58,12 @@ export default function GameDashboard({ initialGames, initialStats }: GameDashbo
     const {
         gamesList, globalStats,
         sortBy, setSortBy, sortDir, setSortDir,
-        filterBy, search, setSearch,
+        advancedFilters, setAdvancedFilters, search, setSearch,
         loadingMore, hasMore, fetchError, setFetchError,
         wantSet, ignSet, toggleWantToPlay, toggleIgnored, loadMore
     } = useGameDashboard({ initialGames, initialStats });
+
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     // Sentinel-based infinite scroll — fires loadMore when end of list is visible
     const sentinelRef = useIntersectionObserver(loadMore, { threshold: 0.1 });
@@ -80,8 +84,10 @@ export default function GameDashboard({ initialGames, initialStats }: GameDashbo
                         sortBy={sortBy} setSortBy={setSortBy}
                         sortDir={sortDir} setSortDir={setSortDir}
                         search={search} setSearch={setSearch}
-                        resultCount={filterBy === 'all' && !search ? globalStats.total : gamesList.length}
-                        hasMore={filterBy !== 'all' || !!search ? hasMore : false}
+                        resultCount={Object.keys(advancedFilters).length === 0 && !search ? globalStats.total : gamesList.length}
+                        hasMore={Object.keys(advancedFilters).length > 0 || !!search ? hasMore : false}
+                        activeFiltersCount={Object.keys(advancedFilters).length}
+                        onOpenFilter={() => setIsDrawerOpen(true)}
                     />
 
                     <m.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -129,6 +135,13 @@ export default function GameDashboard({ initialGames, initialStats }: GameDashbo
                         </div>
                     )}
                 </div>
+
+                <AdvancedFiltersDrawer
+                    isOpen={isDrawerOpen}
+                    onClose={() => setIsDrawerOpen(false)}
+                    initialFilters={advancedFilters}
+                    onApply={setAdvancedFilters}
+                />
             </div>
         </LazyMotion>
     );

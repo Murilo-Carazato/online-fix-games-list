@@ -72,7 +72,14 @@ export class GameQueryAssembler {
                 .innerJoin(ratingCategories, eq(ratingCategories.id, gameRatings.ratingCategoryId))
                 .where(eq(gameRatings.gameId, gameId)),
 
-            db.select().from(gameAddedStats).where(eq(gameAddedStats.gameId, gameId)),
+            db.select({
+                yet: gameAddedStats.yet,
+                owned: gameAddedStats.owned,
+                beaten: gameAddedStats.beaten,
+                toplay: gameAddedStats.toplay,
+                dropped: gameAddedStats.dropped,
+                playing: gameAddedStats.playing,
+            }).from(gameAddedStats).where(eq(gameAddedStats.gameId, gameId)),
 
             db.select({ url: videosTable.url })
                 .from(igdbVideos)

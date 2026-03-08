@@ -1,4 +1,4 @@
-import { EnrichedGameEntity, VideoEntity, IgdbExternalGame } from '@hydra/backend-core';
+import { EnrichedGameEntity, VideoEntity, IgdbExternalGame, RawgRating } from '@hydra/backend-core';
 import type { GameDetailsViewModel } from './GameDetailsViewModel';
 import { slugify } from '../utils/formatters';
 
@@ -52,7 +52,7 @@ export class GameDetailsPresenter {
                 categoryIcon: store.categoryIcon
             })),
             screenshots: entity.screenshots || [],
-            igdbVideos: entity.videos || [],
+            igdbVideos: (entity.videos || []).map((url: string) => url.trim()),  // trim leading/trailing whitespace
             contentCreatorVideos: (entity.contentCreatorVideos || []).map((v: VideoEntity) => ({
                 url: v.url,
                 title: v.title,
@@ -60,7 +60,12 @@ export class GameDetailsPresenter {
                 thumbnailUrl: v.thumbnailUrl,
                 publishedAt: this.formatDate(v.publishedAt)
             })),
-            ratings: entity.ratings || [],
+            ratings: (entity.ratings || []).map((r: RawgRating) => ({
+                title: r.title,
+                score: r.score ?? 0,
+                count: r.count,
+                percent: r.percent,
+            })),
             addedStats
         };
     }

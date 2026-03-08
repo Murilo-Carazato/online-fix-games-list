@@ -1,6 +1,6 @@
 'use client';
 
-import type { SortKey } from '@/types/game.types';
+import type { SortKey, FilterKey } from '@/types/game.types';
 import { useDebouncedInput } from '@/hooks/useDebouncedInput';
 
 interface FilterBarProps {
@@ -12,6 +12,8 @@ interface FilterBarProps {
     setSearch: (v: string) => void;
     resultCount: number;
     hasMore?: boolean;
+    activeFiltersCount: number;
+    onOpenFilter: () => void;
 }
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
@@ -19,12 +21,15 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
     { value: 'rating', label: '⭐ Rating' },
     { value: 'popularity', label: '👥 Popularity' },
     { value: 'playtime', label: '⏱ Playtime' },
+    { value: 'fileSize', label: '💾 File Size' },
     { value: 'title', label: '🔤 Title' },
 ];
 
-// Removed FILTER_OPTIONS as preferences (wantToPlay/ignored) were deleted from schema.
-
-export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, search, setSearch, resultCount, hasMore }: FilterBarProps) {
+export function FilterBar({
+    sortBy, setSortBy, sortDir, setSortDir,
+    search, setSearch, resultCount, hasMore,
+    activeFiltersCount, onOpenFilter
+}: FilterBarProps) {
     const [localSearch, setLocalSearch] = useDebouncedInput(search, setSearch, 300);
     return (
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border mb-6 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -50,6 +55,20 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, search, setS
                         {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
 
+
+                    {/* Filter Drawer Toggle */}
+                    <button
+                        onClick={onOpenFilter}
+                        className="bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent/20 hover:border-primary/50 transition-all flex items-center gap-2"
+                    >
+                        Filters
+                        {activeFiltersCount > 0 && (
+                            <span className="bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                {activeFiltersCount}
+                            </span>
+                        )}
+                    </button>
+
                     {/* Sort direction */}
                     <button
                         id="sort-dir"
@@ -67,6 +86,6 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, search, setS
                     {resultCount}{hasMore ? '+' : ''} game{resultCount !== 1 ? 's' : ''}
                 </span>
             </div>
-        </div>
+        </div >
     );
 }

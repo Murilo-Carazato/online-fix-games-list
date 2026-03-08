@@ -17,7 +17,7 @@ export function useGameDashboard({ initialGames, initialStats }: UseGameDashboar
         search: filters.search,
         sortBy: filters.sortBy,
         sortDir: filters.sortDir,
-        filterBy: filters.filterBy
+        advancedFilters: filters.advancedFilters
     });
 
     const preferences = useGamePreferences({

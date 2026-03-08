@@ -1,7 +1,7 @@
-import { eq, ilike, desc, asc, inArray } from "drizzle-orm";
+import { eq, ilike, desc, asc, inArray, between, exists, and, or, sql } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "../database/config";
-import { games } from "../database/config/schema";
+import { games, gameGenres, genres, gameThemes, themes, gameGameModes, gameModes, gameLanguages, languages, gameExternalLinks, stores, alanzokaVideos, videos, screenshots } from "../database/config/schema";
 import { LookupJoinDao, LookupRelation } from "./daos/LookupJoinDao";
 import { PlatformDao } from "./daos/PlatformDao";
 import { LanguageDao } from "./daos/LanguageDao";
@@ -13,7 +13,7 @@ import { VideoDao } from "./daos/VideoDao";
 import { GameWriteDao } from "./daos/GameWriteDao";
 import { GameQueryAssembler } from "./assemblers/GameQueryAssembler";
 import { EnrichedGameEntity } from "../../domain/entities/EnrichedGameEntity";
-import { IGameRepository, PaginatedQueryProps, SortKey } from "../../domain/repositories/IGameRepository";
+import { IGameRepository, PaginatedQueryProps, SortKey, FilterOptions } from "../../domain/repositories/IGameRepository";
 import { ILoggerService } from "../../domain/services/ILoggerService";
 import { GameMapper } from "../mappers/GameMapper";
 import { Result } from "../../domain/common/Result";
@@ -118,7 +118,7 @@ export class PostgresGameRepository implements IGameRepository {
     }
 
     async getGamesPaginated(props: PaginatedQueryProps = {}): Promise<Result<EnrichedGameEntity[], StorageFailure>> {
-        const { limit = 50, offset = 0, search, sort = 'date', sortDirection = 'desc' } = props;
+        const { limit = 50, offset = 0, search, sort = 'date', sortDirection = 'desc', filters } = props;
 
         // Strictly typed column map — no `any` needed
         const orderMap: Record<SortKey, AnyColumn> = {
@@ -127,6 +127,7 @@ export class PostgresGameRepository implements IGameRepository {
             popularity: games.addedTotal,
             title: games.title,
             playtime: games.playtime,
+            fileSize: games.fileSizeValue,
         };
 
         try {
@@ -135,7 +136,96 @@ export class PostgresGameRepository implements IGameRepository {
                 .from(games)
                 .$dynamic();
 
-            if (search) query = query.where(ilike(games.title, `%${search}%`));
+            const conditions = [];
+
+            if (search) {
+                conditions.push(ilike(games.title, `%${search}%`));
+            }
+
+            if (filters) {
+                if (filters.fileSizeMin !== undefined && filters.fileSizeMax !== undefined) {
+                    conditions.push(between(games.fileSizeValue, filters.fileSizeMin, filters.fileSizeMax));
+                }
+                if (filters.ratingMin !== undefined && filters.ratingMax !== undefined) {
+                    conditions.push(between(games.totalRating, filters.ratingMin, filters.ratingMax));
+                }
+                if (filters.addedByMin !== undefined && filters.addedByMax !== undefined) {
+                    conditions.push(between(games.addedTotal, filters.addedByMin, filters.addedByMax));
+                }
+
+                if (filters.genres?.length) {
+                    conditions.push(
+                        exists(
+                            db.select({ id: sql`1` }).from(gameGenres)
+                                .innerJoin(genres, eq(gameGenres.genreId, genres.id))
+                                .where(and(eq(gameGenres.gameId, games.id), inArray(genres.name, filters.genres)))
+                        )
+                    );
+                }
+
+                if (filters.themes?.length) {
+                    conditions.push(
+                        exists(
+                            db.select({ id: sql`1` }).from(gameThemes)
+                                .innerJoin(themes, eq(gameThemes.themeId, themes.id))
+                                .where(and(eq(gameThemes.gameId, games.id), inArray(themes.name, filters.themes)))
+                        )
+                    );
+                }
+
+                if (filters.gameModes?.length) {
+                    conditions.push(
+                        exists(
+                            db.select({ id: sql`1` }).from(gameGameModes)
+                                .innerJoin(gameModes, eq(gameGameModes.gameModeId, gameModes.id))
+                                .where(and(eq(gameGameModes.gameId, games.id), inArray(gameModes.name, filters.gameModes)))
+                        )
+                    );
+                }
+
+                if (filters.languages?.length) {
+                    conditions.push(
+                        exists(
+                            db.select({ id: sql`1` }).from(gameLanguages)
+                                .innerJoin(languages, eq(gameLanguages.languageId, languages.id))
+                                .where(and(eq(gameLanguages.gameId, games.id), inArray(languages.name, filters.languages)))
+                        )
+                    );
+                }
+
+                if (filters.stores?.length) {
+                    conditions.push(
+                        exists(
+                            db.select({ id: sql`1` }).from(gameExternalLinks)
+                                .innerJoin(stores, eq(gameExternalLinks.storeId, stores.id))
+                                .where(and(eq(gameExternalLinks.gameId, games.id), inArray(stores.name, filters.stores)))
+                        )
+                    );
+                }
+
+                if (filters.hasAlanzoka) {
+                    conditions.push(
+                        exists(
+                            db.select({ id: sql`1` }).from(alanzokaVideos)
+                                .innerJoin(videos, eq(alanzokaVideos.videoId, videos.id))
+                                .where(eq(videos.gameId, games.id))
+                        )
+                    );
+                }
+
+                if (filters.hasMedia) {
+                    conditions.push(
+                        or(
+                            exists(db.select({ id: sql`1` }).from(screenshots).where(eq(screenshots.gameId, games.id))),
+                            exists(db.select({ id: sql`1` }).from(videos).where(eq(videos.gameId, games.id)))
+                        )
+                    );
+                }
+            }
+
+            if (conditions.length > 0) {
+                query = query.where(and(...conditions));
+            }
 
             const orderFn = sortDirection === 'asc' ? asc : desc;
             query = query.orderBy(orderFn(orderMap[sort])).limit(limit).offset(offset);
@@ -197,6 +287,29 @@ export class PostgresGameRepository implements IGameRepository {
         } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : String(error);
             return Result.fail(new StorageFailure(`Failed to hydrate entity for game "${title}": ${msg}`));
+        }
+    }
+
+    async getFilterOptions(): Promise<Result<FilterOptions, StorageFailure>> {
+        try {
+            const [genresRows, themesRows, modesRows, langRows, storesRows] = await Promise.all([
+                db.select({ name: genres.name }).from(genres).orderBy(genres.name),
+                db.select({ name: themes.name }).from(themes).orderBy(themes.name),
+                db.select({ name: gameModes.name }).from(gameModes).orderBy(gameModes.name),
+                db.select({ name: languages.name }).from(languages).orderBy(languages.name),
+                db.select({ name: stores.name }).from(stores).orderBy(stores.name),
+            ]);
+
+            return Result.ok({
+                genres: genresRows.map(r => r.name),
+                themes: themesRows.map(r => r.name),
+                gameModes: modesRows.map(r => r.name),
+                languages: langRows.map(r => r.name),
+                stores: storesRows.map(r => r.name),
+            });
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
+            return Result.fail(new StorageFailure(`Failed to get filter options: ${msg}`));
         }
     }
 }

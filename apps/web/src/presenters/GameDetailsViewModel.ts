@@ -29,6 +29,6 @@ export interface GameDetailsViewModel {
         publishedAt: string;
     }[];
 
-    ratings: { title: string; count: number; percent: number }[];
+    ratings: { title: string; score: number; count: number; percent: number }[];
     addedStats: { status: string; count: number }[];
 }

@@ -1,12 +1,13 @@
 "use server";
 
 import { getGamesPaginatedUseCase } from "@/di/container";
-import type { SortKey, FilterKey } from "@hydra/backend-core";
+import type { SortKey, AdvancedFilters } from "@hydra/backend-core";
 import { GamePresenter } from "../presenters/GamePresenter";
 import type { GameViewModel } from "../presenters/GameViewModel";
 import { GameDetailsPresenter } from "../presenters/GameDetailsPresenter";
 import type { GameDetailsViewModel } from "../presenters/GameDetailsViewModel";
-import { getGameByIdUseCase } from "@/di/container";
+import { getGameByIdUseCase, getFilterOptionsUseCase } from "@/di/container";
+import type { FilterOptions } from "@hydra/backend-core";
 
 // ─── Initial data fetch ───────────────────────────────────────────────────────
 
@@ -25,10 +26,12 @@ export async function fetchMoreGamesAction(
     search: string = '',
     sortBy: SortKey = 'date',
     sortDir: 'asc' | 'desc' = 'desc',
-    filterBy: FilterKey = 'all',
+    filtersJson?: string,
 ): Promise<{ success: boolean; error?: string; games: GameViewModel[] }> {
+    console.log("==> fetchMoreGamesAction args:", { offset, limit, search, sortBy, sortDir, filtersJson });
+    const filters: AdvancedFilters | undefined = filtersJson ? JSON.parse(filtersJson) : undefined;
     const result = await getGamesPaginatedUseCase.execute({
-        offset, limit, search, sort: sortBy, sortDirection: sortDir, filter: filterBy,
+        offset, limit, search, sort: sortBy, sortDirection: sortDir, filters,
     });
     if (result.isSuccess) return { success: true, games: GamePresenter.toViewModelList(result.getValue()) };
     console.error("Failed to fetch more games:", result.getError().message);
@@ -44,6 +47,16 @@ export async function fetchGameDetailsAction(id: number): Promise<{ success: boo
     }
 
     console.error(`Failed to fetch game details for ID ${id}:`, result.getError().message);
-    // Determine if it was a NotFoundFailure ideally, but passing the error works for now.
+    return { success: false, error: result.getError().message };
+}
+
+// ─── Filter Options Fetch ────────────────────────────────────────────────────
+
+export async function fetchFilterOptionsAction(): Promise<{ success: boolean; error?: string; options?: FilterOptions }> {
+    const result = await getFilterOptionsUseCase.execute();
+    if (result.isSuccess) {
+        return { success: true, options: result.getValue() };
+    }
+    console.error("Failed to fetch filter options:", result.getError().message);
     return { success: false, error: result.getError().message };
 }

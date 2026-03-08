@@ -4,14 +4,37 @@ import { Failure, StorageFailure, NotFoundFailure } from '../common/Failure';
 
 // ─── Query Types (belong to the domain contract, NOT to the infra impl) ───────
 
-export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime';
-export type FilterKey = 'all';
+export type SortKey = 'date' | 'rating' | 'popularity' | 'title' | 'playtime' | 'fileSize';
+
+export interface AdvancedFilters {
+    fileSizeMin?: number;
+    fileSizeMax?: number;
+    ratingMin?: number;
+    ratingMax?: number;
+    addedByMin?: number;
+    addedByMax?: number;
+    genres?: string[];
+    themes?: string[];
+    gameModes?: string[];
+    stores?: string[];
+    languages?: string[];
+    hasAlanzoka?: boolean;
+    hasMedia?: boolean;
+}
+
+export interface FilterOptions {
+    genres: string[];
+    themes: string[];
+    gameModes: string[];
+    languages: string[];
+    stores: string[];
+}
 
 export interface PaginatedQueryProps {
     limit?: number;
     offset?: number;
     search?: string;
-    filter?: FilterKey;
+    filters?: AdvancedFilters;
     sort?: SortKey;
     sortDirection?: 'asc' | 'desc';
 }
@@ -33,4 +56,6 @@ export interface IGameRepository {
     getGamesPaginated(props?: PaginatedQueryProps): Promise<Result<EnrichedGameEntity[], StorageFailure>>;
 
     getGameById(id: number): Promise<Result<EnrichedGameEntity, StorageFailure | NotFoundFailure>>;
+
+    getFilterOptions(): Promise<Result<FilterOptions, StorageFailure>>;
 }

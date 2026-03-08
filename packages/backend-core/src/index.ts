@@ -5,11 +5,12 @@ export * from './domain/entities/StoreEntity';
 export * from './domain/data/ExternalGameData';
 
 // Domain Shared Types (DTOs)
-export type { SortKey, FilterKey, PaginatedQueryProps } from './domain/repositories/IGameRepository';
+export type { SortKey, AdvancedFilters, FilterOptions, PaginatedQueryProps } from './domain/repositories/IGameRepository';
 
 // Application Use Cases
 export * from './application/useCases/GetGamesPaginatedUseCase';
 export * from './application/useCases/GetGameByIdUseCase';
+export * from './application/useCases/GetFilterOptionsUseCase';
 
 // Services (Shared Domain)
 export * from './domain/services/TitleCleanerService';

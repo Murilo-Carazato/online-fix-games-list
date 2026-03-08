@@ -1,4 +1,4 @@
-import { IGameRepository, PaginatedQueryProps, SortKey, FilterKey } from '../../domain/repositories/IGameRepository';
+import { IGameRepository, PaginatedQueryProps, SortKey, AdvancedFilters } from '../../domain/repositories/IGameRepository';
 import { Result } from '../../domain/common/Result';
 import { StorageFailure } from '../../domain/common/Failure';
 import { EnrichedGameEntity } from '../../domain/entities/EnrichedGameEntity';
@@ -7,7 +7,7 @@ export interface GetGamesPaginatedRequest {
     limit?: number;
     offset?: number;
     search?: string;
-    filter?: FilterKey;
+    filters?: AdvancedFilters;
     sort?: SortKey;
     sortDirection?: 'asc' | 'desc';
 }
@@ -22,7 +22,7 @@ export class GetGamesPaginatedUseCase {
             limit: request.limit,
             offset: request.offset,
             search: request.search,
-            filter: request.filter,
+            filters: request.filters,
             sort: request.sort,
             sortDirection: request.sortDirection,
         } : undefined;

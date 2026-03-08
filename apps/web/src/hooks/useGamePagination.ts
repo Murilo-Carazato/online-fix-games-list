@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { GameViewModel } from '@/presenters/GameViewModel';
 import { fetchMoreGamesAction } from '@/actions/gameActions';
-import type { SortKey, FilterKey, SortDirection } from '@/types/game.types';
+import type { SortKey, SortDirection, AdvancedFilters } from '@/types/game.types';
 
 const PAGE_SIZE = 50;
 
@@ -10,24 +10,26 @@ export interface UseGamePaginationProps {
     search: string;
     sortBy: SortKey;
     sortDir: SortDirection;
-    filterBy: FilterKey;
+    advancedFilters: AdvancedFilters;
 }
 
 // Manages the paginated game list.
 // Re-fetches from offset=0 whenever search/sort/filter changes.
 // Appends more results when loadMore() is called (infinite scroll).
-export function useGamePagination({ initialGames, search, sortBy, sortDir, filterBy }: UseGamePaginationProps) {
+export function useGamePagination({ initialGames, search, sortBy, sortDir, advancedFilters }: UseGamePaginationProps) {
     const [gamesList, setGamesList] = useState<GameViewModel[]>(initialGames);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(initialGames.length >= PAGE_SIZE);
     const [fetchError, setFetchError] = useState<string | null>(null);
+
+    const filtersJson = JSON.stringify(advancedFilters);
 
     // Appends the next page of results to the existing list.
     const loadMore = useCallback(async () => {
         if (loadingMore || !hasMore) return;
         setLoadingMore(true);
 
-        const res = await fetchMoreGamesAction(gamesList.length, PAGE_SIZE, search, sortBy, sortDir, filterBy);
+        const res = await fetchMoreGamesAction(gamesList.length, PAGE_SIZE, search, sortBy, sortDir, filtersJson);
         if (res.success && res.games) {
             setGamesList(prev => {
                 const seen = new Set(prev.map(g => g.title));
@@ -39,7 +41,7 @@ export function useGamePagination({ initialGames, search, sortBy, sortDir, filte
         }
 
         setLoadingMore(false);
-    }, [loadingMore, hasMore, gamesList.length, search, sortBy, sortDir, filterBy]);
+    }, [loadingMore, hasMore, gamesList.length, search, sortBy, sortDir, filtersJson]);
 
     const isFirstMount = useRef(true);
 
@@ -53,12 +55,14 @@ export function useGamePagination({ initialGames, search, sortBy, sortDir, filte
 
         let isCurrent = true;
 
+        console.log("==> refetch triggered! filtersJson:", filtersJson);
+
         const refetch = async () => {
             setLoadingMore(true);
             setFetchError(null);
 
             try {
-                const res = await fetchMoreGamesAction(0, PAGE_SIZE, search, sortBy, sortDir, filterBy);
+                const res = await fetchMoreGamesAction(0, PAGE_SIZE, search, sortBy, sortDir, filtersJson);
                 if (!isCurrent) return;
 
                 if (res.success && res.games) {
@@ -82,7 +86,7 @@ export function useGamePagination({ initialGames, search, sortBy, sortDir, filte
         refetch();
 
         return () => { isCurrent = false; };
-    }, [search, sortBy, sortDir, filterBy]);
+    }, [search, sortBy, sortDir, filtersJson]);
 
     return {
         gamesList,
