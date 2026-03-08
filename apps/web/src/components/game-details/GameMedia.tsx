@@ -74,34 +74,6 @@ export default function GameMedia({ game }: { game: GameDetailsViewModel }) {
             )}
 
             <div className="space-y-12">
-                {/* ── Gallery ─────────────────────────────────────────── */}
-                <section>
-                    <h3 className="text-2xl font-bold text-white mb-6">Gallery</h3>
-                    <CarouselStrip
-                        items={game.screenshots}
-                        emptyMessage="No screenshots available for this game."
-                        renderSlide={(src, idx) => (
-                            <button
-                                key={idx}
-                                type="button"
-                                onClick={() => openLightbox(screenshotItems, idx)}
-                                className="relative aspect-video w-[85%] md:w-[45%] lg:w-[30%] shrink-0 snap-start rounded-lg overflow-hidden border border-white/10 group cursor-zoom-in"
-                            >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={src}
-                                    alt={`Screenshot ${idx + 1}`}
-                                    className="w-full h-full object-cover transition duration-300 group-hover:scale-110"
-                                    loading="lazy"
-                                />
-                                <span className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition">
-                                    <span className="text-white text-2xl opacity-0 group-hover:opacity-100 transition">🔍</span>
-                                </span>
-                            </button>
-                        )}
-                    />
-                </section>
-
                 {/* ── Official Trailers ────────────────────────────────── */}
                 <section>
                     <h3 className="text-2xl font-bold text-white mb-6">Trailers &amp; Gameplay</h3>
@@ -132,6 +104,34 @@ export default function GameMedia({ game }: { game: GameDetailsViewModel }) {
                                 </button>
                             );
                         }}
+                    />
+                </section>
+
+                {/* ── Gallery ─────────────────────────────────────────── */}
+                <section>
+                    <h3 className="text-2xl font-bold text-white mb-6">Gallery</h3>
+                    <CarouselStrip
+                        items={game.screenshots}
+                        emptyMessage="No screenshots available for this game."
+                        renderSlide={(src, idx) => (
+                            <button
+                                key={idx}
+                                type="button"
+                                onClick={() => openLightbox(screenshotItems, idx)}
+                                className="relative aspect-video w-[85%] md:w-[45%] lg:w-[30%] shrink-0 snap-start rounded-lg overflow-hidden border border-white/10 group cursor-zoom-in"
+                            >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={src}
+                                    alt={`Screenshot ${idx + 1}`}
+                                    className="w-full h-full object-cover transition duration-300 group-hover:scale-110"
+                                    loading="lazy"
+                                />
+                                <span className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition">
+                                    <span className="text-white text-2xl opacity-0 group-hover:opacity-100 transition">🔍</span>
+                                </span>
+                            </button>
+                        )}
                     />
                 </section>
 

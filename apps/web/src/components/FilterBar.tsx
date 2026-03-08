@@ -44,24 +44,13 @@ export function FilterBar({
                     className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all w-full sm:w-auto"
                 />
 
-                <div className="flex gap-2 flex-wrap">
-                    {/* Sort by */}
-                    <select
-                        id="sort-by"
-                        value={sortBy}
-                        onChange={e => setSortBy(e.target.value as SortKey)}
-                        className="bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
-                    >
-                        {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-
-
-                    {/* Filter Drawer Toggle */}
+                <div className="flex gap-2 flex-wrap items-center">
+                    {/* Filter Drawer Toggle — primary action, comes first */}
                     <button
                         onClick={onOpenFilter}
                         className="bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent/20 hover:border-primary/50 transition-all flex items-center gap-2"
                     >
-                        Filters
+                        ⚙ Filters
                         {activeFiltersCount > 0 && (
                             <span className="bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
                                 {activeFiltersCount}
@@ -69,17 +58,25 @@ export function FilterBar({
                         )}
                     </button>
 
-                    {/* Sort direction */}
-                    <button
-                        id="sort-dir"
-                        onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
-                        title={sortDir === 'desc' ? 'Descending' : 'Ascending'}
-                        className="bg-secondary border border-border rounded-lg px-3 py-2 text-sm hover:bg-accent/20 hover:border-primary/50 transition-all"
-                    >
-                        {sortDir === 'desc' ? '↓' : '↑'}
-                    </button>
-
-                    {/* Filter tabs removed */}
+                    {/* Sort group — dropdown and ASC/DESC arrow always together */}
+                    <div className="flex gap-0 rounded-lg overflow-hidden border border-border">
+                        <select
+                            id="sort-by"
+                            value={sortBy}
+                            onChange={e => setSortBy(e.target.value as SortKey)}
+                            className="bg-secondary px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer border-r border-border"
+                        >
+                            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                        <button
+                            id="sort-dir"
+                            onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
+                            title={sortDir === 'desc' ? 'Descending' : 'Ascending'}
+                            className="bg-secondary px-3 py-2 text-sm hover:bg-accent/20 transition-all font-bold text-primary"
+                        >
+                            {sortDir === 'desc' ? '↓' : '↑'}
+                        </button>
+                    </div>
                 </div>
 
                 <span className="text-xs text-muted-foreground whitespace-nowrap">

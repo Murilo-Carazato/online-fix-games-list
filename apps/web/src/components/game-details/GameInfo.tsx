@@ -2,13 +2,14 @@ import type { GameDetailsViewModel } from '@/presenters/GameDetailsViewModel';
 import { EmptyState } from './EmptyState';
 
 // ─── Static section config (OCP) ─────────────────────────────────────────────
+// Franchises is last: it usually has very few items and occupies its own row
+// to prevent a misaligned half-row next to another section.
 const TAG_SECTIONS = [
     { key: 'genres' as const, title: 'Genres' },
     { key: 'themes' as const, title: 'Themes' },
     { key: 'gameModes' as const, title: 'Modes' },
     { key: 'platforms' as const, title: 'Platforms' },
-    { key: 'franchises' as const, title: 'Franchises' },
-] satisfies { key: keyof Pick<GameDetailsViewModel, 'genres' | 'themes' | 'gameModes' | 'platforms' | 'franchises'>; title: string }[];
+] satisfies { key: keyof Pick<GameDetailsViewModel, 'genres' | 'themes' | 'gameModes' | 'platforms'>; title: string }[];
 
 export default function GameInfo({ game }: { game: GameDetailsViewModel }) {
     return (
@@ -39,7 +40,7 @@ export default function GameInfo({ game }: { game: GameDetailsViewModel }) {
                 })}
             </div>
 
-            {/* Language support — always shown */}
+            {/* Language support — shown before Franchises */}
             <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                 <h3 className="text-slate-400 text-sm uppercase tracking-wider font-bold mb-4">Languages Supported</h3>
                 {game.languages.length > 0 ? (
@@ -53,6 +54,20 @@ export default function GameInfo({ game }: { game: GameDetailsViewModel }) {
                     </div>
                 ) : (
                     <EmptyState message="No language support data for this game." />
+                )}
+            </div>
+
+            {/* Franchises — always last, full-width to avoid half-empty grid slots */}
+            <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                <h3 className="text-slate-400 text-sm uppercase tracking-wider font-bold mb-3">Franchises</h3>
+                {game.franchises.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                        {game.franchises.map(item => (
+                            <span key={item} className="px-2 py-1 bg-white/10 text-slate-200 text-xs rounded-md">{item}</span>
+                        ))}
+                    </div>
+                ) : (
+                    <EmptyState message="No franchise data for this game." />
                 )}
             </div>
         </div>
