@@ -1,7 +1,7 @@
 "use server";
 
 import { getGamesPaginatedUseCase } from "@/di/container";
-import type { SortKey, FilterKey } from "@hydra/backend-core/src/domain/repositories/IGameRepository";
+import type { SortKey, FilterKey } from "@hydra/backend-core";
 import { GamePresenter } from "../presenters/GamePresenter";
 import type { GameViewModel } from "../presenters/GameViewModel";
 

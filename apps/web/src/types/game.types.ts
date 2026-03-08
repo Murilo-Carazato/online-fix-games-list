@@ -1,7 +1,7 @@
 // ─── Shared domain-aligned types for the Web presentation layer ──────────────
 // These mirror the domain contracts from backend-core without coupling to infra.
 
-import type { SortKey, FilterKey, PaginatedQueryProps } from '@hydra/backend-core/src/domain/repositories/IGameRepository';
+import type { SortKey, FilterKey, PaginatedQueryProps } from '@hydra/backend-core';
 
 export type { SortKey, FilterKey };
 

@@ -15,11 +15,11 @@ interface FilterBarProps {
 }
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-    { value: 'date', label: '📅 Data' },
+    { value: 'date', label: '📅 Date' },
     { value: 'rating', label: '⭐ Rating' },
-    { value: 'popularity', label: '👥 Popularidade' },
-    { value: 'playtime', label: '⏱ Horas' },
-    { value: 'title', label: '🔤 Título' },
+    { value: 'popularity', label: '👥 Popularity' },
+    { value: 'playtime', label: '⏱ Playtime' },
+    { value: 'title', label: '🔤 Title' },
 ];
 
 // Removed FILTER_OPTIONS as preferences (wantToPlay/ignored) were deleted from schema.
@@ -33,7 +33,7 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, search, setS
                 <input
                     id="search-games"
                     type="search"
-                    placeholder="Buscar jogo..."
+                    placeholder="Search game..."
                     value={localSearch}
                     onChange={e => setLocalSearch(e.target.value)}
                     className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all w-full sm:w-auto"
@@ -54,7 +54,7 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, search, setS
                     <button
                         id="sort-dir"
                         onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
-                        title={sortDir === 'desc' ? 'Decrescente' : 'Crescente'}
+                        title={sortDir === 'desc' ? 'Descending' : 'Ascending'}
                         className="bg-secondary border border-border rounded-lg px-3 py-2 text-sm hover:bg-accent/20 hover:border-primary/50 transition-all"
                     >
                         {sortDir === 'desc' ? '↓' : '↑'}
@@ -64,7 +64,7 @@ export function FilterBar({ sortBy, setSortBy, sortDir, setSortDir, search, setS
                 </div>
 
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {resultCount}{hasMore ? '+' : ''} jogo{resultCount !== 1 ? 's' : ''}
+                    {resultCount}{hasMore ? '+' : ''} game{resultCount !== 1 ? 's' : ''}
                 </span>
             </div>
         </div>

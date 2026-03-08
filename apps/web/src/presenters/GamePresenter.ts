@@ -1,4 +1,4 @@
-import type { EnrichedGameEntity } from '@hydra/backend-core/src/domain/entities/EnrichedGameEntity';
+import type { EnrichedGameEntity } from '@hydra/backend-core';
 import type { GameViewModel } from './GameViewModel';
 import { formatRating, formatPopularity, formatUploadDate } from '../utils/formatters';
 

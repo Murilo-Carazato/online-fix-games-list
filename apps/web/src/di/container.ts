@@ -1,10 +1,7 @@
-import { PostgresGameRepository } from "@hydra/backend-core/src/infrastructure/repositories/PostgresGameRepository";
-import { ConsoleLoggerService } from '@hydra/backend-core/src/infrastructure/logging/ConsoleLoggerService';
-import { GetGamesPaginatedUseCase } from "@hydra/backend-core/src/application/useCases/GetGamesPaginatedUseCase";
+import { createBackendContainer } from '@hydra/backend-core';
 
-// --- Infrastructure Instances ---
-const loggerService = new ConsoleLoggerService();
-const gameRepository = new PostgresGameRepository(loggerService);
+// Initialize the core domain and infrastructure layer
+const backendContainer = createBackendContainer();
 
-// --- Use Case Instances ---
-export const getGamesPaginatedUseCase = new GetGamesPaginatedUseCase(gameRepository);
+// --- Export required Use Case Instances for the Web App ---
+export const getGamesPaginatedUseCase = backendContainer.getGamesPaginatedUseCase;
