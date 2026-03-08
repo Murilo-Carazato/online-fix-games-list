@@ -42,7 +42,7 @@ export class EnrichedGameEntity extends HydraGameEntity {
     hydraData: HydraGameEntity,
     enrichedData?: Partial<Omit<EnrichedGameEntity, 'fileSize' | 'title' | 'uploadDate' | 'isEnriched'>>
   ) {
-    super(hydraData.fileSize, hydraData.title, hydraData.uploadDate);
+    super(hydraData.fileSize, hydraData.title, hydraData.uploadDate, hydraData.id);
     this.isEnriched = !!enrichedData && Object.keys(enrichedData).length > 0;
 
     if (enrichedData) {

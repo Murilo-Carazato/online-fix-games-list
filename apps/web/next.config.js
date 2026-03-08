@@ -16,6 +16,7 @@ const nextConfig = {
             { protocol: 'https', hostname: 'images.igdb.com' },
             { protocol: 'https', hostname: 'media.rawg.io' },
             { protocol: 'https', hostname: 'www.google.com' },
+            { protocol: 'https', hostname: 'i.ytimg.com' },
         ],
     },
 

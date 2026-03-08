@@ -1,9 +1,11 @@
 import { ConsoleLoggerService } from '../logging/ConsoleLoggerService';
 import { PostgresGameRepository } from '../repositories/PostgresGameRepository';
 import { GetGamesPaginatedUseCase } from '../../application/useCases/GetGamesPaginatedUseCase';
+import { GetGameByIdUseCase } from '../../application/useCases/GetGameByIdUseCase';
 
 export interface BackendContainer {
     getGamesPaginatedUseCase: GetGamesPaginatedUseCase;
+    getGameByIdUseCase: GetGameByIdUseCase;
 }
 
 /**
@@ -16,5 +18,6 @@ export function createBackendContainer(): BackendContainer {
 
     return {
         getGamesPaginatedUseCase: new GetGamesPaginatedUseCase(gameRepository),
+        getGameByIdUseCase: new GetGameByIdUseCase(gameRepository),
     };
 }

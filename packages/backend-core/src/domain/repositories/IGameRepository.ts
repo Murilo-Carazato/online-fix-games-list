@@ -1,6 +1,6 @@
 import { EnrichedGameEntity } from '../entities/EnrichedGameEntity';
 import { Result } from '../common/Result';
-import { Failure, StorageFailure } from '../common/Failure';
+import { Failure, StorageFailure, NotFoundFailure } from '../common/Failure';
 
 // ─── Query Types (belong to the domain contract, NOT to the infra impl) ───────
 
@@ -31,4 +31,6 @@ export interface IGameRepository {
     getGames(titles: string[]): Promise<Result<EnrichedGameEntity[], StorageFailure>>;
 
     getGamesPaginated(props?: PaginatedQueryProps): Promise<Result<EnrichedGameEntity[], StorageFailure>>;
+
+    getGameById(id: number): Promise<Result<EnrichedGameEntity, StorageFailure | NotFoundFailure>>;
 }

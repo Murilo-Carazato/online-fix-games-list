@@ -4,6 +4,9 @@ import { getGamesPaginatedUseCase } from "@/di/container";
 import type { SortKey, FilterKey } from "@hydra/backend-core";
 import { GamePresenter } from "../presenters/GamePresenter";
 import type { GameViewModel } from "../presenters/GameViewModel";
+import { GameDetailsPresenter } from "../presenters/GameDetailsPresenter";
+import type { GameDetailsViewModel } from "../presenters/GameDetailsViewModel";
+import { getGameByIdUseCase } from "@/di/container";
 
 // ─── Initial data fetch ───────────────────────────────────────────────────────
 
@@ -30,4 +33,17 @@ export async function fetchMoreGamesAction(
     if (result.isSuccess) return { success: true, games: GamePresenter.toViewModelList(result.getValue()) };
     console.error("Failed to fetch more games:", result.getError().message);
     return { success: false, error: result.getError().message, games: [] };
+}
+
+// ─── Single Game Fetch (Game Details Page) ───────────────────────────────────
+
+export async function fetchGameDetailsAction(id: number): Promise<{ success: boolean; error?: string; game?: GameDetailsViewModel }> {
+    const result = await getGameByIdUseCase.execute(id);
+    if (result.isSuccess) {
+        return { success: true, game: GameDetailsPresenter.toViewModel(result.getValue(), id) };
+    }
+
+    console.error(`Failed to fetch game details for ID ${id}:`, result.getError().message);
+    // Determine if it was a NotFoundFailure ideally, but passing the error works for now.
+    return { success: false, error: result.getError().message };
 }

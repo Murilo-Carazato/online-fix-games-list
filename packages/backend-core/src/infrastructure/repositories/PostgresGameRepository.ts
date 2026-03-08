@@ -156,6 +156,25 @@ export class PostgresGameRepository implements IGameRepository {
         }
     }
 
+    async getGameById(id: number): Promise<Result<EnrichedGameEntity, StorageFailure | NotFoundFailure>> {
+        try {
+            const rows = await db
+                .select({ title: games.title })
+                .from(games)
+                .where(eq(games.id, id))
+                .limit(1);
+
+            if (!rows.length) {
+                return Result.fail(new NotFoundFailure(`Game not found in DB with id=${id}`));
+            }
+
+            return this.hydrateEntity(id, rows[0].title);
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
+            return Result.fail(new StorageFailure(`Failed to read game by id: ${msg}`));
+        }
+    }
+
     /**
      * Hydrates a complete domain entity for one game by delegating all DB
      * queries to {@link GameQueryAssembler} and reconstruction to {@link GameMapper}.

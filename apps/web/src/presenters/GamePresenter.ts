@@ -1,6 +1,6 @@
 import type { EnrichedGameEntity } from '@hydra/backend-core';
 import type { GameViewModel } from './GameViewModel';
-import { formatRating, formatPopularity, formatUploadDate } from '../utils/formatters';
+import { formatRating, formatPopularity, formatUploadDate, slugify } from '../utils/formatters';
 import { TitleCleanerService } from '@hydra/backend-core';
 
 export class GamePresenter {
@@ -9,8 +9,9 @@ export class GamePresenter {
      * Keeps formatting logic out of React components.
      */
     static toViewModel(entity: EnrichedGameEntity): GameViewModel {
+        const idStr = entity.id ? `${entity.id}-${slugify(entity.title)}` : entity.title;
         return {
-            id: entity.title, // 'title' was used as key in the frontend list
+            id: idStr, // DB id with slug, fallback to title
             title: new TitleCleanerService().clean(entity.title),
             coverUrl: entity.coverUrl
                 ? (entity.coverUrl.startsWith('//') ? `https:${entity.coverUrl}` : entity.coverUrl)

@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import type { GameViewModel } from '@/presenters/GameViewModel';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface GameCardProps {
     game: GameViewModel;
@@ -23,7 +24,7 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
       `}
         >
             {/* Cover image */}
-            <div className="h-36 rounded-t-xl overflow-hidden bg-secondary relative">
+            <Link href={`/game/${game.id}`} className="block h-36 rounded-t-xl overflow-hidden bg-secondary relative">
                 {game.coverUrl ? (
                     <Image
                         src={game.coverUrl}
@@ -43,13 +44,15 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
                         </span>
                     ))}
                 </div>
-            </div>
+            </Link>
 
             {/* Body */}
             <div className="p-3 space-y-2">
-                <h3 className="text-sm font-semibold leading-tight line-clamp-2 text-foreground" title={game.title}>
-                    {game.title}
-                </h3>
+                <Link href={`/game/${game.id}`}>
+                    <h3 className="text-sm font-semibold leading-tight line-clamp-2 text-foreground hover:text-primary transition-colors" title={game.title}>
+                        {game.title}
+                    </h3>
+                </Link>
 
                 {/* Stats row */}
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">

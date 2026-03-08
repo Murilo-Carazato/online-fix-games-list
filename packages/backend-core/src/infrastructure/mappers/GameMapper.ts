@@ -130,7 +130,8 @@ export class GameMapper {
         const hydra = new HydraGameEntity(
             game.fileSizeValue && game.fileSizeUnit ? `${game.fileSizeValue} ${game.fileSizeUnit}` : '',
             game.title,
-            game.uploadDate.toISOString()
+            game.uploadDate.toISOString(),
+            game.id
         );
 
         const creatorVideos = row.alanzokaVideos.map(v => new VideoEntity(
