@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { AdvancedFilters, FilterOptions } from '@hydra/backend-core';
 import { fetchFilterOptionsAction } from '@/actions/gameActions';
 import { m, AnimatePresence } from 'framer-motion';
@@ -10,6 +10,165 @@ interface AdvancedFiltersDrawerProps {
     onClose: () => void;
     initialFilters: AdvancedFilters;
     onApply: (filters: AdvancedFilters) => void;
+}
+
+function CollapsibleSection({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+
+    return (
+        <div className="mb-2 border-b border-border/50">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between w-full py-3 text-left hover:bg-accent/5 px-2 rounded-t"
+            >
+                <h3 className="text-sm font-semibold">{title}</h3>
+                <span className={`transform transition-transform text-xs text-muted-foreground ${isOpen ? 'rotate-180' : ''}`}>
+                    ▼
+                </span>
+            </button>
+            <AnimatePresence>
+                {isOpen && (
+                    <m.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="p-2 pb-4">
+                            {children}
+                        </div>
+                    </m.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
+function CheckboxList({ title, items, selected, filterKey, onToggle }: { title: string, items: string[], selected: string[], filterKey: keyof AdvancedFilters, onToggle: (key: keyof AdvancedFilters, value: string) => void }) {
+    const [searchQuery, setSearchQuery] = useState("");
+    const filteredItems = items.filter(item => item.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return (
+        <CollapsibleSection title={title} defaultOpen={selected.length > 0}>
+            <input
+                type="text"
+                placeholder={`Search ${title.toLowerCase()}...`}
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full mb-3 bg-secondary/50 border border-border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+            />
+            <div className="max-h-40 overflow-y-auto pr-2 gap-1 flex flex-col custom-scrollbar">
+                {filteredItems.map(item => (
+                    <label key={item} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent/10 p-1.5 rounded transition-colors">
+                        <input
+                            type="checkbox"
+                            checked={selected.includes(item)}
+                            onChange={() => onToggle(filterKey, item)}
+                            className="rounded border-border text-primary focus:ring-primary/50"
+                        />
+                        {item}
+                    </label>
+                ))}
+                {filteredItems.length === 0 && <div className="text-xs text-muted-foreground py-2 text-center">No matches found.</div>}
+            </div>
+        </CollapsibleSection>
+    );
+}
+
+function DualSliderInput({ title, minKey, maxKey, minLimit, maxLimit, step, labelSuffix, currentMin, currentMax, onChange }: { title: string, minKey: keyof AdvancedFilters, maxKey: keyof AdvancedFilters, minLimit: number, maxLimit: number, step: number, labelSuffix: string, currentMin: number, currentMax: number, onChange: (key: keyof AdvancedFilters, val: string) => void }) {
+    const sliderRef = useRef<HTMLDivElement>(null);
+    const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        const handlePointerMove = (e: PointerEvent) => {
+            if (!sliderRef.current) return;
+            const rect = sliderRef.current.getBoundingClientRect();
+            // Ensure percent is exactly between 0 and 1
+            const percent = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+            let rawValue = percent * (maxLimit - minLimit) + minLimit;
+            // Snap to step
+            const inv = 1.0 / step;
+            rawValue = Math.round(rawValue * inv) / inv;
+
+            if (isDragging === 'min') {
+                onChange(minKey, Math.min(rawValue, currentMax).toString());
+            } else {
+                onChange(maxKey, Math.max(rawValue, currentMin).toString());
+            }
+        };
+
+        const handlePointerUp = () => setIsDragging(null);
+
+        // Attach global listeners while dragging so the thumb doesn't drop if mouse leaves it
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+        window.addEventListener('pointercancel', handlePointerUp);
+
+        return () => {
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerup', handlePointerUp);
+            window.removeEventListener('pointercancel', handlePointerUp);
+        };
+    }, [isDragging, minLimit, maxLimit, step, currentMin, currentMax, minKey, maxKey, onChange]);
+
+    const minPercent = ((currentMin - minLimit) / (maxLimit - minLimit)) * 100;
+    const maxPercent = ((currentMax - minLimit) / (maxLimit - minLimit)) * 100;
+
+    return (
+        <CollapsibleSection title={title} defaultOpen={true}>
+            <div className="flex justify-between items-center mb-6 px-1">
+                <span className="text-xs font-semibold text-primary">{currentMin} {labelSuffix}</span>
+                <span className="text-xs font-semibold text-primary">{currentMax} {labelSuffix}</span>
+            </div>
+
+            <div
+                ref={sliderRef}
+                className={`relative w-full h-8 flex items-center mb-2 cursor-pointer ${isDragging ? 'cursor-grabbing' : ''}`}
+                onPointerDown={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const percent = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+                    let rawValue = percent * (maxLimit - minLimit) + minLimit;
+                    const inv = 1.0 / step;
+                    rawValue = Math.round(rawValue * inv) / inv;
+
+                    const distToMin = Math.abs(rawValue - currentMin);
+                    const distToMax = Math.abs(rawValue - currentMax);
+
+                    // Pick the thumb closest to the click point
+                    if (distToMin <= distToMax) {
+                        onChange(minKey, Math.min(rawValue, currentMax).toString());
+                        setIsDragging('min');
+                    } else {
+                        onChange(maxKey, Math.max(rawValue, currentMin).toString());
+                        setIsDragging('max');
+                    }
+                }}
+            >
+                {/* Track background */}
+                <div className="absolute left-0 right-0 h-1.5 bg-secondary rounded-full pointer-events-none" />
+
+                {/* Active highlighted track segment */}
+                <div
+                    className={`absolute h-1.5 bg-primary rounded-full pointer-events-none transition-all ${isDragging ? 'duration-0' : 'duration-75'}`}
+                    style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
+                />
+
+                {/* Thumbs */}
+                <div
+                    onPointerDown={(e) => { e.stopPropagation(); setIsDragging('min'); }}
+                    className={`absolute top-1/2 -mt-2 w-4 h-4 bg-white border-2 border-primary rounded-full shadow-md transition-transform hover:scale-110 -ml-2 ${isDragging === 'min' ? 'scale-125 z-30' : 'z-10'} ${isDragging === 'max' ? 'z-0' : ''}`}
+                    style={{ left: `${minPercent}%`, touchAction: 'none' }}
+                />
+                <div
+                    onPointerDown={(e) => { e.stopPropagation(); setIsDragging('max'); }}
+                    className={`absolute top-1/2 -mt-2 w-4 h-4 bg-white border-2 border-primary rounded-full shadow-md transition-transform hover:scale-110 -ml-2 ${isDragging === 'max' ? 'scale-125 z-30' : 'z-10'} ${isDragging === 'min' ? 'z-0' : ''}`}
+                    style={{ left: `${maxPercent}%`, touchAction: 'none' }}
+                />
+            </div>
+        </CollapsibleSection>
+    );
 }
 
 export function AdvancedFiltersDrawer({ isOpen, onClose, initialFilters, onApply }: AdvancedFiltersDrawerProps) {
@@ -55,52 +214,6 @@ export function AdvancedFiltersDrawer({ isOpen, onClose, initialFilters, onApply
         setDraft({ ...draft, [key]: num });
     };
 
-    const CheckboxList = ({ title, items, filterKey }: { title: string, items: string[], filterKey: keyof AdvancedFilters }) => {
-        const selected = (draft[filterKey] as string[]) || [];
-        return (
-            <div className="mb-6">
-                <h3 className="text-sm font-semibold mb-2">{title}</h3>
-                <div className="max-h-40 overflow-y-auto pr-2 gap-2 flex flex-col custom-scrollbar">
-                    {items.map(item => (
-                        <label key={item} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent/10 p-1 rounded">
-                            <input
-                                type="checkbox"
-                                checked={selected.includes(item)}
-                                onChange={() => toggleArrayItem(filterKey, item)}
-                                className="rounded border-border text-primary focus:ring-primary/50"
-                            />
-                            {item}
-                        </label>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const RangeInput = ({ title, minKey, maxKey, placeholder }: { title: string, minKey: keyof AdvancedFilters, maxKey: keyof AdvancedFilters, placeholder: string }) => (
-        <div className="mb-6">
-            <h3 className="text-sm font-semibold mb-2">{title}</h3>
-            <div className="flex items-center gap-2">
-                <input
-                    type="number"
-                    placeholder="Min"
-                    value={draft[minKey] as number || ''}
-                    onChange={e => setNumber(minKey, e.target.value)}
-                    className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <span className="text-muted-foreground">-</span>
-                <input
-                    type="number"
-                    placeholder="Max"
-                    value={draft[maxKey] as number || ''}
-                    onChange={e => setNumber(maxKey, e.target.value)}
-                    className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <span className="text-xs text-muted-foreground">{placeholder}</span>
-            </div>
-        </div>
-    );
-
     return (
         <AnimatePresence>
             {isOpen && (
@@ -130,31 +243,32 @@ export function AdvancedFiltersDrawer({ isOpen, onClose, initialFilters, onApply
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                            <RangeInput title="File Size" minKey="fileSizeMin" maxKey="fileSizeMax" placeholder="GB" />
-                            <RangeInput title="Score Rating" minKey="ratingMin" maxKey="ratingMax" placeholder="0-100" />
-                            <RangeInput title="Popularity (Added By)" minKey="addedByMin" maxKey="addedByMax" placeholder="users" />
+                            <DualSliderInput title="File Size" minKey="fileSizeMin" maxKey="fileSizeMax" minLimit={0} maxLimit={300} step={1} labelSuffix="GB" currentMin={(draft.fileSizeMin as number) ?? 0} currentMax={(draft.fileSizeMax as number) ?? 300} onChange={setNumber} />
+                            <DualSliderInput title="Score Rating" minKey="ratingMin" maxKey="ratingMax" minLimit={1} maxLimit={5} step={0.1} labelSuffix="Stars" currentMin={(draft.ratingMin as number) ?? 1} currentMax={(draft.ratingMax as number) ?? 5} onChange={setNumber} />
+                            <DualSliderInput title="Popularity (Added By)" minKey="addedByMin" maxKey="addedByMax" minLimit={0} maxLimit={20000} step={100} labelSuffix="users" currentMin={(draft.addedByMin as number) ?? 0} currentMax={(draft.addedByMax as number) ?? 20000} onChange={setNumber} />
 
-                            <div className="mb-6 space-y-3">
-                                <h3 className="text-sm font-semibold mb-2">Media & Content</h3>
-                                <label className="flex items-center gap-2 text-sm cursor-pointer border border-border p-2 rounded-lg hover:bg-accent/10 transition-colors">
-                                    <input
-                                        type="checkbox"
-                                        checked={!!draft.hasAlanzoka}
-                                        onChange={e => setDraft({ ...draft, hasAlanzoka: e.target.checked ? true : undefined })}
-                                        className="rounded border-border text-primary focus:ring-primary/50"
-                                    />
-                                    Has Alanzoka Video
-                                </label>
-                                <label className="flex items-center gap-2 text-sm cursor-pointer border border-border p-2 rounded-lg hover:bg-accent/10 transition-colors">
-                                    <input
-                                        type="checkbox"
-                                        checked={!!draft.hasMedia}
-                                        onChange={e => setDraft({ ...draft, hasMedia: e.target.checked ? true : undefined })}
-                                        className="rounded border-border text-primary focus:ring-primary/50"
-                                    />
-                                    Has Media (Trailer/Screenshots)
-                                </label>
-                            </div>
+                            <CollapsibleSection title="Media & Content" defaultOpen={!!draft.hasAlanzoka || !!draft.hasMedia}>
+                                <div className="space-y-3">
+                                    <label className="flex items-center gap-2 text-sm cursor-pointer border border-border p-2 rounded-lg hover:bg-accent/10 transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            checked={!!draft.hasAlanzoka}
+                                            onChange={e => setDraft({ ...draft, hasAlanzoka: e.target.checked ? true : undefined })}
+                                            className="rounded border-border text-primary focus:ring-primary/50"
+                                        />
+                                        Has Alanzoka Video
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm cursor-pointer border border-border p-2 rounded-lg hover:bg-accent/10 transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            checked={!!draft.hasMedia}
+                                            onChange={e => setDraft({ ...draft, hasMedia: e.target.checked ? true : undefined })}
+                                            className="rounded border-border text-primary focus:ring-primary/50"
+                                        />
+                                        Has Media (Trailer/Screenshots)
+                                    </label>
+                                </div>
+                            </CollapsibleSection>
 
                             {loading && (
                                 <div className="py-8 text-center text-muted-foreground animate-pulse">
@@ -164,11 +278,11 @@ export function AdvancedFiltersDrawer({ isOpen, onClose, initialFilters, onApply
 
                             {!loading && options && (
                                 <>
-                                    <CheckboxList title="Genres" items={options.genres} filterKey="genres" />
-                                    <CheckboxList title="Themes" items={options.themes} filterKey="themes" />
-                                    <CheckboxList title="Game Modes" items={options.gameModes} filterKey="gameModes" />
-                                    <CheckboxList title="Stores" items={options.stores} filterKey="stores" />
-                                    <CheckboxList title="Languages" items={options.languages} filterKey="languages" />
+                                    <CheckboxList title="Genres" items={options.genres} filterKey="genres" selected={(draft.genres as string[]) || []} onToggle={toggleArrayItem} />
+                                    <CheckboxList title="Themes" items={options.themes} filterKey="themes" selected={(draft.themes as string[]) || []} onToggle={toggleArrayItem} />
+                                    <CheckboxList title="Game Modes" items={options.gameModes} filterKey="gameModes" selected={(draft.gameModes as string[]) || []} onToggle={toggleArrayItem} />
+                                    <CheckboxList title="Stores" items={options.stores} filterKey="stores" selected={(draft.stores as string[]) || []} onToggle={toggleArrayItem} />
+                                    <CheckboxList title="Languages" items={options.languages} filterKey="languages" selected={(draft.languages as string[]) || []} onToggle={toggleArrayItem} />
                                 </>
                             )}
                         </div>
