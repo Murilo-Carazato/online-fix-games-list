@@ -38,9 +38,16 @@ async function main() {
 
     logger.info(`Starting execution to enrich up to ${config.enrichmentLimit ?? 'ALL'} games...`);
     logger.info(`Reading from: ${config.inputFilePath}`);
+    logger.info(`Skip Enriched: ${config.skipEnriched !== false ? 'YES' : 'NO'}`);
 
-    const params = new EnrichGamesParams(config.inputFilePath, config.enrichmentLimit);
+    const params = new EnrichGamesParams(
+        config.inputFilePath,
+        config.enrichmentLimit,
+        10, // Chunk size
+        config.skipEnriched
+    );
     const result = await enricherUseCase.execute(params);
+
 
     logger.info('=== DONE ===');
     if (result.isFailure) {

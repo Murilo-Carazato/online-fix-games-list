@@ -13,4 +13,5 @@ export interface IAppConfig {
     inputFilePath: string;
     outputFilePath: string;
     enrichmentLimit?: number;
+    skipEnriched?: boolean;
 }

@@ -59,10 +59,12 @@ export class PostgresGameRepository implements IGameRepository {
             return Result.ok();
 
         } catch (error: unknown) {
+            console.error(error); // DEBUG
             const msg = error instanceof Error ? error.message : String(error);
             this.logger.error(`Error saving games to Postgres: ${msg}`);
             return Result.fail(new StorageFailure(`Failed to save games: ${msg}`));
         }
+
     }
 
     private async saveEntityRelations(entity: EnrichedGameEntity): Promise<void> {
@@ -91,6 +93,20 @@ export class PostgresGameRepository implements IGameRepository {
     }
 
     // ─── READS ────────────────────────────────────────────────────────────────
+
+    async getEnrichedTitles(): Promise<Result<Set<string>, StorageFailure>> {
+        try {
+            const rows = await db
+                .select({ title: games.title })
+                .from(games)
+                .where(sql`${games.igdbId} IS NOT NULL`);
+
+            return Result.ok(new Set(rows.map(r => r.title)));
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
+            return Result.fail(new StorageFailure(`Failed to read enriched titles: ${msg}`));
+        }
+    }
 
     async getGames(titles: string[]): Promise<Result<EnrichedGameEntity[], StorageFailure>> {
         if (!titles.length) return Result.ok([]);

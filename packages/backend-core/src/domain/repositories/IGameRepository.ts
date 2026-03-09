@@ -51,6 +51,12 @@ export interface PaginatedQueryProps {
 export interface IGameRepository {
     saveGames(games: EnrichedGameEntity[]): Promise<Result<void, Failure>>;
 
+    /**
+     * Returns the set of titles that already have external enrichment data
+     * (i.e., an IGDB ID is present). Used for idempotent enrichment runs.
+     */
+    getEnrichedTitles(): Promise<Result<Set<string>, StorageFailure>>;
+
     getGames(titles: string[]): Promise<Result<EnrichedGameEntity[], StorageFailure>>;
 
     getGamesPaginated(props?: PaginatedQueryProps): Promise<Result<EnrichedGameEntity[], StorageFailure>>;
@@ -59,3 +65,4 @@ export interface IGameRepository {
 
     getFilterOptions(): Promise<Result<FilterOptions, StorageFailure>>;
 }
+

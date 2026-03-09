@@ -15,6 +15,7 @@ export function loadConfig(): IAppConfig {
         youtubeChannelId: process.env.YOUTUBE_CHANNEL_ID || 'UCIwspRtKNszHhIhl36gREjQ',
         inputFilePath: process.env.INPUT_FILE_PATH || path.resolve(__dirname, '../../../../data/onlinefix.json'),
         outputFilePath: process.env.OUTPUT_FILE_PATH || path.resolve(__dirname, '../../../../data/onlinefix_enriched.json'),
-        enrichmentLimit: process.env.ENRICHMENT_LIMIT ? parseInt(process.env.ENRICHMENT_LIMIT, 10) : undefined
+        enrichmentLimit: process.env.ENRICHMENT_LIMIT ? parseInt(process.env.ENRICHMENT_LIMIT, 10) : undefined,
+        skipEnriched: process.env.SKIP_ENRICHED ? process.env.SKIP_ENRICHED === 'true' : true
     };
 }
