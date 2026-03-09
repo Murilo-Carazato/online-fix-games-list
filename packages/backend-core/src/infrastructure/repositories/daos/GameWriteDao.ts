@@ -27,7 +27,7 @@ export class GameWriteDao {
         const [existing] = await db
             .select({ id: games.id })
             .from(games)
-            .where(eq(games.title, core.title));
+            .where(eq(games.baseTitle, core.baseTitle));
 
         if (existing) {
             await db.update(games).set(core).where(eq(games.id, existing.id));

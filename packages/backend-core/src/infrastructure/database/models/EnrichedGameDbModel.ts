@@ -8,6 +8,7 @@
 export interface EnrichedGameDbModel {
     core: {
         title: string;
+        baseTitle: string;
         fileSizeValue: number | null;
         fileSizeUnit: string | null;
         uploadDate: Date;

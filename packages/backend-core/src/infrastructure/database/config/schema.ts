@@ -123,7 +123,8 @@ export const ratingCategories = pgTable("rating_categories", {
 /** Core game data — one row per OnlineFix game title */
 export const games = pgTable("games", {
     id: serial("id").primaryKey(), // Surrogate key
-    title: varchar("title", { length: 500 }).notNull().unique(),
+    title: varchar("title", { length: 500 }).notNull(),
+    baseTitle: varchar("base_title", { length: 500 }).notNull().unique(),
     fileSizeValue: real("file_size_value"),
     fileSizeUnit: varchar("file_size_unit", { length: 10 }),
     uploadDate: timestamp("upload_date").notNull(),

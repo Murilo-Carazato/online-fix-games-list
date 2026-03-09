@@ -4,6 +4,7 @@ import { VideoEntity } from '../../domain/entities/VideoEntity';
 import { IgdbLanguageSupport, IgdbExternalGame, RawgRating } from '../../domain/data/ExternalGameData';
 import { EnrichedGameDbModel } from '../database/models/EnrichedGameDbModel';
 import { JoinedGameDbRow } from '../database/models/JoinedGameDbRow';
+import { ITitleCleanerService } from '../../domain/services/ITitleCleanerService';
 
 /**
  * Pure domain transformer — zero database imports.
@@ -11,10 +12,11 @@ import { JoinedGameDbRow } from '../database/models/JoinedGameDbRow';
  * for DB inserts, and reconstructs Domain Entities from joined DB row data.
  */
 export class GameMapper {
+    constructor(private readonly titleCleaner: ITitleCleanerService) { }
 
     // ─── TO DB VALUE OBJECTS (Entity → Plain Objects for Repository to insert) ─
 
-    static toDb(entity: EnrichedGameEntity): EnrichedGameDbModel {
+    public toDb(entity: EnrichedGameEntity): EnrichedGameDbModel {
         const igdbVideos: { url: string }[] = [];
         for (const url of entity.videos ?? []) {
             igdbVideos.push({ url });
@@ -94,6 +96,7 @@ export class GameMapper {
         return {
             core: {
                 title: entity.title,
+                baseTitle: this.titleCleaner.clean(entity.title),
                 fileSizeValue,
                 fileSizeUnit,
                 uploadDate: entity.uploadDate ? new Date(entity.uploadDate) : new Date(),

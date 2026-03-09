@@ -19,9 +19,17 @@ import { GameMapper } from "../mappers/GameMapper";
 import { Result } from "../../domain/common/Result";
 import { StorageFailure, NotFoundFailure } from "../../domain/common/Failure";
 import { EnrichedGameDbModel } from "../database/models/EnrichedGameDbModel";
+import { ITitleCleanerService } from "../../domain/services/ITitleCleanerService";
 
 export class PostgresGameRepository implements IGameRepository {
-    constructor(private readonly logger: ILoggerService) { }
+    private gameMapper: GameMapper;
+
+    constructor(
+        private readonly logger: ILoggerService,
+        titleCleaner: ITitleCleanerService
+    ) {
+        this.gameMapper = new GameMapper(titleCleaner);
+    }
 
     // ─── WRITES ───────────────────────────────────────────────────────────────
 
@@ -68,7 +76,7 @@ export class PostgresGameRepository implements IGameRepository {
     }
 
     private async saveEntityRelations(entity: EnrichedGameEntity): Promise<void> {
-        const dbData: EnrichedGameDbModel = GameMapper.toDb(entity);
+        const dbData: EnrichedGameDbModel = this.gameMapper.toDb(entity);
 
         // 1. Upsert core `games` row — retrieve the surrogate PK
         const gameId = await GameWriteDao.upsertCore(dbData.core);

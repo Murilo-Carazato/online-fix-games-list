@@ -22,8 +22,8 @@ async function main() {
     const storeMatcher = new StoreMatcherService(storeRepository);
     const apiGateway = GameGatewayFactory.createGateway(config, logger, storeMatcher);
     const hydraGateway = new JsonHydraGateway(logger);
-    const gameRepository = new PostgresGameRepository(logger);
     const titleCleaner = new TitleCleanerService();
+    const gameRepository = new PostgresGameRepository(logger, titleCleaner);
     const gameDataMerger = new GameDataMergerService();
 
     // 3. Assemble the Use Case with all its dependencies injected

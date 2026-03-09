@@ -71,9 +71,12 @@ export class EnrichGamesUseCase {
         const rawGames = loadResult.getValue();
         this.logger.info(`Loaded ${rawGames.length} source games.`);
 
+        const uniqueGames = this.deduplicateGames(rawGames);
+        this.logger.info(`Deduplicated: ${uniqueGames.length} unique games remaining.`);
+
         const gamesToProcess = params.limit
-            ? rawGames.slice(0, params.limit)
-            : rawGames;
+            ? uniqueGames.slice(0, params.limit)
+            : uniqueGames;
 
         // ── 2. Determine which titles already have enrichment data ────────────
         const alreadyEnriched = await this.resolveEnrichedTitles(params.skipEnriched);
@@ -154,6 +157,33 @@ export class EnrichGamesUseCase {
     }
 
     // ── Private helpers (SRP cohesion) ────────────────────────────────────────
+
+    /**
+     * Deduplicates the raw list of games based on their cleaned base title.
+     * When duplicates are found, keeps the version with the most recent uploadDate.
+     */
+    private deduplicateGames(games: HydraGameEntity[]): HydraGameEntity[] {
+        const uniqueGames = new Map<string, HydraGameEntity>();
+
+        for (const game of games) {
+            const baseTitle = this.titleCleaner.clean(game.title);
+            const existing = uniqueGames.get(baseTitle);
+
+            if (!existing) {
+                uniqueGames.set(baseTitle, game);
+            } else {
+                const currentDate = game.uploadDate ? new Date(game.uploadDate).getTime() : 0;
+                const existingDate = existing.uploadDate ? new Date(existing.uploadDate).getTime() : 0;
+
+                // Keep the newer game
+                if (currentDate > existingDate) {
+                    uniqueGames.set(baseTitle, game);
+                }
+            }
+        }
+
+        return Array.from(uniqueGames.values());
+    }
 
     /**
      * Returns the set of already-enriched titles, or an empty set when

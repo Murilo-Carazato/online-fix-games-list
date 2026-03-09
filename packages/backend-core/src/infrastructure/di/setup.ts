@@ -1,5 +1,6 @@
 import { ConsoleLoggerService } from '../logging/ConsoleLoggerService';
 import { PostgresGameRepository } from '../repositories/PostgresGameRepository';
+import { TitleCleanerService } from '../../domain/services/TitleCleanerService';
 import { GetGamesPaginatedUseCase } from '../../application/useCases/GetGamesPaginatedUseCase';
 import { GetGameByIdUseCase } from '../../application/useCases/GetGameByIdUseCase';
 import { GetFilterOptionsUseCase } from '../../application/useCases/GetFilterOptionsUseCase';
@@ -16,7 +17,8 @@ export interface BackendContainer {
  */
 export function createBackendContainer(): BackendContainer {
     const loggerService = new ConsoleLoggerService();
-    const gameRepository = new PostgresGameRepository(loggerService);
+    const titleCleaner = new TitleCleanerService();
+    const gameRepository = new PostgresGameRepository(loggerService, titleCleaner);
 
     return {
         getGamesPaginatedUseCase: new GetGamesPaginatedUseCase(gameRepository),
