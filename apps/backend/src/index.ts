@@ -56,6 +56,7 @@ async function main() {
     } else {
         const stats = result.getValue();
         logger.info(`Processed: ${stats.processed} | Enriched: ${stats.enriched} | Failed: ${stats.failed}`);
+        process.exit(0);
     }
 }
 

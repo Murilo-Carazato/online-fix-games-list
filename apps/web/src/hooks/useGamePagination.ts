@@ -7,6 +7,7 @@ const PAGE_SIZE = 50;
 
 export interface UseGamePaginationProps {
     initialGames: GameViewModel[];
+    initialTotalCount: number;
     search: string;
     sortBy: SortKey;
     sortDir: SortDirection;
@@ -16,8 +17,9 @@ export interface UseGamePaginationProps {
 // Manages the paginated game list.
 // Re-fetches from offset=0 whenever search/sort/filter changes.
 // Appends more results when loadMore() is called (infinite scroll).
-export function useGamePagination({ initialGames, search, sortBy, sortDir, advancedFilters }: UseGamePaginationProps) {
+export function useGamePagination({ initialGames, initialTotalCount, search, sortBy, sortDir, advancedFilters }: UseGamePaginationProps) {
     const [gamesList, setGamesList] = useState<GameViewModel[]>(initialGames);
+    const [totalCount, setTotalCount] = useState<number>(initialTotalCount);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(initialGames.length >= PAGE_SIZE);
     const [fetchError, setFetchError] = useState<string | null>(null);
@@ -35,6 +37,7 @@ export function useGamePagination({ initialGames, search, sortBy, sortDir, advan
                 const seen = new Set(prev.map(g => g.title));
                 return [...prev, ...res.games!.filter(g => !seen.has(g.title))];
             });
+            setTotalCount(res.totalCount);
             if (res.games.length < PAGE_SIZE) setHasMore(false);
         } else {
             setHasMore(false);
@@ -67,9 +70,11 @@ export function useGamePagination({ initialGames, search, sortBy, sortDir, advan
 
                 if (res.success && res.games) {
                     setGamesList(res.games);
+                    setTotalCount(res.totalCount);
                     setHasMore(res.games.length >= PAGE_SIZE);
                 } else {
                     setGamesList([]);
+                    setTotalCount(0);
                     setHasMore(false);
                     setFetchError(res.error ?? 'Erro ao carregar os dados.');
                 }
@@ -90,6 +95,7 @@ export function useGamePagination({ initialGames, search, sortBy, sortDir, advan
 
     return {
         gamesList,
+        totalCount,
         loadingMore,
         hasMore,
         fetchError,

@@ -59,7 +59,7 @@ export interface IGameRepository {
 
     getGames(titles: string[]): Promise<Result<EnrichedGameEntity[], StorageFailure>>;
 
-    getGamesPaginated(props?: PaginatedQueryProps): Promise<Result<EnrichedGameEntity[], StorageFailure>>;
+    getGamesPaginated(props?: PaginatedQueryProps): Promise<Result<{ data: EnrichedGameEntity[]; totalCount: number }, StorageFailure>>;
 
     getGameById(id: number): Promise<Result<EnrichedGameEntity, StorageFailure | NotFoundFailure>>;
 

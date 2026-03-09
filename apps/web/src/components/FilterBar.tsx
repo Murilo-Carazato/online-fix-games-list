@@ -1,6 +1,6 @@
 'use client';
 
-import type { SortKey, FilterKey } from '@/types/game.types';
+import type { SortKey } from '@/types/game.types';
 import { useDebouncedInput } from '@/hooks/useDebouncedInput';
 
 interface FilterBarProps {

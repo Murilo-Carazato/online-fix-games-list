@@ -47,6 +47,8 @@ services:
       - dev_node_modules:/app/node_modules
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
     command: sh -c "cd /app && npm install && npx turbo run build --filter=@hydra/backend-core && cd apps/backend && npm run start"
     depends_on:
       db:

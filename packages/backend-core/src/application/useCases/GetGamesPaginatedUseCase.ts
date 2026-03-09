@@ -17,7 +17,7 @@ export class GetGamesPaginatedUseCase {
         private readonly gameRepository: IGameRepository
     ) { }
 
-    public async execute(request?: GetGamesPaginatedRequest): Promise<Result<EnrichedGameEntity[], StorageFailure>> {
+    public async execute(request?: GetGamesPaginatedRequest): Promise<Result<{ data: EnrichedGameEntity[]; totalCount: number }, StorageFailure>> {
         const props: PaginatedQueryProps | undefined = request ? {
             limit: request.limit,
             offset: request.offset,

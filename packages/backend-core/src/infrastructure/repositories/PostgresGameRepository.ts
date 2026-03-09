@@ -133,7 +133,7 @@ export class PostgresGameRepository implements IGameRepository {
         }
     }
 
-    async getGamesPaginated(props: PaginatedQueryProps = {}): Promise<Result<EnrichedGameEntity[], StorageFailure>> {
+    async getGamesPaginated(props: PaginatedQueryProps = {}): Promise<Result<{ data: EnrichedGameEntity[]; totalCount: number }, StorageFailure>> {
         const { limit = 50, offset = 0, search, sort = 'date', sortDirection = 'desc', filters } = props;
 
         // Strictly typed column map — no `any` needed
@@ -243,6 +243,18 @@ export class PostgresGameRepository implements IGameRepository {
                 query = query.where(and(...conditions));
             }
 
+            const countQuery = db
+                .select({ count: sql<number>`count(*)` })
+                .from(games)
+                .$dynamic();
+
+            if (conditions.length > 0) {
+                countQuery.where(and(...conditions));
+            }
+
+            const [{ count }] = await countQuery;
+            const totalCount = Number(count);
+
             const orderFn = sortDirection === 'asc' ? asc : desc;
             query = query.orderBy(orderFn(orderMap[sort])).limit(limit).offset(offset);
 
@@ -255,7 +267,7 @@ export class PostgresGameRepository implements IGameRepository {
                 .filter(r => r.isSuccess)
                 .map(r => r.getValue());
 
-            return Result.ok(entities);
+            return Result.ok({ data: entities, totalCount });
         } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : String(error);
             return Result.fail(new StorageFailure(`Failed to query paginated games: ${msg}`));

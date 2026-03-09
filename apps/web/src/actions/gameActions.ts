@@ -11,11 +11,14 @@ import type { FilterOptions } from "@hydra/backend-core";
 
 // ─── Initial data fetch ───────────────────────────────────────────────────────
 
-export async function fetchInitialGamesAction(): Promise<{ success: boolean; error?: string; games: GameViewModel[] }> {
+export async function fetchInitialGamesAction(): Promise<{ success: boolean; error?: string; games: GameViewModel[]; totalCount: number }> {
     const result = await getGamesPaginatedUseCase.execute({ limit: 50, offset: 0 });
-    if (result.isSuccess) return { success: true, games: GamePresenter.toViewModelList(result.getValue()) };
+    if (result.isSuccess) {
+        const { data, totalCount } = result.getValue();
+        return { success: true, games: GamePresenter.toViewModelList(data), totalCount };
+    }
     console.error("Failed to fetch initial games:", result.getError().message);
-    return { success: false, error: result.getError().message, games: [] };
+    return { success: false, error: result.getError().message, games: [], totalCount: 0 };
 }
 
 // ─── Paginated fetch (client — Load More / filter changes) ───────────────────
@@ -27,15 +30,18 @@ export async function fetchMoreGamesAction(
     sortBy: SortKey = 'date',
     sortDir: 'asc' | 'desc' = 'desc',
     filtersJson?: string,
-): Promise<{ success: boolean; error?: string; games: GameViewModel[] }> {
+): Promise<{ success: boolean; error?: string; games: GameViewModel[]; totalCount: number }> {
     console.log("==> fetchMoreGamesAction args:", { offset, limit, search, sortBy, sortDir, filtersJson });
     const filters: AdvancedFilters | undefined = filtersJson ? JSON.parse(filtersJson) : undefined;
     const result = await getGamesPaginatedUseCase.execute({
         offset, limit, search, sort: sortBy, sortDirection: sortDir, filters,
     });
-    if (result.isSuccess) return { success: true, games: GamePresenter.toViewModelList(result.getValue()) };
+    if (result.isSuccess) {
+        const { data, totalCount } = result.getValue();
+        return { success: true, games: GamePresenter.toViewModelList(data), totalCount };
+    }
     console.error("Failed to fetch more games:", result.getError().message);
-    return { success: false, error: result.getError().message, games: [] };
+    return { success: false, error: result.getError().message, games: [], totalCount: 0 };
 }
 
 // ─── Single Game Fetch (Game Details Page) ───────────────────────────────────

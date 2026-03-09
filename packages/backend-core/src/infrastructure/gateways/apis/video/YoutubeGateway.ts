@@ -12,6 +12,9 @@ export class YoutubeGateway extends AxiosRateLimitedGateway implements IVideoGat
     private static readonly RATE_LIMIT_MS = 200;
     private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
 
+    // Flag to quickly short-circuit future searches once daily quota is hit
+    private quotaExceeded = false;
+
     constructor(
         private readonly apiKey: string,
         private readonly channelId: string,
@@ -21,34 +24,54 @@ export class YoutubeGateway extends AxiosRateLimitedGateway implements IVideoGat
     }
 
     private async searchVideos(cleanTitle: string): Promise<VideoEntity[] | null> {
-        this.logger.info(`[Youtube] Searching video for "${cleanTitle}"...`);
-
-        const response = await axios.get<YoutubeVideoResponse>(this.baseUrl, {
-            params: {
-                key: this.apiKey,
-                channelId: this.channelId,
-                q: cleanTitle,
-                part: 'snippet',
-                type: 'video',
-                maxResults: 5,
-                order: 'relevance'
-            }
-        });
-
-        const relevant = this.filterRelevantVideos(cleanTitle, response.data.items);
-
-        if (relevant.length > 0) {
-            this.logger.info(`[Youtube] Found ${relevant.length} video(s) for "${cleanTitle}".`);
-            return relevant;
+        if (this.quotaExceeded) {
+            return null;
         }
 
-        const totalFound = response.data.items?.length ?? 0;
-        this.logger.info(
-            totalFound > 0
-                ? `[Youtube] Videos found but none were sufficiently relevant for "${cleanTitle}".`
-                : `[Youtube] No video found for "${cleanTitle}" on the channel.`
-        );
-        return null;
+        this.logger.info(`[Youtube] Searching video for "${cleanTitle}"...`);
+
+        try {
+            const response = await axios.get<YoutubeVideoResponse>(this.baseUrl, {
+                params: {
+                    key: this.apiKey,
+                    channelId: this.channelId,
+                    q: cleanTitle,
+                    part: 'snippet',
+                    type: 'video',
+                    maxResults: 5,
+                    order: 'relevance'
+                }
+            });
+
+            const relevant = this.filterRelevantVideos(cleanTitle, response.data.items);
+
+            if (relevant.length > 0) {
+                this.logger.info(`[Youtube] Found ${relevant.length} video(s) for "${cleanTitle}".`);
+                return relevant;
+            }
+
+            const totalFound = response.data.items?.length ?? 0;
+            this.logger.info(
+                totalFound > 0
+                    ? `[Youtube] Videos found but none were sufficiently relevant for "${cleanTitle}".`
+                    : `[Youtube] No video found for "${cleanTitle}" on the channel.`
+            );
+            return null;
+
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 403) {
+                // Safely cast response data since we know it's an AxiosError but TS doesn't know its payload shape
+                const responseData = error.response.data as { error?: { message?: string } } | undefined;
+                const message = responseData?.error?.message || '';
+
+                if (message.toLowerCase().includes('quota')) {
+                    this.logger.warn('[Youtube] Daily API Quota Exceeded (403). Gracefully disabling YouTube search for the remainder of this execution.');
+                    this.quotaExceeded = true;
+                    return null; // Return null to fail gracefully and allow game enrichment to continue 
+                }
+            }
+            throw error; // Re-throw for base RateLimitedGateway to handle other errors (e.g., 500s)
+        }
     }
 
     private filterRelevantVideos(cleanTitle: string, items: YoutubeVideoResponse['items']): VideoEntity[] {

@@ -1,6 +1,7 @@
 import { ILoggerService } from '../../../domain/services/ILoggerService';
 import { Result } from '../../../domain/common/Result';
-import { Failure } from '../../../domain/common/Failure';
+import { Failure, ServerFailure } from '../../../domain/common/Failure';
+
 
 /**
  * Abstract base class for external API gateways requiring rate limiting.
@@ -33,19 +34,48 @@ export abstract class RateLimitedGateway {
     /**
      * Template method: applies the full rate-limited request lifecycle.
      * Handles delay → execute → Result wrapping → error parsing.
+     * Includes exponential backoff for 429 Too Many Requests.
      */
     protected async executeWithRateLimit<T>(
         cleanTitle: string,
         apiName: string,
-        operation: () => Promise<T | null>
+        operation: () => Promise<T | null>,
+        maxRetries: number = 3
     ): Promise<Result<T | null, Failure>> {
-        await this.delayNextRequest();
-        try {
-            const result = await operation();
-            return Result.ok(result);
-        } catch (error: unknown) {
-            return Result.fail(this.parseError(error, cleanTitle, apiName));
+        let attempt = 0;
+        let lastFailure: Failure | null = null;
+
+        while (attempt <= maxRetries) {
+            await this.delayNextRequest();
+
+            try {
+                const result = await operation();
+                return Result.ok(result);
+            } catch (error: unknown) {
+                const failure = this.parseError(error, cleanTitle, apiName);
+                lastFailure = failure;
+
+                // If it's a Rate Limit Exceeded error (usually 429 from HTTP clients)
+                // Implement exponential backoff.
+                if (failure.message.includes('429')) {
+                    attempt++;
+                    if (attempt <= maxRetries) {
+                        const backoffMs = this.requestDelayMs * Math.pow(2, attempt); // 2x, 4x, 8x
+                        this.logger.warn(
+                            `[${apiName}] 429 Too Many Requests for "${cleanTitle}". ` +
+                            `Retrying in ${backoffMs}ms (Attempt ${attempt}/${maxRetries})...`
+                        );
+                        await new Promise(resolve => setTimeout(resolve, backoffMs));
+                        continue;
+                    }
+                }
+
+                // For non-429 errors or if max retries exceeded for 429s, fail immediately
+                return Result.fail(failure);
+            }
         }
+
+        return Result.fail(lastFailure || new ServerFailure('Unknown failure during execution'));
     }
 
     /**

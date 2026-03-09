@@ -93,6 +93,7 @@ export const GameCard = memo(function GameCard({ game, wantToPlay, ignored, onTo
                                     className="hover:scale-110 transition-transform opacity-90 hover:opacity-100"
                                     title={`Abrir página na loja: ${s.name}`}
                                 >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={s.icon} alt={s.name} className="w-4 h-4 rounded-sm object-cover bg-black/20" />
                                 </a>
                             ))}

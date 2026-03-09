@@ -14,6 +14,7 @@ export function useGameDashboard({ initialGames, initialStats }: UseGameDashboar
 
     const pagination = useGamePagination({
         initialGames,
+        initialTotalCount: initialStats.total,
         search: filters.search,
         sortBy: filters.sortBy,
         sortDir: filters.sortDir,
@@ -26,7 +27,7 @@ export function useGameDashboard({ initialGames, initialStats }: UseGameDashboar
     });
 
     const globalStats = {
-        total: initialStats.total,
+        total: pagination.totalCount,
         wantToPlay: preferences.prefStats.wantToPlay,
         ignored: preferences.prefStats.ignored
     };
