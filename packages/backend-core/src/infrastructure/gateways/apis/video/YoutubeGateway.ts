@@ -14,6 +14,7 @@ export class YoutubeGateway extends AxiosRateLimitedGateway implements IVideoGat
 
     // Flag to quickly short-circuit future searches once daily quota is hit
     private quotaExceeded = false;
+    private quotaExceededMessage = '';
 
     constructor(
         private readonly apiKey: string,
@@ -25,7 +26,8 @@ export class YoutubeGateway extends AxiosRateLimitedGateway implements IVideoGat
 
     private async searchVideos(cleanTitle: string): Promise<VideoEntity[] | null> {
         if (this.quotaExceeded) {
-            return null;
+            // Re-throw so executeWithRateLimit wraps it in Result.fail
+            throw new Error(`YouTube Quota Exceeded: ${this.quotaExceededMessage}`);
         }
 
         this.logger.info(`[Youtube] Searching video for "${cleanTitle}"...`);
@@ -65,9 +67,10 @@ export class YoutubeGateway extends AxiosRateLimitedGateway implements IVideoGat
                 const message = responseData?.error?.message || '';
 
                 if (message.toLowerCase().includes('quota')) {
-                    this.logger.warn('[Youtube] Daily API Quota Exceeded (403). Gracefully disabling YouTube search for the remainder of this execution.');
+                    this.quotaExceededMessage = message;
+                    this.logger.warn(`[Youtube] Daily API Quota Exceeded (403) — "${message}". Disabling YouTube search for the remainder of this run.`);
                     this.quotaExceeded = true;
-                    return null; // Return null to fail gracefully and allow game enrichment to continue 
+                    throw new Error(`YouTube Quota Exceeded: ${message}`);
                 }
             }
             throw error; // Re-throw for base RateLimitedGateway to handle other errors (e.g., 500s)

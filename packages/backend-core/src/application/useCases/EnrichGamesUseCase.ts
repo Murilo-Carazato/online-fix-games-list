@@ -198,7 +198,7 @@ export class EnrichGamesUseCase {
         let enriched = 0;
         let failed = 0;
         let skipped = 0;
-        const failedDetails: Array<{ title: string, reason: string }> = [];
+        const failedDetails: Array<{ title: string; reason: string; partialWarnings?: string[] }> = [];
 
         const results: EnrichedGameEntity[] = [];
 
@@ -243,6 +243,15 @@ export class EnrichGamesUseCase {
             this.logger.info(`[${cleanTitle}] ✓ Enriched (rating: ${merged.totalRating ?? 'N/A'})`);
             enriched++;
             results.push(merged);
+
+            // Log partial API warnings for games that were enriched but some APIs failed
+            if (externalData.warnings && externalData.warnings.length > 0) {
+                failedDetails.push({
+                    title: game.title,
+                    reason: 'Partially enriched — some API sources had issues',
+                    partialWarnings: externalData.warnings,
+                });
+            }
         }
 
         return { results, enriched, failed, skipped, failedDetails };

@@ -54,11 +54,14 @@ export interface RawgGameData extends BaseGameData {
 /**
  * Value Object representing the aggregated result of external API lookups.
  * Constructed explicitly inside Gateways and returned as Result<ExternalGameData>.
+ * `warnings` carries partial failure messages so the use case can log them
+ * even when some APIs succeeded (e.g., IGDB found data but YouTube quota was exceeded).
  */
 export class ExternalGameData {
     constructor(
         public readonly igdbResult: Partial<IgdbGameData> | null,
         public readonly rawgResult: Partial<RawgGameData> | null,
-        public readonly videoResults: VideoEntity[] | null
+        public readonly videoResults: VideoEntity[] | null,
+        public readonly warnings: string[] = []
     ) { }
 }
