@@ -84,8 +84,8 @@ export default function GameDashboard({ initialGames, initialStats }: GameDashbo
                         sortBy={sortBy} setSortBy={setSortBy}
                         sortDir={sortDir} setSortDir={setSortDir}
                         search={search} setSearch={setSearch}
-                        resultCount={Object.keys(advancedFilters).length === 0 && !search ? globalStats.total : gamesList.length}
-                        hasMore={Object.keys(advancedFilters).length > 0 || !!search ? hasMore : false}
+                        resultCount={globalStats.total}
+                        hasMore={hasMore}
                         activeFiltersCount={Object.keys(advancedFilters).length}
                         onOpenFilter={() => setIsDrawerOpen(true)}
                     />
