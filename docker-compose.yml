@@ -1,45 +1,44 @@
 services:
-  # Development environment container to run npm/node commands
-  dev:
-    image: node:20-alpine
-    container_name: hydra-dev
-    profiles: ["dev"]
-    working_dir: /app
-    volumes:
-      - ./:/app
-      - dev_node_modules:/app/node_modules
-    env_file:
-      - .env
-    command: tail -f /dev/null
-
-  # Next.js Web App dev server
+  # Next.js Frontend (BFF)
   web:
-    image: node:20-alpine
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    image: localhost/hydra-web
     container_name: hydra-web
-    working_dir: /app/apps/web
-    volumes:
-      - ./:/app
-      # Isolated volumes in Docker's Linux filesystem — avoids WSL↔Windows I/O bottleneck
-      - web_node_modules:/app/node_modules
-      - web_app_node_modules:/app/apps/web/node_modules
-      - web_next_cache:/app/apps/web/.next
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
     env_file:
       - .env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - HOSTNAME=0.0.0.0
-      - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
+      - API_URL=http://api:3001
       - NEXT_TELEMETRY_DISABLED=1
-    command: sh -c "cd /app && npm install && npx turbo run build --filter=@hydra/backend-core && npm run db:push --workspace=@hydra/backend-core && cd apps/web && npm run dev"
+    depends_on:
+      - api
+
+  # Hono API Backend
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: localhost/hydra-api
+    container_name: hydra-api
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
     depends_on:
       db:
         condition: service_healthy
 
   # Dedicated explicit profile for running the data enrichment script
   enrich:
-    image: node:20-alpine
+    image: docker.io/library/node:20-alpine
     container_name: hydra-enrich
     profiles: ["enrich"]
     working_dir: /app/apps/backend
@@ -50,19 +49,21 @@ services:
       - .env
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
-    command: sh -c "cd /app && npm install && npx turbo run build --filter=@hydra/backend-core && cd apps/backend && npm run start"
+    command: sh -c "cd /app && npm install && cd packages/backend-core && npm run db:push && cd /app && npx turbo run build --filter=@hydra/backend-core --no-daemon --no-cache && cd apps/backend && npm run start"
     depends_on:
       db:
         condition: service_healthy
 
   # PostgreSQL Database for the application
   db:
-    image: postgres:15-alpine
+    image: docker.io/library/postgres:15-alpine
     container_name: hydra-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: hydradb
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -75,6 +76,3 @@ services:
 volumes:
   pgdata:
   dev_node_modules:
-  web_node_modules:
-  web_app_node_modules:
-  web_next_cache:

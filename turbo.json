@@ -16,6 +16,12 @@
                 "^lint"
             ]
         },
+        "start": {
+            "dependsOn": [
+                "^build"
+            ],
+            "cache": false
+        },
         "dev": {
             "cache": false,
             "persistent": true

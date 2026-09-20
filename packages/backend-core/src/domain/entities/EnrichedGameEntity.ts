@@ -5,9 +5,9 @@ import { IgdbLanguageSupport, IgdbExternalGame, RawgRating } from '../data/Exter
 export class EnrichedGameEntity extends HydraGameEntity {
   public isEnriched: boolean;
 
-  // Identifiers
   public igdbId?: number | null;
   public rawgId?: number | null;
+  public youtubeFetchFailed?: boolean = false;
 
   // Shared Core Data
   public totalRating?: number | null;
@@ -60,6 +60,7 @@ export class EnrichedGameEntity extends HydraGameEntity {
     if (this.totalRatingCount !== other.totalRatingCount) return true;
     if (this.playtime !== other.playtime) return true;
     if (this.coverUrl !== other.coverUrl) return true;
+    if (this.youtubeFetchFailed !== other.youtubeFetchFailed) return true;
 
     // Quick string-match for nested value-objects. Assuming deterministic array ordering from APIs.
     const stringify = (val: unknown) => JSON.stringify(val ?? null);

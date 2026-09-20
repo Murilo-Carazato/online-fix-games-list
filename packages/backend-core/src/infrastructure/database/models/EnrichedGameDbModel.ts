@@ -20,6 +20,7 @@ export interface EnrichedGameDbModel {
         totalRating: number | null;
         totalRatingCount: number | null;
         addedTotal: number | null;
+        youtubeFetchFailed: boolean;
         updatedAt: Date;
     };
     igdbVideos: {

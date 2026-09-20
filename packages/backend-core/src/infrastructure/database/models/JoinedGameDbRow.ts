@@ -5,7 +5,7 @@ import { RawgRating } from "../../../domain/data/ExternalGameData";
  * (e.g., via GameQueryAssembler) before it is mapped to a Domain Entity.
  */
 export interface JoinedGameDbRow {
-    game: { id: number; title: string; fileSizeValue: number | null; fileSizeUnit: string | null; uploadDate: Date; isEnriched: boolean; igdbId: number | null; rawgId: number | null; playtime: number | null; coverUrl: string | null; totalRating: number | null; totalRatingCount: number | null; addedTotal: number | null };
+    game: { id: number; title: string; fileSizeValue: number | null; fileSizeUnit: string | null; uploadDate: Date; isEnriched: boolean; igdbId: number | null; rawgId: number | null; playtime: number | null; coverUrl: string | null; totalRating: number | null; totalRatingCount: number | null; addedTotal: number | null; youtubeFetchFailed: boolean };
     genres: string[];
     themes: string[];
     modes: string[];

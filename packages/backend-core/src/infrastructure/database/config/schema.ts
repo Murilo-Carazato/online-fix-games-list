@@ -136,6 +136,7 @@ export const games = pgTable("games", {
     totalRating: real("total_rating"),
     totalRatingCount: integer("total_rating_count"),
     addedTotal: integer("added_total"),
+    youtubeFetchFailed: boolean("youtube_fetch_failed").default(false).notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

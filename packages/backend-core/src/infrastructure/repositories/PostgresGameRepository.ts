@@ -1,4 +1,4 @@
-import { eq, ilike, desc, asc, inArray, between, exists, and, or, sql } from "drizzle-orm";
+import { eq, ilike, desc, asc, inArray, between, exists, and, or, sql, isNotNull } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "../database/config";
 import { games, gameGenres, genres, gameThemes, themes, gameGameModes, gameModes, gameLanguages, languages, gameExternalLinks, stores, alanzokaVideos, videos, screenshots } from "../database/config/schema";
@@ -107,7 +107,7 @@ export class PostgresGameRepository implements IGameRepository {
             const rows = await db
                 .select({ title: games.title })
                 .from(games)
-                .where(sql`${games.igdbId} IS NOT NULL`);
+                .where(and(isNotNull(games.igdbId), eq(games.youtubeFetchFailed, false)));
 
             return Result.ok(new Set(rows.map(r => r.title)));
         } catch (error: unknown) {

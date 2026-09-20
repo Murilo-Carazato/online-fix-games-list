@@ -108,6 +108,7 @@ export class GameMapper {
                 totalRating: entity.totalRating ?? null,
                 totalRatingCount: entity.totalRatingCount ?? null,
                 addedTotal: entity.added ?? null,
+                youtubeFetchFailed: entity.youtubeFetchFailed ?? false,
                 updatedAt: new Date(),
             },
             igdbVideos,
@@ -195,6 +196,7 @@ export class GameMapper {
         });
 
         entity.isEnriched = game.isEnriched;
+        entity.youtubeFetchFailed = game.youtubeFetchFailed;
         return entity;
     }
 }

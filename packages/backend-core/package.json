@@ -9,7 +9,7 @@
         "dev": "tsc --watch",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "tsx src/infrastructure/database/migrate.ts",
-        "db:push": "drizzle-kit push"
+        "db:push": "drizzle-kit push && tsx src/infrastructure/database/scripts/seed-stores.ts"
     },
     "dependencies": {
         "axios": "^1.6.0",

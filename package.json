@@ -13,5 +13,6 @@
     "devDependencies": {
         "turbo": "^1.11.2",
         "typescript": "^5.2.2"
-    }
+    },
+    "packageManager": "npm@10.8.2"
 }

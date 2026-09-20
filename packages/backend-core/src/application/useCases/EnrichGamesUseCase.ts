@@ -435,6 +435,11 @@ export class EnrichGamesUseCase {
             if (externalData.warnings && externalData.warnings.length > 0) {
                 const techWarnings = externalData.warnings.filter(w => this.isTechnicalWarning(w));
                 const notFoundWarnings = externalData.warnings.filter(w => this.isNotFoundWarning(w));
+                const youtubeTechWarnings = externalData.warnings.filter(w => this.isYouTubeTechnicalError(w));
+
+                if (youtubeTechWarnings.length > 0) {
+                    merged.youtubeFetchFailed = true;
+                }
 
                 if (techWarnings.length > 0) {
                     chunkBuckets.apiErrors.push({
