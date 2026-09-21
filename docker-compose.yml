@@ -1,24 +1,44 @@
+# declaro os 3 serviços
 services:
-  # Next.js Frontend (BFF)
+
+  # Frontend (Next.js)
   web:
+
+    # aponto onde está o dockerfile
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+
+    # dou nome para a imagem
     image: localhost/hydra-web
+
+    # dou nome para o container
     container_name: hydra-web
+
+    # coloco a porta (a que eu exponho no dockerfile), direciono a porta 3000 do seu OS para a 3000 do contêiner. *Se a minha 3000 tiver ocupada, eu posso colocar 8080:3000 que funcionaria
     ports:
       - "3000:3000"
+
     env_file:
       - .env
+    
     environment:
       - NODE_ENV=production
+      
+      # permite coneções externas
       - HOSTNAME=0.0.0.0
+
+      # aponto o endereço da api; 'api' é o nome do container, e ':3001' é a porta que eu exponho no dockerfile da api
       - API_URL=http://api:3001
+
+      # por padrão, o NEXT envia dados de uso dos DEVs para a vercel, usando recursos a mais
       - NEXT_TELEMETRY_DISABLED=1
+    
+    # O container WEB só liga se o container da API já estiver ligada.
     depends_on:
       - api
 
-  # Hono API Backend
+  # API(Hono)
   api:
     build:
       context: .
@@ -31,12 +51,15 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+
+      # conexão com o banco de dados, apontando para o contêiner "db"
       - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
+    
+    # O container API só liga se o container do banco de dados já estiver ligada.
     depends_on:
       db:
         condition: service_healthy
 
-  # Dedicated explicit profile for running the data enrichment script
   enrich:
     image: docker.io/library/node:20-alpine
     container_name: hydra-enrich
@@ -54,8 +77,9 @@ services:
       db:
         condition: service_healthy
 
-  # PostgreSQL Database for the application
   db:
+
+    # não criei dockerfile, usei a imagem já pronta do docker para o postgres
     image: docker.io/library/postgres:15-alpine
     container_name: hydra-db
     environment:
@@ -64,8 +88,12 @@ services:
       POSTGRES_DB: hydradb
     ports:
       - "5432:5432"
+
+    # Pega a partição 'pgdata' e salva os dados do banco de dados nela(path onde a imagem do postgres guarda os dados), para que ao finalizar o container, ainda existir o volume com os dados
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+    # Crio um serviço que fica "pingando" o banco (pg_isready) a cada 5 segundos para avisar a API que ele já ligou
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d hydradb"]
       interval: 5s
@@ -73,6 +101,11 @@ services:
       retries: 5
       start_period: 10s
 
+# Declara os volumes
 volumes:
+
+  # Cria uma partição no meu SO com o nome de 'pgdata'
   pgdata:
+
+  # *? como assim? eu acho q nem estou usando isso né?
   dev_node_modules:
