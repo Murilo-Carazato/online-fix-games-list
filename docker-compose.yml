@@ -15,9 +15,9 @@ services:
     # dou nome para o container
     container_name: hydra-web
 
-    # expõe a porta 3000 apenas na rede interna do Docker (o proxy do Coolify redireciona o domínio HTTPS para cá sem conflitar com outros alunos no servidor)
-    expose:
-      - "3000"
+    # Mapeia a porta 3000 do container para a porta 3025 do servidor host
+    ports:
+      - "3025:3000"
     
     environment:
       - NODE_ENV=production
