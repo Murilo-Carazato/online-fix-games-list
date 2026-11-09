@@ -1,0 +1,20 @@
+services:
+  enrich:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    image: localhost/hydra-enrich
+    container_name: hydra-enrich
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
+    command: sh -c "npm run db:push --workspace=packages/backend-core && npm run start --workspace=apps/backend"
+    # Este container roda na mesma rede do principal para conseguir acessar o banco 'db'
+    networks:
+      - default
+
+networks:
+  default:
+    name: online-fix-games-list_default
+    external: true

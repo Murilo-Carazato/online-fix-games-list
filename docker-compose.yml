@@ -25,6 +25,9 @@ services:
     environment:
       - NODE_ENV=production
       
+      # Ignora erros de SSL/TLS (UNABLE_TO_VERIFY_LEAF_SIGNATURE) ao baixar imagens externas no Next.js
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      
       # permite coneções externas
       - HOSTNAME=0.0.0.0
 
@@ -34,9 +37,10 @@ services:
       # por padrão, o NEXT envia dados de uso dos DEVs para a vercel, usando recursos a mais
       - NEXT_TELEMETRY_DISABLED=1
     
-    # O container WEB só liga se o container da API já estiver ligada.
+    # O container WEB só liga se o container da API já estiver ligada e saudável.
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   # API(Hono)
   api:
@@ -55,26 +59,19 @@ services:
       # conexão com o banco de dados, apontando para o contêiner "db"
       - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
     
+    # Pinga a API para saber se ela já está aceitando requisições
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3001/ || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
     # O container API só liga se o container do banco de dados já estiver ligada.
     depends_on:
       db:
         condition: service_healthy
 
-  enrich:
-    build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
-    image: localhost/hydra-enrich
-    container_name: hydra-enrich
-    profiles: ["enrich"]
-    env_file:
-      - .env
-    environment:
-      - DATABASE_URL=postgres://postgres:password@db:5432/hydradb
-    command: sh -c "npm run db:push --workspace=packages/backend-core && npm run start --workspace=apps/backend"
-    depends_on:
-      db:
-        condition: service_healthy
+
 
   db:
 
