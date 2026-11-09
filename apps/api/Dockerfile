@@ -50,8 +50,12 @@ FROM docker.io/library/node:20-alpine AS runner
 # cria o dir para ela
 WORKDIR /app
 
-# copia o código + deps prontas do installer
+# instala o cliente do postgres para restaurar o backup do banco automaticamente caso esteja vazio
+RUN apk add --no-cache postgresql-client
+
+# copia o código + deps prontas do installer e o backup do banco
 COPY --from=installer /app/ .
+COPY --from=builder /app/hydradb_backup.sql ./hydradb_backup.sql
 
 # Seta Node.js que estamos em produção (tira a depuração, logs de debug, ficando mais rápido)
 ENV NODE_ENV=production
@@ -59,5 +63,5 @@ ENV NODE_ENV=production
 # aponta que o container usará a porta 3001
 EXPOSE 3001
 
-# quando o container liga, roda isso dentro dele para iniciar a api
-CMD ["node", "apps/api/dist/index.js"]
+# quando o container liga, restaura o hydradb_backup.sql se a tabela games ainda não existir e inicia a api
+CMD ["sh", "-c", "psql \"$DATABASE_URL\" -tAc \"SELECT to_regclass('public.games');\" | grep -q games || (echo 'Restaurando hydradb_backup.sql...' && sed '/^\\\\restrict/d; /^\\\\unrestrict/d' /app/hydradb_backup.sql | psql \"$DATABASE_URL\"); exec node apps/api/dist/index.js"]

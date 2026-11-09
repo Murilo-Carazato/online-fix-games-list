@@ -15,12 +15,9 @@ services:
     # dou nome para o container
     container_name: hydra-web
 
-    # coloco a porta (a que eu exponho no dockerfile), direciono a porta 3000 do seu OS para a 3000 do contêiner. *Se a minha 3000 tiver ocupada, eu posso colocar 8080:3000 que funcionaria
-    ports:
-      - "3000:3000"
-
-    env_file:
-      - .env
+    # expõe a porta 3000 apenas na rede interna do Docker (o proxy do Coolify redireciona o domínio HTTPS para cá sem conflitar com outros alunos no servidor)
+    expose:
+      - "3000"
     
     environment:
       - NODE_ENV=production
@@ -49,10 +46,8 @@ services:
       dockerfile: apps/api/Dockerfile
     image: localhost/hydra-api
     container_name: hydra-api
-    ports:
-      - "3001:3001"
-    env_file:
-      - .env
+    expose:
+      - "3001"
     environment:
       - NODE_ENV=production
 
@@ -64,7 +59,8 @@ services:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3001/ || exit 1"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
 
     # O container API só liga se o container do banco de dados já estiver ligada.
     depends_on:
@@ -82,8 +78,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: hydradb
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
 
     # Pega a partição 'pgdata' e salva os dados do banco de dados nela(path onde a imagem do postgres guarda os dados), para que ao finalizar o container, ainda existir o volume com os dados
     volumes:
